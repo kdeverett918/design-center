@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ArrowLeftRight } from 'lucide-react';
-import type { Theme } from '../types';
+import { useSearchParams } from 'react-router-dom';
+import { ArrowLeftRight, Check, Link2 } from 'lucide-react';
 import { configForTheme } from '../preview/previewConfig';
 import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
@@ -88,28 +88,48 @@ function CompareSlot({
   );
 }
 
-// Seed a slot from the user's favorited themes, falling back to a default theme.
-function seedSlot(favIds: string[], favIndex: number, fallback: Theme): string {
-  const favId = favIds[favIndex];
-  if (favId && themeById(favId)) return favId;
-  return fallback.id;
+// Resolve a slot's theme id: a valid URL param wins, else the favorited fallback
+// captured for a fresh visit, else the default theme for that slot.
+function resolveSlot(param: string | null, seed: string): string {
+  if (param && themeById(param)) return param;
+  return seed;
 }
 
 export default function CompareView() {
   const { ids } = useFavorites();
+  const [params, setParams] = useSearchParams();
 
-  // Read favorites ONCE via a lazy initializer so seeding doesn't fight user
-  // edits and we never setState in an effect.
-  const [slotA, setSlotA] = useState<string>(() =>
-    seedSlot(ids('theme'), 0, themes[0]!),
-  );
-  const [slotB, setSlotB] = useState<string>(() =>
-    seedSlot(ids('theme'), 1, themes[1]!),
-  );
+  // Capture the favorited shortlist ONCE so seeding (for a fresh visit with no
+  // ?a/?b) doesn't fight later edits. The URL is the source of truth for the
+  // active pair — these are only fallbacks when a param is absent/invalid.
+  const [seeds] = useState<{ a: string; b: string }>(() => {
+    const favIds = ids('theme');
+    const seedA = favIds[0] && themeById(favIds[0]) ? favIds[0] : themes[0]!.id;
+    const seedB = favIds[1] && themeById(favIds[1]) ? favIds[1] : themes[1]!.id;
+    return { a: seedA, b: seedB };
+  });
 
-  const swap = () => {
-    setSlotA(slotB);
-    setSlotB(slotA);
+  const aId = resolveSlot(params.get('a'), seeds.a);
+  const bId = resolveSlot(params.get('b'), seeds.b);
+
+  // Keep both params present once a selection is made so the link is shareable.
+  const setPair = (next: { a: string; b: string }) => {
+    setParams({ a: next.a, b: next.b }, { replace: false });
+  };
+
+  const setSlotA = (id: string) => setPair({ a: id, b: bId });
+  const setSlotB = (id: string) => setPair({ a: aId, b: id });
+  const swap = () => setPair({ a: bId, b: aId });
+
+  const [copied, setCopied] = useState(false);
+  const shareComparison = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable */
+    }
   };
 
   return (
@@ -124,19 +144,33 @@ export default function CompareView() {
             each side, then decide which direction feels right.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={swap}
-          className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-1.5 text-sm font-medium text-shell-mute transition-colors hover:text-shell-ink"
-        >
-          <ArrowLeftRight size={15} />
-          Swap
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={swap}
+            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-1.5 text-sm font-medium text-shell-mute transition-colors hover:text-shell-ink"
+          >
+            <ArrowLeftRight size={15} />
+            Swap
+          </button>
+          <button
+            type="button"
+            onClick={shareComparison}
+            className="flex items-center gap-1.5 rounded-full border border-shell-line px-3 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+          >
+            {copied ? (
+              <Check size={13} className="text-emerald-400" />
+            ) : (
+              <Link2 size={13} className="text-shell-glow" />
+            )}
+            {copied ? 'Copied' : 'Share comparison'}
+          </button>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <CompareSlot slot="A" themeId={slotA} onChange={setSlotA} />
-        <CompareSlot slot="B" themeId={slotB} onChange={setSlotB} />
+        <CompareSlot slot="A" themeId={aId} onChange={setSlotA} />
+        <CompareSlot slot="B" themeId={bId} onChange={setSlotB} />
       </div>
     </div>
   );

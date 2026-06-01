@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ClipboardCopy, Printer } from 'lucide-react';
+import { Check, ClipboardCopy, Download, Mail, Printer } from 'lucide-react';
 import { buildBriefText, COLOR_ROLES } from './buildBrief';
 import type { BriefInput } from './buildBrief';
+import { toCssVars, toJson, toTailwind } from '../../lib/designTokens';
 
 type BriefSummaryProps = BriefInput;
 
@@ -19,6 +20,28 @@ export default function BriefSummary(props: BriefSummaryProps) {
     } catch {
       /* clipboard unavailable — no-op */
     }
+  };
+
+  const slug = brand.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'brief';
+
+  const downloadBrief = () => {
+    try {
+      const blob = new Blob([buildBriefText(props)], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `design-brief-${slug}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      /* download unavailable */
+    }
+  };
+
+  const emailBrief = () => {
+    const subject = encodeURIComponent(`Design brief — ${brand}`);
+    const body = encodeURIComponent(buildBriefText(props));
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -92,9 +115,60 @@ export default function BriefSummary(props: BriefSummaryProps) {
         </p>
       )}
 
+      {/* export & developer handoff */}
+      <div className="mt-4 border-t border-shell-line pt-4">
+        <div className="mb-2 text-[10px] uppercase tracking-wide text-shell-mute">Export &amp; handoff</div>
+        <div className="flex flex-wrap gap-1.5">
+          <CopyChip label="CSS vars" getText={() => toCssVars(palette, fonts)} />
+          <CopyChip label="JSON" getText={() => toJson(palette, fonts, config)} />
+          <CopyChip label="Tailwind" getText={() => toTailwind(palette, fonts)} />
+          <button
+            type="button"
+            onClick={downloadBrief}
+            className="flex items-center gap-1 rounded-lg border border-shell-line px-2.5 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+          >
+            <Download size={12} className="text-shell-mute" /> Download
+          </button>
+          <button
+            type="button"
+            onClick={emailBrief}
+            className="flex items-center gap-1 rounded-lg border border-shell-line px-2.5 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+          >
+            <Mail size={12} className="text-shell-mute" /> Email
+          </button>
+        </div>
+      </div>
+
       {typeof document !== 'undefined' &&
         createPortal(<PrintBrief {...props} />, document.body)}
     </div>
+  );
+}
+
+// Copies generated text (CSS vars / JSON / Tailwind) with transient feedback.
+function CopyChip({ label, getText }: { label: string; getText: () => string }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(getText());
+          setDone(true);
+          window.setTimeout(() => setDone(false), 1500);
+        } catch {
+          /* clipboard unavailable */
+        }
+      }}
+      className="flex items-center gap-1 rounded-lg border border-shell-line px-2.5 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+    >
+      {done ? (
+        <Check size={12} className="text-emerald-400" />
+      ) : (
+        <ClipboardCopy size={12} className="text-shell-mute" />
+      )}
+      {done ? 'Copied' : label}
+    </button>
   );
 }
 

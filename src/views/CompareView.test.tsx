@@ -5,9 +5,9 @@ import { MemoryRouter } from 'react-router-dom';
 import FavoritesProvider from '../contexts/FavoritesProvider';
 import CompareView from './CompareView';
 
-function renderView() {
+function renderView(entry = '/compare?a=obsidian&b=stillwater') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[entry]}>
       <FavoritesProvider>
         <CompareView />
       </FavoritesProvider>
@@ -16,17 +16,17 @@ function renderView() {
 }
 
 describe('CompareView', () => {
-  it('renders two theme selects and two live preview regions', () => {
+  it('reflects the ?a / ?b params in the two selects and previews', () => {
     renderView();
 
     const selectA = screen.getByRole('combobox', { name: /theme for slot a/i });
     const selectB = screen.getByRole('combobox', { name: /theme for slot b/i });
-    expect(selectA).toBeInTheDocument();
-    expect(selectB).toBeInTheDocument();
+    expect(selectA).toHaveValue('obsidian');
+    expect(selectB).toHaveValue('stillwater');
 
-    // Default seeds: slot A = themes[0] (Stillwater), slot B = themes[1] (Vital).
+    // Readouts match the param-driven themes.
+    expect(screen.getByRole('heading', { name: 'Obsidian' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Stillwater' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Vital' })).toBeInTheDocument();
 
     // Both previews mount a themed token scope (PreviewFrame's [data-dark] root).
     expect(document.querySelectorAll('[data-dark]').length).toBeGreaterThanOrEqual(2);
@@ -37,12 +37,12 @@ describe('CompareView', () => {
     renderView();
 
     const selectA = screen.getByRole('combobox', { name: /theme for slot a/i });
-    await user.selectOptions(selectA, 'obsidian');
+    await user.selectOptions(selectA, 'vital');
 
     // The slot's readout label now reflects the chosen theme.
-    expect(screen.getByRole('heading', { name: 'Obsidian' })).toBeInTheDocument();
-    // Slot B is untouched.
     expect(screen.getByRole('heading', { name: 'Vital' })).toBeInTheDocument();
+    // Slot B is untouched.
+    expect(screen.getByRole('heading', { name: 'Stillwater' })).toBeInTheDocument();
   });
 
   it('swaps the two slots', async () => {
@@ -52,10 +52,10 @@ describe('CompareView', () => {
     const sectionA = screen
       .getByRole('combobox', { name: /theme for slot a/i })
       .closest('section')!;
-    expect(within(sectionA).getByRole('heading', { name: 'Stillwater' })).toBeInTheDocument();
+    expect(within(sectionA).getByRole('heading', { name: 'Obsidian' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /swap/i }));
 
-    expect(within(sectionA).getByRole('heading', { name: 'Vital' })).toBeInTheDocument();
+    expect(within(sectionA).getByRole('heading', { name: 'Stillwater' })).toBeInTheDocument();
   });
 });
