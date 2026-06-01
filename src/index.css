@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   Design tokens — default values.
+   These are the variables the whole token system reads. applyTheme() overrides
+   them on any scoped container (a card root or the preview frame) so multiple
+   themes coexist on one screen. The defaults below are a neutral light theme
+   used before any selection is applied.
+   ========================================================================== */
+:root {
+  --color-primary: #2b6cb0;
+  --color-secondary: #4fd1c5;
+  --color-accent: #f6ad55;
+  --color-ink: #1a202c;
+  --color-muted: #718096;
+  --color-surface: #f7fafc;
+  --color-bg: #ffffff;
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    /* The studio shell is a dark, restrained showroom so colorful previews pop. */
+    @apply bg-shell-base font-ui text-shell-ink;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(201, 184, 255, 0.3);
+  }
+}
+
+/* ===========================================================================
+   Cinematic film-grain noise overlay — kills the flat digital feel.
+   ========================================================================== */
+@layer base {
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+}
+
+/* ===========================================================================
+   Token-aware helpers — adapt to whatever palette is scoped via color-mix, so
+   lines and tints stay correct on light AND dark palettes without hardcoding.
+   ========================================================================== */
+@layer components {
+  .tk-line {
+    border-color: color-mix(in srgb, var(--color-ink) 12%, transparent);
+  }
+  .tk-line-strong {
+    border-color: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  }
+  .tk-tint-primary {
+    background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  }
+  .tk-tint-secondary {
+    background-color: color-mix(in srgb, var(--color-secondary) 18%, transparent);
+  }
+  .tk-tint-accent {
+    background-color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  }
+  .tk-shadow {
+    box-shadow:
+      0 1px 2px color-mix(in srgb, var(--color-ink) 8%, transparent),
+      0 12px 30px -12px color-mix(in srgb, var(--color-ink) 22%, transparent);
+  }
+  /* Gradient-drift hero background built from the scoped palette. */
+  .tk-mesh {
+    background-image: linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--color-primary) 90%, transparent),
+      color-mix(in srgb, var(--color-secondary) 80%, transparent),
+      color-mix(in srgb, var(--color-accent) 70%, transparent)
+    );
+    background-size: 180% 180%;
+  }
+}
+
+@layer utilities {
+  /* Thin, premium scrollbars inside preview frames. */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+  }
+}
