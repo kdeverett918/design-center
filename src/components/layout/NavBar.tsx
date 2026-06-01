@@ -6,6 +6,7 @@ import { useColorMode } from '../../hooks/useColorMode';
 const links = [
   { to: '/', label: 'Gallery', end: true },
   { to: '/moodboard', label: 'Mood board', end: false },
+  { to: '/compare', label: 'Compare', end: false },
 ];
 
 export default function NavBar() {

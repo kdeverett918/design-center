@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PreviewConfig } from '../preview/previewConfig';
 import { configForTheme, layoutToConfig } from '../preview/previewConfig';
+import { decodeConfig, encodeConfig } from '../preview/shareConfig';
 import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
 import { fontPairingById } from '../data/fonts';
@@ -19,7 +20,10 @@ export default function GalleryView() {
   const palette = useMemo(() => paletteById(theme.paletteId)!, [theme]);
   const fonts = useMemo(() => fontPairingById(theme.fontPairingId)!, [theme]);
 
-  const [config, setConfig] = useState<PreviewConfig>(() => configForTheme(theme));
+  // Initial config: a shared ?c= token wins, else the theme's defaults.
+  const [config, setConfig] = useState<PreviewConfig>(
+    () => decodeConfig(params.get('c')) ?? configForTheme(theme),
+  );
   // Reset layout/motion to the theme's defaults when the theme changes (incl. via
   // a ?theme= deep link) — the React-recommended "adjust state during render"
   // pattern, so no effect is needed.
@@ -48,6 +52,15 @@ export default function GalleryView() {
     }
     const patch = layoutToConfig(previewKey);
     if (patch) setConfig((c) => ({ ...c, ...patch }));
+  };
+
+  const shareGallery = async () => {
+    const url = `${window.location.origin}/?theme=${activeThemeId}&c=${encodeConfig(config)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      /* clipboard unavailable */
+    }
   };
 
   return (
@@ -84,6 +97,7 @@ export default function GalleryView() {
               title={theme.name}
               subtitle={`${theme.tagline} · ${palette.name} · ${fonts.name}`}
               favorite={{ kind: 'theme', id: theme.id, label: theme.name }}
+              onShare={shareGallery}
             />
           </div>
         </div>

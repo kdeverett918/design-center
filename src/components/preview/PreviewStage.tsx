@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Eye, X } from 'lucide-react';
+import { Check, Eye, Link2, X } from 'lucide-react';
 import type { FavoriteKind, FontPairing, Palette } from '../../types';
 import type { DeviceMode, PreviewConfig } from '../../preview/previewConfig';
 import PreviewControls from './PreviewControls';
@@ -18,6 +18,8 @@ interface PreviewStageProps {
   title: string;
   subtitle: string;
   favorite?: { kind: FavoriteKind; id: string; label: string };
+  /** When provided, shows a "Share" button that calls this to copy a link. */
+  onShare?: () => void | Promise<void>;
   /** Inline preview height in px. */
   height?: number;
 }
@@ -32,8 +34,10 @@ export default function PreviewStage({
   title,
   subtitle,
   favorite,
+  onShare,
   height = 520,
 }: PreviewStageProps) {
+  const [shared, setShared] = useState(false);
   // Default to the mobile frame on small screens — a 1280px desktop render
   // scaled into a ~340px column is illegible; mobile sits near 1:1.
   const [device, setDevice] = useState<DeviceMode>(() =>
@@ -88,9 +92,25 @@ export default function PreviewStage({
           </div>
           <p className="mt-0.5 truncate text-[11px] text-shell-mute">{subtitle}</p>
         </div>
-        {favorite && (
-          <FavoriteStar kind={favorite.kind} id={favorite.id} label={favorite.label} tone="shell" />
-        )}
+        <div className="flex shrink-0 items-center gap-2">
+          {onShare && (
+            <button
+              type="button"
+              onClick={async () => {
+                await onShare();
+                setShared(true);
+                window.setTimeout(() => setShared(false), 1800);
+              }}
+              className="flex items-center gap-1.5 rounded-full border border-shell-line px-3 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+            >
+              {shared ? <Check size={13} className="text-emerald-400" /> : <Link2 size={13} className="text-shell-glow" />}
+              {shared ? 'Copied' : 'Share'}
+            </button>
+          )}
+          {favorite && (
+            <FavoriteStar kind={favorite.kind} id={favorite.id} label={favorite.label} tone="shell" />
+          )}
+        </div>
       </div>
 
       <PreviewControls

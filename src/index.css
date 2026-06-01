@@ -146,6 +146,39 @@
   }
 }
 
+/* ===========================================================================
+   Print: show ONLY the design brief, monochrome on white (clean PDF export).
+   ========================================================================== */
+/* The print brief is portaled to <body> and hidden on screen; in print we hide
+   the app (#root) and show only this block, monochrome on white. */
+.print-only {
+  display: none;
+}
+@media print {
+  @page {
+    margin: 1.4cm;
+  }
+  html,
+  body {
+    background: #ffffff !important;
+  }
+  body::after {
+    content: none !important;
+  }
+  #root {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-only,
+  .print-only * {
+    color: #111111 !important;
+  }
+}
+
 @layer utilities {
   /* Thin, premium scrollbars inside preview frames. */
   .scrollbar-thin {

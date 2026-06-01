@@ -9,6 +9,7 @@ import ErrorBoundary from './components/layout/ErrorBoundary';
 const GalleryView = lazy(() => import('./views/GalleryView'));
 const MoodBoardView = lazy(() => import('./views/MoodBoardView'));
 const FavoritesView = lazy(() => import('./views/FavoritesView'));
+const CompareView = lazy(() => import('./views/CompareView'));
 
 function ViewFallback() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<GalleryView />} />
               <Route path="/moodboard" element={<MoodBoardView />} />
+              <Route path="/compare" element={<CompareView />} />
               <Route path="/favorites" element={<FavoritesView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

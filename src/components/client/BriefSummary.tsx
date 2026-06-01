@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ClipboardCopy, Printer } from 'lucide-react';
 import { buildBriefText, COLOR_ROLES } from './buildBrief';
 import type { BriefInput } from './buildBrief';
@@ -89,6 +91,9 @@ export default function BriefSummary(props: BriefSummaryProps) {
           “{notes.trim()}”
         </p>
       )}
+
+      {typeof document !== 'undefined' &&
+        createPortal(<PrintBrief {...props} />, document.body)}
     </div>
   );
 }
@@ -100,6 +105,102 @@ function Row({ label, value }: { label: string; value: string }) {
       <dd className="truncate font-medium capitalize text-shell-ink" title={value}>
         {value}
       </dd>
+    </div>
+  );
+}
+
+const niceLabel = (key: string) =>
+  key.replace(/^(nav|footer|sec|hero|card)-/, '').replace(/-/g, ' ');
+
+// Clean, monochrome, paper-friendly brief. Hidden on screen; shown only in print
+// (portaled to <body> so the rest of the app can be display:none in @media print).
+function PrintBrief({ brand, themeName, palette, fonts, config, notes }: BriefSummaryProps) {
+  return (
+    <div className="print-only" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#111' }}>
+      <div style={{ borderBottom: '2px solid #111', paddingBottom: 12, marginBottom: 20 }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#666' }}>
+          Tech SLP Studio · Design Brief
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 700, marginTop: 6 }}>{brand}</div>
+        <div style={{ fontSize: 13, color: '#555', marginTop: 2 }}>
+          {themeName ? `Based on the ${themeName} theme` : 'Custom mix'}
+        </div>
+      </div>
+
+      <PrintSection title={`Color palette — ${palette.name}${palette.isDark ? ' (dark)' : ''}`}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {COLOR_ROLES.map((r) => (
+            <div key={r} style={{ width: 92 }}>
+              <div
+                style={{
+                  height: 44,
+                  borderRadius: 6,
+                  border: '1px solid #ddd',
+                  background: palette.colors[r],
+                }}
+              />
+              <div style={{ fontSize: 10, marginTop: 4, textTransform: 'capitalize' }}>{r}</div>
+              <div style={{ fontSize: 11, fontFamily: 'monospace', color: '#444' }}>
+                {palette.colors[r]}
+              </div>
+            </div>
+          ))}
+        </div>
+      </PrintSection>
+
+      <PrintSection title="Typography">
+        <PrintRow k="Heading" v={`${fonts.heading.family} (${fonts.heading.weights.join('/')})`} />
+        <PrintRow k="Body" v={`${fonts.body.family} (${fonts.body.weights.join('/')})`} />
+        <PrintRow k="Pairing" v={`${fonts.name} — ${fonts.personality}`} />
+      </PrintSection>
+
+      <PrintSection title="Layout & composition">
+        <PrintRow k="Hero" v={niceLabel(config.hero)} />
+        <PrintRow k="Cards" v={niceLabel(config.cardStyle)} />
+        <PrintRow k="Navigation" v={niceLabel(config.nav)} />
+        <PrintRow k="Footer" v={niceLabel(config.footer)} />
+        <PrintRow
+          k="Sections"
+          v={config.sections.length ? config.sections.map(niceLabel).join(', ') : 'none'}
+        />
+        <PrintRow k="Motion" v={config.motion} />
+      </PrintSection>
+
+      {notes?.trim() && (
+        <PrintSection title="Notes">
+          <div style={{ fontSize: 13, lineHeight: 1.5 }}>{notes.trim()}</div>
+        </PrintSection>
+      )}
+    </div>
+  );
+}
+
+function PrintSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <div
+        style={{
+          fontSize: 11,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: '#888',
+          borderBottom: '1px solid #eee',
+          paddingBottom: 6,
+          marginBottom: 10,
+        }}
+      >
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function PrintRow({ k, v }: { k: string; v: string }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0' }}>
+      <span style={{ color: '#666' }}>{k}</span>
+      <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{v}</span>
     </div>
   );
 }
