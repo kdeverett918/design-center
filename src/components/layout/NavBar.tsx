@@ -46,15 +46,21 @@ export default function NavBar() {
           </nav>
         </div>
 
-        <div
-          role="status"
-          aria-label={`${count} ${count === 1 ? 'item' : 'items'} favorited`}
-          className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-3.5 py-1.5 text-sm text-shell-mute"
+        <NavLink
+          to="/favorites"
+          aria-label={`Shortlist — ${count} ${count === 1 ? 'item' : 'items'} favorited`}
+          className={({ isActive }) =>
+            `flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+              isActive
+                ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
+                : 'border-shell-line bg-shell-panel text-shell-mute hover:text-shell-ink'
+            }`
+          }
         >
           <Star size={14} className="text-amber-400" aria-hidden="true" />
           <span className="font-medium text-shell-ink">{count}</span>
-          <span className="hidden sm:inline">favorited</span>
-        </div>
+          <span className="hidden sm:inline">shortlist</span>
+        </NavLink>
       </div>
     </header>
   );

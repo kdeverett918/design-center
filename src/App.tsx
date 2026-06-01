@@ -5,9 +5,10 @@ import FavoritesProvider from './contexts/FavoritesProvider';
 import NavBar from './components/layout/NavBar';
 import ErrorBoundary from './components/layout/ErrorBoundary';
 
-// Code-split the two views so the initial bundle stays lean.
+// Code-split the views so the initial bundle stays lean.
 const GalleryView = lazy(() => import('./views/GalleryView'));
 const MoodBoardView = lazy(() => import('./views/MoodBoardView'));
+const FavoritesView = lazy(() => import('./views/FavoritesView'));
 
 function ViewFallback() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<GalleryView />} />
               <Route path="/moodboard" element={<MoodBoardView />} />
+              <Route path="/favorites" element={<FavoritesView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -5,7 +5,7 @@ import FavoritesProvider from './FavoritesProvider';
 import { favKey, useFavorites } from './favoritesContext';
 
 function Probe() {
-  const { has, toggle, ids, count } = useFavorites();
+  const { has, toggle, ids, count, clear } = useFavorites();
   return (
     <div>
       <span data-testid="count">{count}</span>
@@ -14,6 +14,7 @@ function Probe() {
       <button onClick={() => toggle('theme', 'obsidian')}>theme</button>
       <button onClick={() => toggle('palette', 'reef')}>palette-reef</button>
       <button onClick={() => toggle('palette', 'meridian')}>palette-meridian</button>
+      <button onClick={() => clear()}>clear</button>
     </div>
   );
 }
@@ -61,6 +62,23 @@ describe('useFavorites within FavoritesProvider', () => {
     expect(screen.getByTestId('count').textContent).toBe('3');
     const paletteIds = screen.getByTestId('palette-ids').textContent!.split(',').sort();
     expect(paletteIds).toEqual(['meridian', 'reef']);
+  });
+
+  it('clear() empties the whole shortlist', async () => {
+    const user = userEvent.setup();
+    render(
+      <FavoritesProvider>
+        <Probe />
+      </FavoritesProvider>,
+    );
+
+    await user.click(screen.getByText('palette-reef'));
+    await user.click(screen.getByText('theme'));
+    expect(screen.getByTestId('count').textContent).toBe('2');
+
+    await user.click(screen.getByText('clear'));
+    expect(screen.getByTestId('count').textContent).toBe('0');
+    expect(screen.getByTestId('palette-ids').textContent).toBe('');
   });
 
   it('throws when used outside a provider', () => {

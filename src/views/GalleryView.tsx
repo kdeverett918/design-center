@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { PreviewConfig } from '../preview/previewConfig';
 import { configForTheme } from '../preview/previewConfig';
 import { themeById, themes } from '../data/themes';
@@ -8,18 +9,30 @@ import Gallery from '../components/gallery/Gallery';
 import PreviewStage from '../components/preview/PreviewStage';
 
 export default function GalleryView() {
-  const [activeThemeId, setActiveThemeId] = useState(themes[0]!.id);
-  const [config, setConfig] = useState<PreviewConfig>(() => configForTheme(themes[0]!));
+  const [params, setParams] = useSearchParams();
+  // Active theme is driven by the ?theme= URL param so previews are shareable
+  // and the favorites view can deep-link straight to one.
+  const paramTheme = params.get('theme');
+  const activeThemeId = paramTheme && themeById(paramTheme) ? paramTheme : themes[0]!.id;
 
   const theme = themeById(activeThemeId)!;
   const palette = useMemo(() => paletteById(theme.paletteId)!, [theme]);
   const fonts = useMemo(() => fontPairingById(theme.fontPairingId)!, [theme]);
 
+  const [config, setConfig] = useState<PreviewConfig>(() => configForTheme(theme));
+  // Reset layout/motion to the theme's defaults when the theme changes (incl. via
+  // a ?theme= deep link) — the React-recommended "adjust state during render"
+  // pattern, so no effect is needed.
+  const [prevThemeId, setPrevThemeId] = useState(theme.id);
+  if (theme.id !== prevThemeId) {
+    setPrevThemeId(theme.id);
+    setConfig(configForTheme(theme));
+  }
+
   const selectTheme = (id: string) => {
     const t = themeById(id);
     if (!t) return;
-    setActiveThemeId(id);
-    setConfig(configForTheme(t)); // reset layout/motion to the theme's defaults
+    setParams(id === themes[0]!.id ? {} : { theme: id }, { replace: false });
   };
 
   return (

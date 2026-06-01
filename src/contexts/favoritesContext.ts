@@ -4,6 +4,7 @@ import type { FavoriteKind } from '../types';
 export interface FavoritesApi {
   has: (kind: FavoriteKind, id: string) => boolean;
   toggle: (kind: FavoriteKind, id: string) => void;
+  clear: () => void;
   count: number;
   ids: (kind: FavoriteKind) => string[];
 }

@@ -30,9 +30,11 @@ export default function FavoritesProvider({ children }: { children: ReactNode })
     [keys],
   );
 
+  const clear = useCallback(() => setKeys(new Set()), []);
+
   const api = useMemo<FavoritesApi>(
-    () => ({ has, toggle, ids, count: keys.size }),
-    [has, toggle, ids, keys.size],
+    () => ({ has, toggle, ids, clear, count: keys.size }),
+    [has, toggle, ids, clear, keys.size],
   );
 
   return <FavoritesContext.Provider value={api}>{children}</FavoritesContext.Provider>;
