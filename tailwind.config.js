@@ -15,14 +15,14 @@ export default {
         bg: 'var(--color-bg)',
         onPrimary: 'var(--color-on-primary)',
         onAccent: 'var(--color-on-accent)',
-        // Neutral showroom shell chrome (fixed, not themed).
+        // Studio showroom shell chrome — switchable light/dark via CSS vars.
         shell: {
-          base: '#0b0b0f',
-          panel: '#15151c',
-          line: '#26262f',
-          ink: '#f5f5f4',
-          mute: '#9a9aa6',
-          glow: '#c9b8ff',
+          base: 'var(--shell-base)',
+          panel: 'var(--shell-panel)',
+          line: 'var(--shell-line)',
+          ink: 'var(--shell-ink)',
+          mute: 'var(--shell-mute)',
+          glow: 'var(--shell-glow)',
         },
       },
       fontFamily: {

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { Activity, Star } from 'lucide-react';
+import { Activity, Moon, Star, Sun } from 'lucide-react';
 import { useFavorites } from '../../contexts/favoritesContext';
+import { useColorMode } from '../../hooks/useColorMode';
 
 const links = [
   { to: '/', label: 'Gallery', end: true },
@@ -9,6 +10,7 @@ const links = [
 
 export default function NavBar() {
   const { count } = useFavorites();
+  const [mode, toggleMode] = useColorMode();
 
   return (
     <header className="sticky top-0 z-30 border-b border-shell-line bg-shell-base/80 backdrop-blur-xl">
@@ -46,9 +48,20 @@ export default function NavBar() {
           </nav>
         </div>
 
-        <NavLink
-          to="/favorites"
-          aria-label={`Shortlist — ${count} ${count === 1 ? 'item' : 'items'} favorited`}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleMode}
+            aria-label={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
+            className="grid h-9 w-9 place-items-center rounded-full border border-shell-line bg-shell-panel text-shell-mute transition-colors hover:text-shell-ink"
+          >
+            {mode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+
+          <NavLink
+            to="/favorites"
+            aria-label={`Shortlist — ${count} ${count === 1 ? 'item' : 'items'} favorited`}
           className={({ isActive }) =>
             `flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
               isActive
@@ -57,10 +70,11 @@ export default function NavBar() {
             }`
           }
         >
-          <Star size={14} className="text-amber-400" aria-hidden="true" />
-          <span className="font-medium text-shell-ink">{count}</span>
-          <span className="hidden sm:inline">shortlist</span>
-        </NavLink>
+            <Star size={14} className="text-amber-400" aria-hidden="true" />
+            <span className="font-medium text-shell-ink">{count}</span>
+            <span className="hidden sm:inline">shortlist</span>
+          </NavLink>
+        </div>
       </div>
     </header>
   );
