@@ -1,0 +1,161 @@
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { Maximize2, Monitor, RotateCcw, Smartphone, SlidersHorizontal, Tablet } from 'lucide-react';
+import type { AnimationIntensity } from '../../types';
+import type { CardStyle, DeviceMode, HeroVariant, PreviewConfig } from '../../preview/previewConfig';
+import { CARD_STYLES, HERO_VARIANTS, INTENSITIES } from '../../preview/previewConfig';
+
+interface PreviewControlsProps {
+  config: PreviewConfig;
+  onConfig: (patch: Partial<PreviewConfig>) => void;
+  device: DeviceMode;
+  onDevice: (d: DeviceMode) => void;
+  onReplay: () => void;
+  onFullscreen: () => void;
+}
+
+function Seg<T extends string>({
+  options,
+  value,
+  onChange,
+  ariaLabel,
+}: {
+  options: { id: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <div role="group" aria-label={ariaLabel} className="flex flex-wrap gap-1">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          aria-pressed={value === o.id}
+          onClick={() => onChange(o.id)}
+          className={`rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${
+            value === o.id
+              ? 'bg-shell-glow/15 text-shell-ink ring-1 ring-shell-glow/50'
+              : 'text-shell-mute hover:text-shell-ink'
+          }`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+const DEVICES: { id: DeviceMode; icon: typeof Monitor; label: string }[] = [
+  { id: 'desktop', icon: Monitor, label: 'Desktop' },
+  { id: 'tablet', icon: Tablet, label: 'Tablet' },
+  { id: 'mobile', icon: Smartphone, label: 'Mobile' },
+];
+
+export default function PreviewControls({
+  config,
+  onConfig,
+  device,
+  onDevice,
+  onReplay,
+  onFullscreen,
+}: PreviewControlsProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="border-b border-shell-line">
+      {/* top row: device + actions */}
+      <div className="flex items-center justify-between gap-2 px-4 py-2.5">
+        <div className="flex items-center gap-0.5 rounded-lg bg-shell-base p-0.5">
+          {DEVICES.map(({ id, icon: Icon, label }) => (
+            <button
+              key={id}
+              type="button"
+              aria-label={label}
+              aria-pressed={device === id}
+              title={label}
+              onClick={() => onDevice(id)}
+              className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${
+                device === id ? 'bg-shell-panel text-shell-glow' : 'text-shell-mute hover:text-shell-ink'
+              }`}
+            >
+              <Icon size={14} />
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
+              open ? 'bg-shell-glow/15 text-shell-ink' : 'text-shell-mute hover:text-shell-ink'
+            }`}
+          >
+            <SlidersHorizontal size={13} /> Customize
+          </button>
+          <button
+            type="button"
+            onClick={onReplay}
+            aria-label="Replay animation"
+            title="Replay animation"
+            className="grid h-7 w-7 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
+          >
+            <RotateCcw size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={onFullscreen}
+            aria-label="Full-screen preview"
+            title="Full-screen preview"
+            className="grid h-7 w-7 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
+          >
+            <Maximize2 size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* collapsible customizer */}
+      {open && (
+        <div className="space-y-3 border-t border-shell-line bg-shell-base/40 px-4 py-3">
+          <Row label="Hero">
+            <Seg<HeroVariant>
+              ariaLabel="Hero layout"
+              options={HERO_VARIANTS}
+              value={config.hero}
+              onChange={(hero) => onConfig({ hero })}
+            />
+          </Row>
+          <Row label="Cards">
+            <Seg<CardStyle>
+              ariaLabel="Card style"
+              options={CARD_STYLES}
+              value={config.cardStyle}
+              onChange={(cardStyle) => onConfig({ cardStyle })}
+            />
+          </Row>
+          <Row label="Motion">
+            <Seg<AnimationIntensity>
+              ariaLabel="Animation intensity"
+              options={INTENSITIES.map((i) => ({ id: i, label: i }))}
+              value={config.motion}
+              onChange={(motion) => onConfig({ motion })}
+            />
+          </Row>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="w-12 shrink-0 pt-1 text-[10px] font-semibold uppercase tracking-wide text-shell-mute">
+        {label}
+      </span>
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
