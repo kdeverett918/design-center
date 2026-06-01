@@ -24,11 +24,35 @@ export type CardStyle =
 
 export type DeviceMode = 'desktop' | 'tablet' | 'mobile';
 
+// Nav/footer are layout previewKeys (e.g. 'nav-sticky-clear', 'footer-minimal').
+export type NavVariant = 'nav-sticky-clear' | 'nav-centered-logo';
+export type FooterVariant = 'footer-minimal' | 'footer-mega' | 'footer-cta-band';
+
 export interface PreviewConfig {
   hero: HeroVariant;
   cardStyle: CardStyle;
+  /** Top-bar nav variant (sidebar isn't a marketing-page nav). */
+  nav: NavVariant;
+  /** Footer variant. */
+  footer: FooterVariant;
+  /** Extra sections (by layout previewKey) inserted after the feature cards. */
+  sections: string[];
   motion: AnimationIntensity;
 }
+
+export const NAV_VARIANTS: { id: NavVariant; label: string }[] = [
+  { id: 'nav-sticky-clear', label: 'Sticky' },
+  { id: 'nav-centered-logo', label: 'Centered' },
+];
+
+export const FOOTER_VARIANTS: { id: FooterVariant; label: string }[] = [
+  { id: 'footer-minimal', label: 'Minimal' },
+  { id: 'footer-mega', label: 'Mega' },
+  { id: 'footer-cta-band', label: 'CTA band' },
+];
+
+// Default sections inserted into a fresh preview (reproduces the classic page).
+const DEFAULT_SECTIONS = ['sec-stats-band', 'sec-testimonial-slider'];
 
 export const HERO_VARIANTS: { id: HeroVariant; label: string }[] = [
   { id: 'split', label: 'Split' },
@@ -81,10 +105,13 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
 
 const HERO_IDS = new Set<string>(HERO_VARIANTS.map((h) => h.id));
 const CARD_IDS = new Set<string>(CARD_STYLES.map((c) => c.id));
+const NAV_IDS = new Set<string>(NAV_VARIANTS.map((n) => n.id));
+const FOOTER_IDS = new Set<string>(FOOTER_VARIANTS.map((f) => f.id));
 
-// Map a layout preset's previewKey (e.g. 'hero-editorial', 'card-glass') to a
-// PreviewConfig patch, so clicking a hero/card layout applies it to the preview.
-// Returns null for layout types that aren't driven by the preview engine.
+// Map a single-select layout previewKey (hero / card / nav / footer) to a
+// PreviewConfig patch. Sections are multi-select (toggled), so they return null
+// here and are handled by the caller. Also null for non-applicable layouts
+// (e.g. nav-sidebar — a dashboard pattern, not a marketing-page nav).
 export function layoutToConfig(previewKey: string): Partial<PreviewConfig> | null {
   if (previewKey.startsWith('hero-')) {
     const v = previewKey.slice(5);
@@ -94,6 +121,12 @@ export function layoutToConfig(previewKey: string): Partial<PreviewConfig> | nul
     const v = previewKey.slice(5);
     return CARD_IDS.has(v) ? { cardStyle: v as CardStyle } : null;
   }
+  if (previewKey.startsWith('nav-')) {
+    return NAV_IDS.has(previewKey) ? { nav: previewKey as NavVariant } : null;
+  }
+  if (previewKey.startsWith('footer-')) {
+    return FOOTER_IDS.has(previewKey) ? { footer: previewKey as FooterVariant } : null;
+  }
   return null;
 }
 
@@ -102,6 +135,9 @@ export function configForTheme(theme: Theme): PreviewConfig {
   return {
     hero: d.hero ?? 'split',
     cardStyle: d.cardStyle ?? 'elevated',
+    nav: 'nav-sticky-clear',
+    footer: 'footer-minimal',
+    sections: [...DEFAULT_SECTIONS],
     motion: theme.animationIntensity,
   };
 }

@@ -36,6 +36,16 @@ export default function GalleryView() {
   };
 
   const applyLayout = (previewKey: string) => {
+    // Sections are multi-select — clicking toggles them in/out of the page.
+    if (previewKey.startsWith('sec-')) {
+      setConfig((c) => ({
+        ...c,
+        sections: c.sections.includes(previewKey)
+          ? c.sections.filter((s) => s !== previewKey)
+          : [...c.sections, previewKey],
+      }));
+      return;
+    }
     const patch = layoutToConfig(previewKey);
     if (patch) setConfig((c) => ({ ...c, ...patch }));
   };

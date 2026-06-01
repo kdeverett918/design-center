@@ -35,7 +35,16 @@ export default function PreviewFrame({
   }, [fonts]);
 
   const vars = useMemo(() => themeVars(palette, fonts), [palette, fonts]);
-  const key = `${selectionKey}:${config.hero}:${config.cardStyle}:${config.motion}:${replayNonce}`;
+  const key = [
+    selectionKey,
+    config.hero,
+    config.cardStyle,
+    config.nav,
+    config.footer,
+    config.sections.join('+'),
+    config.motion,
+    replayNonce,
+  ].join(':');
 
   return (
     <div data-dark={palette.isDark ? 'true' : 'false'} style={vars as CSSProperties}>

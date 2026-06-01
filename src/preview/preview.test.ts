@@ -20,6 +20,10 @@ describe('configForTheme', () => {
       expect(HERO_IDS).toContain(cfg.hero);
       expect(CARD_IDS).toContain(cfg.cardStyle);
       expect(cfg.motion).toBe(t.animationIntensity);
+      // composition defaults
+      expect(cfg.nav).toBe('nav-sticky-clear');
+      expect(cfg.footer).toBe('footer-minimal');
+      expect(cfg.sections).toEqual(['sec-stats-band', 'sec-testimonial-slider']);
     });
   });
 
@@ -45,16 +49,20 @@ describe('configForTheme', () => {
 });
 
 describe('layoutToConfig', () => {
-  it('maps hero/card previewKeys to config patches', () => {
+  it('maps hero/card/nav/footer previewKeys to config patches', () => {
     expect(layoutToConfig('hero-editorial')).toEqual({ hero: 'editorial' });
     expect(layoutToConfig('hero-gradient-mesh')).toEqual({ hero: 'gradient-mesh' });
     expect(layoutToConfig('card-glass')).toEqual({ cardStyle: 'glass' });
     expect(layoutToConfig('card-inset')).toEqual({ cardStyle: 'inset' });
+    expect(layoutToConfig('nav-sticky-clear')).toEqual({ nav: 'nav-sticky-clear' });
+    expect(layoutToConfig('nav-centered-logo')).toEqual({ nav: 'nav-centered-logo' });
+    expect(layoutToConfig('footer-mega')).toEqual({ footer: 'footer-mega' });
+    expect(layoutToConfig('footer-cta-band')).toEqual({ footer: 'footer-cta-band' });
   });
 
-  it('returns null for non-applicable or unknown keys', () => {
-    expect(layoutToConfig('sec-pricing-tiers')).toBeNull();
-    expect(layoutToConfig('nav-sidebar')).toBeNull();
+  it('returns null for sections (multi-select) and non-applicable/unknown keys', () => {
+    expect(layoutToConfig('sec-pricing-tiers')).toBeNull(); // sections are toggled, not patched
+    expect(layoutToConfig('nav-sidebar')).toBeNull(); // dashboard pattern, not a page nav
     expect(layoutToConfig('hero-nonsense')).toBeNull();
   });
 });

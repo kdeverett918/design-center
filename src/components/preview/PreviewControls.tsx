@@ -2,8 +2,26 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Maximize2, Monitor, RotateCcw, Smartphone, SlidersHorizontal, Tablet } from 'lucide-react';
 import type { AnimationIntensity } from '../../types';
-import type { CardStyle, DeviceMode, HeroVariant, PreviewConfig } from '../../preview/previewConfig';
-import { CARD_STYLES, HERO_VARIANTS, INTENSITIES } from '../../preview/previewConfig';
+import type {
+  CardStyle,
+  DeviceMode,
+  FooterVariant,
+  HeroVariant,
+  NavVariant,
+  PreviewConfig,
+} from '../../preview/previewConfig';
+import {
+  CARD_STYLES,
+  FOOTER_VARIANTS,
+  HERO_VARIANTS,
+  INTENSITIES,
+  NAV_VARIANTS,
+} from '../../preview/previewConfig';
+import { layoutPresets } from '../../data/layouts';
+
+const SECTION_OPTIONS = layoutPresets
+  .filter((l) => l.type === 'section')
+  .map((l) => ({ key: l.previewKey, label: l.name }));
 
 interface PreviewControlsProps {
   config: PreviewConfig;
@@ -135,6 +153,50 @@ export default function PreviewControls({
               value={config.cardStyle}
               onChange={(cardStyle) => onConfig({ cardStyle })}
             />
+          </Row>
+          <Row label="Nav">
+            <Seg<NavVariant>
+              ariaLabel="Navigation"
+              options={NAV_VARIANTS}
+              value={config.nav}
+              onChange={(nav) => onConfig({ nav })}
+            />
+          </Row>
+          <Row label="Footer">
+            <Seg<FooterVariant>
+              ariaLabel="Footer"
+              options={FOOTER_VARIANTS}
+              value={config.footer}
+              onChange={(footer) => onConfig({ footer })}
+            />
+          </Row>
+          <Row label="Sections">
+            <div role="group" aria-label="Page sections" className="flex flex-wrap gap-1">
+              {SECTION_OPTIONS.map((s) => {
+                const on = config.sections.includes(s.key);
+                return (
+                  <button
+                    key={s.key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() =>
+                      onConfig({
+                        sections: on
+                          ? config.sections.filter((x) => x !== s.key)
+                          : [...config.sections, s.key],
+                      })
+                    }
+                    className={`rounded-lg px-2 py-1 text-[11px] font-medium transition-colors ${
+                      on
+                        ? 'bg-shell-glow/15 text-shell-ink ring-1 ring-shell-glow/50'
+                        : 'text-shell-mute hover:text-shell-ink'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
           </Row>
           <Row label="Motion">
             <Seg<AnimationIntensity>

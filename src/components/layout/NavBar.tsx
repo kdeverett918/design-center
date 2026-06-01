@@ -49,15 +49,37 @@ export default function NavBar() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={toggleMode}
-            aria-label={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
-            title={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
-            className="grid h-9 w-9 place-items-center rounded-full border border-shell-line bg-shell-panel text-shell-mute transition-colors hover:text-shell-ink"
+          {/* Clear 2-option mode switch — the active mode is highlighted. */}
+          <div
+            role="group"
+            aria-label="Color mode"
+            className="flex items-center gap-0.5 rounded-full border border-shell-line bg-shell-panel p-0.5"
           >
-            {mode === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-          </button>
+            <button
+              type="button"
+              aria-pressed={mode === 'light'}
+              aria-label="Light mode"
+              onClick={() => mode !== 'light' && toggleMode()}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                mode === 'light' ? 'bg-shell-glow/20 text-shell-ink' : 'text-shell-mute hover:text-shell-ink'
+              }`}
+            >
+              <Sun size={14} />
+              <span className="hidden sm:inline">Light</span>
+            </button>
+            <button
+              type="button"
+              aria-pressed={mode === 'dark'}
+              aria-label="Dark mode"
+              onClick={() => mode !== 'dark' && toggleMode()}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                mode === 'dark' ? 'bg-shell-glow/20 text-shell-ink' : 'text-shell-mute hover:text-shell-ink'
+              }`}
+            >
+              <Moon size={14} />
+              <span className="hidden sm:inline">Dark</span>
+            </button>
+          </div>
 
           <NavLink
             to="/favorites"

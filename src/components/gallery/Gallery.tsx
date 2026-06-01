@@ -66,7 +66,10 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
 
   const layoutApplied = (l: LayoutPreset) =>
     (l.type === 'hero' && config.hero === l.previewKey.slice(5)) ||
-    (l.type === 'card' && config.cardStyle === l.previewKey.slice(5));
+    (l.type === 'card' && config.cardStyle === l.previewKey.slice(5)) ||
+    (l.type === 'nav' && config.nav === l.previewKey) ||
+    (l.type === 'footer' && config.footer === l.previewKey) ||
+    (l.type === 'section' && config.sections.includes(l.previewKey));
   const [moods, setMoods] = useState<Mood[]>([]);
   const [industries, setIndustries] = useState<Industry[]>([]);
 

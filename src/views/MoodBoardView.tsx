@@ -1,22 +1,61 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Shuffle } from 'lucide-react';
+import { RotateCcw, Shuffle } from 'lucide-react';
 import type { PreviewConfig } from '../preview/previewConfig';
-import { CARD_STYLES, HERO_VARIANTS, INTENSITIES } from '../preview/previewConfig';
+import {
+  CARD_STYLES,
+  FOOTER_VARIANTS,
+  HERO_VARIANTS,
+  INTENSITIES,
+  NAV_VARIANTS,
+} from '../preview/previewConfig';
 import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
 import { loadFonts } from '../theme/loadFonts';
 import PreviewStage from '../components/preview/PreviewStage';
 import BriefSummary from '../components/client/BriefSummary';
 
-const DEFAULT_CONFIG: PreviewConfig = { hero: 'split', cardStyle: 'elevated', motion: 'standard' };
+const STORAGE_KEY = 'dc:moodboard:v1';
+
+const DEFAULT_CONFIG: PreviewConfig = {
+  hero: 'split',
+  cardStyle: 'elevated',
+  nav: 'nav-sticky-clear',
+  footer: 'footer-minimal',
+  sections: ['sec-stats-band', 'sec-testimonial-slider'],
+  motion: 'standard',
+};
+
+interface SavedBoard {
+  paletteId: string;
+  fontId: string;
+  config: PreviewConfig;
+  brand: string;
+  notes: string;
+}
+
+// Hydrate the last saved brief, validating the referenced palette/font still exist.
+function loadSaved(): SavedBoard | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && p.config && paletteById(p.paletteId) && fontPairingById(p.fontId)) {
+      return { ...p, config: { ...DEFAULT_CONFIG, ...p.config } } as SavedBoard;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
 
 export default function MoodBoardView() {
-  const [paletteId, setPaletteId] = useState('meridian');
-  const [fontId, setFontId] = useState('clearwater');
-  const [config, setConfig] = useState<PreviewConfig>(DEFAULT_CONFIG);
-  const [brand, setBrand] = useState('Your Practice');
-  const [notes, setNotes] = useState('');
+  const [saved] = useState(loadSaved);
+  const [paletteId, setPaletteId] = useState(() => saved?.paletteId ?? 'meridian');
+  const [fontId, setFontId] = useState(() => saved?.fontId ?? 'clearwater');
+  const [config, setConfig] = useState<PreviewConfig>(() => saved?.config ?? DEFAULT_CONFIG);
+  const [brand, setBrand] = useState(() => saved?.brand ?? 'Your Practice');
+  const [notes, setNotes] = useState(() => saved?.notes ?? '');
 
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
@@ -26,6 +65,15 @@ export default function MoodBoardView() {
     fontPairings.forEach(loadFonts);
   }, []);
 
+  // Auto-save the full brief so it survives refreshes / return visits.
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ paletteId, fontId, config, brand, notes }));
+    } catch {
+      /* ignore */
+    }
+  }, [paletteId, fontId, config, brand, notes]);
+
   const shuffle = () => {
     const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]!;
     setPaletteId(pick(palettes).id);
@@ -33,8 +81,19 @@ export default function MoodBoardView() {
     setConfig({
       hero: pick(HERO_VARIANTS).id,
       cardStyle: pick(CARD_STYLES).id,
+      nav: pick(NAV_VARIANTS).id,
+      footer: pick(FOOTER_VARIANTS).id,
+      sections: [...DEFAULT_CONFIG.sections],
       motion: pick(INTENSITIES),
     });
+  };
+
+  const reset = () => {
+    setPaletteId('meridian');
+    setFontId('clearwater');
+    setConfig(DEFAULT_CONFIG);
+    setBrand('Your Practice');
+    setNotes('');
   };
 
   return (
@@ -49,13 +108,23 @@ export default function MoodBoardView() {
             live. Your choices become a copy-ready design brief.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={shuffle}
-          className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-ink hover:border-shell-glow/50"
-        >
-          <Shuffle size={15} className="text-shell-glow" /> Surprise me
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="hidden text-xs text-shell-mute sm:inline">Saved automatically</span>
+          <button
+            type="button"
+            onClick={reset}
+            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-mute hover:text-shell-ink"
+          >
+            <RotateCcw size={15} /> Start over
+          </button>
+          <button
+            type="button"
+            onClick={shuffle}
+            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-ink hover:border-shell-glow/50"
+          >
+            <Shuffle size={15} className="text-shell-glow" /> Surprise me
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
