@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import {
+  AnimatePresence,
   animate,
   motion,
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
+  useSpring,
+  useTransform,
   type Transition,
 } from 'framer-motion';
 import type { AnimationPreset } from '../../types';
@@ -367,9 +370,235 @@ export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
         </Stage>
       );
 
+    case 'cursor-dot':
+      return <CursorDotDemo />;
+    case 'cursor-follow':
+      return <CursorFollowDemo />;
+    case 'cursor-spotlight':
+      return <CursorSpotlightDemo />;
+    case 'cursor-trail':
+      return <CursorTrailDemo />;
+    case 'cursor-tilt':
+      return <CursorTiltDemo />;
+    case 'cursor-ripple':
+      return <CursorRippleDemo />;
+
     default:
       return <Stage>{Tile}</Stage>;
   }
+}
+
+// ===========================================================================
+// Cursor demos — interactive: they follow the real pointer inside the card and
+// idle-orbit when not hovered (so they look alive in the grid). All gated by the
+// reduced-motion early-return above.
+// ===========================================================================
+
+function useCursorField(spring?: { stiffness: number; damping: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, spring ?? { stiffness: 320, damping: 22 });
+  const sy = useSpring(y, spring ?? { stiffness: 320, damping: 22 });
+  const [active, setActive] = useState(false);
+
+  // Idle orbit when the pointer isn't inside the card.
+  useEffect(() => {
+    if (active) return;
+    let raf = 0;
+    let t = 0;
+    const tick = () => {
+      t += 0.018;
+      x.set(Math.cos(t) * 42);
+      y.set(Math.sin(t * 1.4) * 22);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, x, y]);
+
+  const onMove = (e: MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    x.set(e.clientX - r.left - r.width / 2);
+    y.set(e.clientY - r.top - r.height / 2);
+  };
+
+  return { ref, x, y, sx, sy, active, setActive, onMove };
+}
+
+function CursorStage({
+  fieldRef,
+  onMove,
+  onEnter,
+  onLeave,
+  children,
+}: {
+  fieldRef: React.RefObject<HTMLDivElement | null>;
+  onMove?: (e: MouseEvent) => void;
+  onEnter?: () => void;
+  onLeave?: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      ref={fieldRef}
+      onMouseMove={onMove}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      className="relative grid h-28 cursor-none place-items-center overflow-hidden rounded-2xl border border-shell-line bg-shell-base"
+    >
+      {children}
+      <span className="pointer-events-none absolute bottom-1.5 right-2 text-[8px] uppercase tracking-wide text-shell-mute/70">
+        move me
+      </span>
+    </div>
+  );
+}
+
+function CursorDotDemo() {
+  const f = useCursorField({ stiffness: 500, damping: 30 });
+  return (
+    <CursorStage fieldRef={f.ref} onMove={f.onMove} onEnter={() => f.setActive(true)} onLeave={() => f.setActive(false)}>
+      <span className="text-[10px] font-medium text-shell-mute">hover the card</span>
+      <motion.span
+        className="pointer-events-none absolute left-1/2 top-1/2 -ml-5 -mt-5 h-10 w-10 rounded-full border border-shell-glow"
+        style={{ x: f.sx, y: f.sy }}
+      />
+      <motion.span
+        className="pointer-events-none absolute left-1/2 top-1/2 -ml-1 -mt-1 h-2 w-2 rounded-full bg-shell-glow"
+        style={{ x: f.x, y: f.y }}
+      />
+    </CursorStage>
+  );
+}
+
+function CursorFollowDemo() {
+  const f = useCursorField({ stiffness: 120, damping: 16 });
+  return (
+    <CursorStage fieldRef={f.ref} onMove={f.onMove} onEnter={() => f.setActive(true)} onLeave={() => f.setActive(false)}>
+      <span className="text-[10px] font-medium text-shell-mute">lead the way</span>
+      <motion.span
+        className="pointer-events-none absolute left-1/2 top-1/2 -ml-7 -mt-3.5 rounded-full bg-shell-glow px-3 py-1.5 text-[10px] font-semibold text-shell-base"
+        style={{ x: f.sx, y: f.sy }}
+      >
+        follow
+      </motion.span>
+    </CursorStage>
+  );
+}
+
+function CursorSpotlightDemo() {
+  const f = useCursorField({ stiffness: 350, damping: 26 });
+  return (
+    <CursorStage fieldRef={f.ref} onMove={f.onMove} onEnter={() => f.setActive(true)} onLeave={() => f.setActive(false)}>
+      <span className="pointer-events-none z-10 text-sm font-semibold text-shell-ink/40">SPOTLIGHT</span>
+      <motion.span
+        className="pointer-events-none absolute left-1/2 top-1/2 -ml-16 -mt-16 h-32 w-32 rounded-full"
+        style={{
+          x: f.sx,
+          y: f.sy,
+          background: 'radial-gradient(circle, rgba(201,184,255,0.55), rgba(201,184,255,0) 65%)',
+        }}
+      />
+    </CursorStage>
+  );
+}
+
+function CursorTrailDemo() {
+  const f = useCursorField({ stiffness: 700, damping: 34 });
+  // Each dot lags a little more than the last → a comet trail.
+  const lag1 = useSpring(f.x, { stiffness: 300, damping: 26 });
+  const lag1y = useSpring(f.y, { stiffness: 300, damping: 26 });
+  const lag2 = useSpring(lag1, { stiffness: 220, damping: 26 });
+  const lag2y = useSpring(lag1y, { stiffness: 220, damping: 26 });
+  const lag3 = useSpring(lag2, { stiffness: 160, damping: 26 });
+  const lag3y = useSpring(lag2y, { stiffness: 160, damping: 26 });
+  const dots = [
+    { x: f.x, y: f.y, s: 'h-3 w-3 bg-shell-glow', o: 1 },
+    { x: lag1, y: lag1y, s: 'h-2.5 w-2.5 bg-[#a78bfa]', o: 0.8 },
+    { x: lag2, y: lag2y, s: 'h-2 w-2 bg-[#7c9eff]', o: 0.6 },
+    { x: lag3, y: lag3y, s: 'h-1.5 w-1.5 bg-[#7c9eff]', o: 0.4 },
+  ];
+  return (
+    <CursorStage fieldRef={f.ref} onMove={f.onMove} onEnter={() => f.setActive(true)} onLeave={() => f.setActive(false)}>
+      {dots.map((dt, i) => (
+        <motion.span
+          key={i}
+          className={`pointer-events-none absolute left-1/2 top-1/2 rounded-full ${dt.s}`}
+          style={{ x: dt.x, y: dt.y, opacity: dt.o, marginLeft: -6, marginTop: -6 }}
+        />
+      ))}
+    </CursorStage>
+  );
+}
+
+function CursorTiltDemo() {
+  const f = useCursorField({ stiffness: 250, damping: 20 });
+  const rotateY = useTransform(f.sx, [-70, 70], [-16, 16]);
+  const rotateX = useTransform(f.sy, [-50, 50], [12, -12]);
+  return (
+    <CursorStage fieldRef={f.ref} onMove={f.onMove} onEnter={() => f.setActive(true)} onLeave={() => f.setActive(false)}>
+      <div style={{ perspective: 500 }}>
+        <motion.div
+          className="grid h-16 w-24 place-items-center rounded-xl bg-gradient-to-br from-shell-glow to-[#7c9eff] text-xs font-semibold text-shell-base"
+          style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+        >
+          tilt
+        </motion.div>
+      </div>
+    </CursorStage>
+  );
+}
+
+function CursorRippleDemo() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const nextId = useRef(0);
+
+  const addRipple = (x: number, y: number) => {
+    const id = nextId.current++;
+    setRipples((rs) => [...rs, { id, x, y }]);
+    window.setTimeout(() => setRipples((rs) => rs.filter((r) => r.id !== id)), 700);
+  };
+
+  // Idle auto-ripple from the centre.
+  useEffect(() => {
+    const el = ref.current;
+    const iv = window.setInterval(() => {
+      const w = el?.clientWidth ?? 200;
+      const h = el?.clientHeight ?? 112;
+      addRipple(w / 2, h / 2);
+    }, 1100);
+    return () => window.clearInterval(iv);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      onClick={(e) => {
+        const r = ref.current?.getBoundingClientRect();
+        if (r) addRipple(e.clientX - r.left, e.clientY - r.top);
+      }}
+      className="relative grid h-28 cursor-pointer place-items-center overflow-hidden rounded-2xl border border-shell-line bg-shell-base"
+    >
+      <span className="pointer-events-none text-[10px] font-medium text-shell-mute">click anywhere</span>
+      <AnimatePresence>
+        {ripples.map((r) => (
+          <motion.span
+            key={r.id}
+            className="pointer-events-none absolute rounded-full border-2 border-shell-glow"
+            style={{ left: r.x, top: r.y, marginLeft: -8, marginTop: -8, width: 16, height: 16 }}
+            initial={{ scale: 0, opacity: 0.6 }}
+            animate={{ scale: 6, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+          />
+        ))}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 function Stage({ children }: { children: ReactNode }) {

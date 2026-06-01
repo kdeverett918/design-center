@@ -21,6 +21,8 @@ function cardClasses(style: CardStyle): string {
       return 'rounded-2xl border-t-4 border-accent bg-surface p-5 tk-shadow';
     case 'gradient':
       return 'rounded-2xl tk-tint-primary p-5 ring-1 tk-line';
+    case 'inset':
+      return 'rounded-2xl bg-bg p-5 ring-1 ring-inset tk-line-strong';
   }
 }
 

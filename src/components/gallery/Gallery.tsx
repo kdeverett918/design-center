@@ -1,30 +1,51 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Palette as PaletteIcon, SearchX, Sparkles, Type, Wand2 } from 'lucide-react';
-import type { Industry, Mood } from '../../types';
+import { LayoutGrid, Palette as PaletteIcon, SearchX, Sparkles, Type, Wand2 } from 'lucide-react';
+import type { AnimationCategory, Industry, LayoutPreset, Mood } from '../../types';
 import { themes } from '../../data/themes';
 import { palettes } from '../../data/palettes';
 import { fontPairings } from '../../data/fonts';
 import { animationPresets } from '../../data/animations';
+import { layoutPresets } from '../../data/layouts';
 import { matchIndustries, matchMoods } from '../../data/taxonomy';
 import ThemeCard from '../cards/ThemeCard';
 import PaletteCard from '../cards/PaletteCard';
 import FontCard from '../cards/FontCard';
 import AnimationCard from '../cards/AnimationCard';
+import LayoutCard from '../cards/LayoutCard';
 import FilterPanel from './FilterPanel';
 
-type Tab = 'themes' | 'palettes' | 'fonts' | 'animations';
+type Tab = 'themes' | 'palettes' | 'fonts' | 'layouts' | 'animations';
 
 const TABS: { id: Tab; label: string; icon: typeof Sparkles }[] = [
   { id: 'themes', label: 'Themes', icon: Sparkles },
   { id: 'palettes', label: 'Palettes', icon: PaletteIcon },
   { id: 'fonts', label: 'Fonts', icon: Type },
+  { id: 'layouts', label: 'Layouts', icon: LayoutGrid },
   { id: 'animations', label: 'Animations', icon: Wand2 },
+];
+
+// Display order + labels for the grouped sections.
+const ANIM_CATEGORIES: { id: AnimationCategory; label: string }[] = [
+  { id: 'entrance', label: 'Entrance' },
+  { id: 'scroll', label: 'Scroll' },
+  { id: 'hover', label: 'Hover' },
+  { id: 'cursor', label: 'Cursor' },
+  { id: 'continuous', label: 'Continuous' },
+  { id: 'transition', label: 'Transition' },
+];
+
+const LAYOUT_TYPES: { id: LayoutPreset['type']; label: string }[] = [
+  { id: 'hero', label: 'Heroes' },
+  { id: 'nav', label: 'Navigation' },
+  { id: 'section', label: 'Sections' },
+  { id: 'card', label: 'Cards' },
+  { id: 'footer', label: 'Footers' },
 ];
 
 const gridVariants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
+  show: { transition: { staggerChildren: 0.04, delayChildren: 0.03 } },
 };
 
 interface GalleryProps {
@@ -44,10 +65,7 @@ export default function Gallery({ activeThemeId, onSelectTheme }: GalleryProps) 
     () => themes.filter((t) => matchMoods(t.moods, moods) && matchIndustries(t.industries, industries)),
     [moods, industries],
   );
-  const filteredPalettes = useMemo(
-    () => palettes.filter((p) => matchMoods(p.moods, moods)),
-    [moods],
-  );
+  const filteredPalettes = useMemo(() => palettes.filter((p) => matchMoods(p.moods, moods)), [moods]);
   const filteredFonts = useMemo(
     () => fontPairings.filter((f) => matchIndustries(f.goodFor, industries)),
     [industries],
@@ -57,9 +75,11 @@ export default function Gallery({ activeThemeId, onSelectTheme }: GalleryProps) 
     themes: filteredThemes.length,
     palettes: filteredPalettes.length,
     fonts: filteredFonts.length,
+    layouts: layoutPresets.length,
     animations: animationPresets.length,
   };
 
+  const showFilters = tab === 'themes' || tab === 'palettes' || tab === 'fonts';
   const clear = () => {
     setMoods([]);
     setIndustries([]);
@@ -93,8 +113,7 @@ export default function Gallery({ activeThemeId, onSelectTheme }: GalleryProps) 
         })}
       </div>
 
-      {/* filters (not shown for animations — no mood/industry taxonomy) */}
-      {tab !== 'animations' && (
+      {showFilters && (
         <div className="px-1 pb-4">
           <FilterPanel
             moods={moods}
@@ -109,43 +128,95 @@ export default function Gallery({ activeThemeId, onSelectTheme }: GalleryProps) 
         </div>
       )}
 
-      {/* grid — re-keyed per tab+filter so the stagger replays */}
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-1 pb-8">
-        <motion.div
-          key={`${tab}:${moods.join(',')}:${industries.join(',')}`}
-          variants={gridVariants}
-          initial="hidden"
-          animate="show"
-          className={
-            tab === 'themes'
-              ? 'grid grid-cols-1 gap-5 sm:grid-cols-2'
-              : 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3'
-          }
-        >
-          {tab === 'themes' &&
-            filteredThemes.map((t) => (
-              <ThemeCard key={t.id} theme={t} active={t.id === activeThemeId} onSelect={onSelectTheme} />
-            ))}
-          {tab === 'palettes' && filteredPalettes.map((p) => <PaletteCard key={p.id} palette={p} />)}
-          {tab === 'fonts' && filteredFonts.map((f) => <FontCard key={f.id} pairing={f} />)}
-          {tab === 'animations' && animationPresets.map((a) => <AnimationCard key={a.id} preset={a} />)}
-        </motion.div>
+        {/* simple grids (themes / palettes / fonts) */}
+        {showFilters && (
+          <motion.div
+            key={`${tab}:${moods.join(',')}:${industries.join(',')}`}
+            variants={gridVariants}
+            initial="hidden"
+            animate="show"
+            className={
+              tab === 'themes'
+                ? 'grid grid-cols-1 gap-5 sm:grid-cols-2'
+                : 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3'
+            }
+          >
+            {tab === 'themes' &&
+              filteredThemes.map((t) => (
+                <ThemeCard key={t.id} theme={t} active={t.id === activeThemeId} onSelect={onSelectTheme} />
+              ))}
+            {tab === 'palettes' && filteredPalettes.map((p) => <PaletteCard key={p.id} palette={p} />)}
+            {tab === 'fonts' && filteredFonts.map((f) => <FontCard key={f.id} pairing={f} />)}
+          </motion.div>
+        )}
 
-        {/* empty state */}
-        {tab !== 'animations' && counts[tab] === 0 && (
+        {showFilters && counts[tab] === 0 && (
           <div className="grid place-items-center rounded-2xl border border-dashed border-shell-line py-16 text-center">
             <SearchX size={22} className="text-shell-mute" />
             <p className="mt-3 text-sm text-shell-ink">Nothing matches those filters.</p>
-            <button
-              type="button"
-              onClick={clear}
-              className="mt-2 text-xs font-medium text-shell-glow hover:underline"
-            >
+            <button type="button" onClick={clear} className="mt-2 text-xs font-medium text-shell-glow hover:underline">
               Clear filters
             </button>
           </div>
         )}
+
+        {/* Layouts — grouped by type */}
+        {tab === 'layouts' &&
+          LAYOUT_TYPES.map(({ id, label }) => {
+            const items = layoutPresets.filter((l) => l.type === id);
+            if (!items.length) return null;
+            return (
+              <GroupedSection key={id} title={label} count={items.length}>
+                {items.map((l) => (
+                  <LayoutCard key={l.id} preset={l} />
+                ))}
+              </GroupedSection>
+            );
+          })}
+
+        {/* Animations — grouped by category */}
+        {tab === 'animations' &&
+          ANIM_CATEGORIES.map(({ id, label }) => {
+            const items = animationPresets.filter((a) => a.category === id);
+            if (!items.length) return null;
+            return (
+              <GroupedSection key={id} title={label} count={items.length}>
+                {items.map((a) => (
+                  <AnimationCard key={a.id} preset={a} />
+                ))}
+              </GroupedSection>
+            );
+          })}
       </div>
     </div>
+  );
+}
+
+function GroupedSection({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mb-8 last:mb-0">
+      <div className="mb-3 flex items-center gap-3">
+        <h2 className="font-display text-sm font-semibold uppercase tracking-wide text-shell-ink">{title}</h2>
+        <span className="rounded-full bg-shell-panel px-2 py-0.5 text-[11px] text-shell-mute">{count}</span>
+        <span className="h-px flex-1 bg-shell-line" />
+      </div>
+      <motion.div
+        variants={gridVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
+      >
+        {children}
+      </motion.div>
+    </section>
   );
 }

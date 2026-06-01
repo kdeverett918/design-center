@@ -10,9 +10,17 @@ export type HeroVariant =
   | 'gradient-mesh'
   | 'typeonly'
   | 'editorial'
-  | 'showcase';
+  | 'showcase'
+  | 'overlap'
+  | 'siderail';
 
-export type CardStyle = 'elevated' | 'bordered' | 'glass' | 'accentbar' | 'gradient';
+export type CardStyle =
+  | 'elevated'
+  | 'bordered'
+  | 'glass'
+  | 'accentbar'
+  | 'gradient'
+  | 'inset';
 
 export type DeviceMode = 'desktop' | 'tablet' | 'mobile';
 
@@ -30,6 +38,8 @@ export const HERO_VARIANTS: { id: HeroVariant; label: string }[] = [
   { id: 'typeonly', label: 'Type-only' },
   { id: 'editorial', label: 'Editorial' },
   { id: 'showcase', label: 'Showcase' },
+  { id: 'overlap', label: 'Overlap' },
+  { id: 'siderail', label: 'Side rail' },
 ];
 
 export const CARD_STYLES: { id: CardStyle; label: string }[] = [
@@ -38,6 +48,7 @@ export const CARD_STYLES: { id: CardStyle; label: string }[] = [
   { id: 'glass', label: 'Glass' },
   { id: 'accentbar', label: 'Accent bar' },
   { id: 'gradient', label: 'Gradient' },
+  { id: 'inset', label: 'Inset' },
 ];
 
 export const INTENSITIES: AnimationIntensity[] = ['subtle', 'standard', 'expressive'];
@@ -60,6 +71,12 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
   sunbeam: { hero: 'gradient-mesh', cardStyle: 'gradient' },
   inferno: { hero: 'fullbleed', cardStyle: 'glass' },
   onyx: { hero: 'showcase', cardStyle: 'glass' },
+  bisque: { hero: 'siderail', cardStyle: 'inset' },
+  voltage: { hero: 'overlap', cardStyle: 'accentbar' },
+  claret: { hero: 'editorial', cardStyle: 'inset' },
+  teahouse: { hero: 'siderail', cardStyle: 'bordered' },
+  tundra: { hero: 'overlap', cardStyle: 'glass' },
+  caravan: { hero: 'split', cardStyle: 'inset' },
 };
 
 export function configForTheme(theme: Theme): PreviewConfig {

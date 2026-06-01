@@ -80,6 +80,7 @@ export type AnimationCategory =
   | 'entrance'
   | 'scroll'
   | 'hover'
+  | 'cursor'
   | 'continuous'
   | 'transition';
 
@@ -149,7 +150,7 @@ export interface ClientSelection {
 
 // ----- Favorites (Phase 0/1 local-state shape) ------------------------------
 
-export type FavoriteKind = 'theme' | 'palette' | 'font' | 'animation';
+export type FavoriteKind = 'theme' | 'palette' | 'font' | 'animation' | 'layout';
 
 export interface FavoriteRef {
   kind: FavoriteKind;

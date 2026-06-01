@@ -156,6 +156,38 @@ export const fontPairings: FontPairing[] = [
     heading: { family: 'Unbounded', source: 'google', weights: [600, 700] },
     body: { family: 'DM Sans', source: 'google', weights: [400, 500] },
   },
+  {
+    id: 'apothecary',
+    name: 'Apothecary',
+    personality: 'Vintage editorial, characterful serif',
+    goodFor: ['wellness', 'ecommerce'],
+    heading: { family: 'DM Serif Text', source: 'google', weights: [400] },
+    body: { family: 'Karla', source: 'google', weights: [400, 500] },
+  },
+  {
+    id: 'voltage',
+    name: 'Voltage',
+    personality: 'Futuristic, technical display',
+    goodFor: ['saas', 'creative'],
+    heading: { family: 'Orbitron', source: 'google', weights: [600, 800] },
+    body: { family: 'Rubik', source: 'google', weights: [400, 500] },
+  },
+  {
+    id: 'manuscript',
+    name: 'Manuscript',
+    personality: 'Old-world elegance, dramatic contrast',
+    goodFor: ['creative', 'professional'],
+    heading: { family: 'Marcellus', source: 'google', weights: [400] },
+    body: { family: 'Mukta', source: 'google', weights: [400, 500] },
+  },
+  {
+    id: 'frequency',
+    name: 'Frequency',
+    personality: 'Quirky, geometric, confident',
+    goodFor: ['saas', 'creative'],
+    heading: { family: 'Big Shoulders Display', source: 'google', weights: [600, 700] },
+    body: { family: 'Manrope', source: 'google', weights: [400, 500] },
+  },
 ];
 
 export const fontPairingById = (id: string): FontPairing | undefined =>

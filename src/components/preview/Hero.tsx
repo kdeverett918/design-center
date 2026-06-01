@@ -180,6 +180,79 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
     );
   }
 
+  if (variant === 'overlap') {
+    return (
+      <motion.section variants={item} className="relative px-8 py-16">
+        <div className="relative grid items-center gap-6 sm:grid-cols-[1.1fr_0.9fr]">
+          <div className="relative z-10">
+            <Eyebrow />
+            <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.02] tracking-tight text-ink sm:text-6xl">
+              {HEADLINE}
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-muted">{SUB}</p>
+            <div className="mt-7">
+              <CtaRow />
+            </div>
+          </div>
+          {/* offset panel that tucks behind the headline */}
+          <div className="relative aspect-square overflow-hidden rounded-3xl bg-primary tk-shadow sm:-ml-16">
+            <div className="absolute inset-0 opacity-80 tk-mesh" />
+            <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-surface/85 p-4 backdrop-blur tk-shadow">
+              <div className="flex items-baseline gap-2">
+                <span className="font-heading text-3xl font-semibold text-ink">98%</span>
+                <span className="text-xs text-muted">client satisfaction</span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                Measured across every visit, every year.
+              </p>
+            </div>
+            <span className="absolute right-5 top-5 font-heading text-lg font-semibold text-onPrimary/90">
+              {brand}
+            </span>
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
+
+  if (variant === 'siderail') {
+    return (
+      <motion.section variants={item} className="grid gap-0 px-0 py-0 sm:grid-cols-[auto_1fr]">
+        {/* vertical brand rail */}
+        <div className="hidden flex-col justify-between bg-primary px-5 py-16 sm:flex">
+          <span className="font-heading text-sm font-semibold tracking-tight text-onPrimary [writing-mode:vertical-rl] [text-orientation:mixed]">
+            {brand}
+          </span>
+          <span className="text-[11px] uppercase tracking-[0.2em] text-onPrimary/70 [writing-mode:vertical-rl]">
+            Est. 2024
+          </span>
+        </div>
+        <div className="px-8 py-16">
+          <Eyebrow />
+          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">
+            {HEADLINE}
+          </h1>
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-muted">{SUB}</p>
+          <div className="mt-7 flex items-center gap-6">
+            <CtaRow />
+          </div>
+          <div className="mt-9 flex flex-wrap gap-x-10 gap-y-3 border-t tk-line pt-6">
+            {[
+              ['12k+', 'clients served'],
+              ['4.9', 'average rating'],
+              ['24/7', 'support'],
+            ].map(([stat, label]) => (
+              <div key={label}>
+                <div className="font-heading text-xl font-semibold text-ink">{stat}</div>
+                <div className="text-xs text-muted">{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
+
   // typeonly (default)
   return (
     <motion.section variants={item} className="px-8 py-20">

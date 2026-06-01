@@ -34,7 +34,11 @@ export default function PreviewStage({
   favorite,
   height = 520,
 }: PreviewStageProps) {
-  const [device, setDevice] = useState<DeviceMode>('desktop');
+  // Default to the mobile frame on small screens — a 1280px desktop render
+  // scaled into a ~340px column is illegible; mobile sits near 1:1.
+  const [device, setDevice] = useState<DeviceMode>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop',
+  );
   const [replay, setReplay] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);

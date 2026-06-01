@@ -25,10 +25,10 @@ const COLOR_ROLES: (keyof PaletteColors)[] = [
 
 describe('data integrity — counts', () => {
   it('has the expected catalog sizes', () => {
-    expect(palettes).toHaveLength(20);
-    expect(fontPairings).toHaveLength(19);
-    expect(themes).toHaveLength(16);
-    expect(animationPresets).toHaveLength(21);
+    expect(palettes).toHaveLength(26);
+    expect(fontPairings).toHaveLength(23);
+    expect(themes).toHaveLength(22);
+    expect(animationPresets).toHaveLength(27);
   });
 });
 
@@ -54,7 +54,7 @@ describe('palettes', () => {
 
   it('dark palettes are flagged', () => {
     const dark = palettes.filter((p) => p.isDark).map((p) => p.id).sort();
-    expect(dark).toEqual(['carbon', 'ember', 'nocturne']);
+    expect(dark).toEqual(['carbon', 'ember', 'glacier', 'nocturne']);
   });
 });
 
@@ -119,6 +119,13 @@ describe('animations', () => {
   it('animationById resolves', () => {
     expect(animationById('fade-up')?.name).toBe('Fade Up');
     expect(animationById('zzz')).toBeUndefined();
+  });
+
+  it('every preset has a valid category, including the cursor category', () => {
+    const valid = new Set(['entrance', 'scroll', 'hover', 'cursor', 'continuous', 'transition']);
+    animationPresets.forEach((a) => expect(valid.has(a.category)).toBe(true));
+    const cursor = animationPresets.filter((a) => a.category === 'cursor');
+    expect(cursor.length).toBeGreaterThanOrEqual(5);
   });
 });
 
