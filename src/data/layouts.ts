@@ -10,6 +10,10 @@ export const layoutPresets: LayoutPreset[] = [
   { id: 'hero-fullbleed', name: 'Full-bleed Hero', type: 'hero', description: 'Image with overlay', previewKey: 'hero-fullbleed' },
   { id: 'hero-gradient-mesh', name: 'Gradient Mesh Hero', type: 'hero', description: 'Soft animated gradient', previewKey: 'hero-gradient-mesh' },
   { id: 'hero-typeonly', name: 'Type-only Hero', type: 'hero', description: 'Large type, no image', previewKey: 'hero-typeonly' },
+  { id: 'hero-editorial', name: 'Editorial Hero', type: 'hero', description: 'Magazine masthead + columns', previewKey: 'hero-editorial' },
+  { id: 'hero-showcase', name: 'Showcase Hero', type: 'hero', description: 'Centered with product mockup', previewKey: 'hero-showcase' },
+  { id: 'hero-overlap', name: 'Overlap Hero', type: 'hero', description: 'Asymmetric offset panels', previewKey: 'hero-overlap' },
+  { id: 'hero-siderail', name: 'Side-rail Hero', type: 'hero', description: 'Vertical brand rail + stats', previewKey: 'hero-siderail' },
 
   // Nav
   { id: 'nav-sticky-clear', name: 'Sticky Clear Nav', type: 'nav', description: 'Transparent → solid on scroll', previewKey: 'nav-sticky-clear' },
@@ -21,6 +25,8 @@ export const layoutPresets: LayoutPreset[] = [
   { id: 'card-bordered', name: 'Bordered Card', type: 'card', description: 'Hairline border', previewKey: 'card-bordered' },
   { id: 'card-glass', name: 'Glass Card', type: 'card', description: 'Frosted glass', previewKey: 'card-glass' },
   { id: 'card-accentbar', name: 'Accent-bar Card', type: 'card', description: 'Colored top edge', previewKey: 'card-accentbar' },
+  { id: 'card-gradient', name: 'Gradient Card', type: 'card', description: 'Soft tinted fill', previewKey: 'card-gradient' },
+  { id: 'card-inset', name: 'Inset Card', type: 'card', description: 'Recessed inset ring', previewKey: 'card-inset' },
 
   // Sections
   { id: 'sec-zigzag', name: 'Zigzag', type: 'section', description: 'Alternating image/text', previewKey: 'sec-zigzag' },

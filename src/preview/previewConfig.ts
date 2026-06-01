@@ -79,6 +79,24 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
   caravan: { hero: 'split', cardStyle: 'inset' },
 };
 
+const HERO_IDS = new Set<string>(HERO_VARIANTS.map((h) => h.id));
+const CARD_IDS = new Set<string>(CARD_STYLES.map((c) => c.id));
+
+// Map a layout preset's previewKey (e.g. 'hero-editorial', 'card-glass') to a
+// PreviewConfig patch, so clicking a hero/card layout applies it to the preview.
+// Returns null for layout types that aren't driven by the preview engine.
+export function layoutToConfig(previewKey: string): Partial<PreviewConfig> | null {
+  if (previewKey.startsWith('hero-')) {
+    const v = previewKey.slice(5);
+    return HERO_IDS.has(v) ? { hero: v as HeroVariant } : null;
+  }
+  if (previewKey.startsWith('card-')) {
+    const v = previewKey.slice(5);
+    return CARD_IDS.has(v) ? { cardStyle: v as CardStyle } : null;
+  }
+  return null;
+}
+
 export function configForTheme(theme: Theme): PreviewConfig {
   const d = THEME_DEFAULTS[theme.id] ?? {};
   return {

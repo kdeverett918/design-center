@@ -1,9 +1,18 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 afterEach(() => {
   cleanup();
+});
+
+// Reset persisted state between tests (FavoritesProvider writes to localStorage).
+beforeEach(() => {
+  try {
+    localStorage.clear();
+  } catch {
+    /* ignore */
+  }
 });
 
 // jsdom lacks matchMedia — framer-motion & reduced-motion checks need it.

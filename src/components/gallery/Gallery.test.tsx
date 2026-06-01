@@ -5,11 +5,17 @@ import FavoritesProvider from '../../contexts/FavoritesProvider';
 import Gallery from './Gallery';
 import { themes } from '../../data/themes';
 import { animationPresets } from '../../data/animations';
+import { configForTheme } from '../../preview/previewConfig';
 
 function renderGallery() {
   return render(
     <FavoritesProvider>
-      <Gallery activeThemeId={themes[0]!.id} onSelectTheme={vi.fn()} />
+      <Gallery
+        activeThemeId={themes[0]!.id}
+        onSelectTheme={vi.fn()}
+        config={configForTheme(themes[0]!)}
+        onApplyLayout={vi.fn()}
+      />
     </FavoritesProvider>,
   );
 }

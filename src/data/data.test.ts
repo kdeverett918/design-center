@@ -4,6 +4,8 @@ import { fontPairings, fontPairingById } from './fonts';
 import { themes, themeById } from './themes';
 import { animationPresets, animationById } from './animations';
 import { layoutPresets, layoutById } from './layouts';
+import { sectionFor } from '../components/preview/sections/registry';
+import { layoutToConfig } from '../preview/previewConfig';
 import {
   INDUSTRIES,
   MOODS,
@@ -135,6 +137,18 @@ describe('layouts', () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(layoutById('hero-split')?.name).toBe('Split Hero');
     expect(layoutById('missing')).toBeUndefined();
+  });
+
+  it('every section layout has a registered preview component', () => {
+    layoutPresets
+      .filter((l) => l.type === 'section')
+      .forEach((l) => expect(sectionFor(l.previewKey), l.previewKey).toBeDefined());
+  });
+
+  it('every hero/card layout maps to a valid config patch', () => {
+    layoutPresets
+      .filter((l) => l.type === 'hero' || l.type === 'card')
+      .forEach((l) => expect(layoutToConfig(l.previewKey), l.previewKey).not.toBeNull());
   });
 });
 

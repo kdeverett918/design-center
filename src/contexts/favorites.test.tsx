@@ -81,6 +81,27 @@ describe('useFavorites within FavoritesProvider', () => {
     expect(screen.getByTestId('palette-ids').textContent).toBe('');
   });
 
+  it('persists across remounts via localStorage', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(
+      <FavoritesProvider>
+        <Probe />
+      </FavoritesProvider>,
+    );
+    await user.click(screen.getByText('palette-reef'));
+    expect(screen.getByTestId('count').textContent).toBe('1');
+    unmount();
+
+    // Fresh provider hydrates from the persisted state.
+    render(
+      <FavoritesProvider>
+        <Probe />
+      </FavoritesProvider>,
+    );
+    expect(screen.getByTestId('count').textContent).toBe('1');
+    expect(screen.getByTestId('palette-ids').textContent).toBe('reef');
+  });
+
   it('throws when used outside a provider', () => {
     expect(() => render(<Probe />)).toThrow(/within <FavoritesProvider>/);
   });

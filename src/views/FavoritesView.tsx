@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Star, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFavorites } from '../contexts/favoritesContext';
-import { themeById } from '../data/themes';
+import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
 import { fontPairingById } from '../data/fonts';
 import { animationById } from '../data/animations';
@@ -22,6 +22,11 @@ const gridVariants = {
 export default function FavoritesView() {
   const { ids, count, clear } = useFavorites();
   const navigate = useNavigate();
+
+  // Favorited layouts are browse-only here; render them in a neutral default theme.
+  const defaultTheme = themes[0]!;
+  const defaultPalette = paletteById(defaultTheme.paletteId)!;
+  const defaultFonts = fontPairingById(defaultTheme.fontPairingId)!;
 
   const groups = useMemo(
     () => ({
@@ -94,7 +99,12 @@ export default function FavoritesView() {
           </Group>
           <Group title="Layouts" count={groups.layouts.length}>
             {groups.layouts.map((l) => (
-              <LayoutCard key={l!.id} preset={l!} />
+              <LayoutCard
+                key={l!.id}
+                preset={l!}
+                palette={defaultPalette}
+                fonts={defaultFonts}
+              />
             ))}
           </Group>
           <Group title="Animations" count={groups.animations.length}>

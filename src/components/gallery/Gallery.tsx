@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutGrid, Palette as PaletteIcon, SearchX, Sparkles, Type, Wand2 } from 'lucide-react';
 import type { AnimationCategory, Industry, LayoutPreset, Mood } from '../../types';
-import { themes } from '../../data/themes';
-import { palettes } from '../../data/palettes';
-import { fontPairings } from '../../data/fonts';
+import type { PreviewConfig } from '../../preview/previewConfig';
+import { themeById, themes } from '../../data/themes';
+import { paletteById, palettes } from '../../data/palettes';
+import { fontPairingById, fontPairings } from '../../data/fonts';
 import { animationPresets } from '../../data/animations';
 import { layoutPresets } from '../../data/layouts';
 import { matchIndustries, matchMoods } from '../../data/taxonomy';
@@ -51,10 +52,21 @@ const gridVariants = {
 interface GalleryProps {
   activeThemeId: string;
   onSelectTheme: (themeId: string) => void;
+  config: PreviewConfig;
+  onApplyLayout: (previewKey: string) => void;
 }
 
-export default function Gallery({ activeThemeId, onSelectTheme }: GalleryProps) {
+export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyLayout }: GalleryProps) {
   const [tab, setTab] = useState<Tab>('themes');
+
+  // Resolve the active theme so layout thumbnails render in the live theme.
+  const activeTheme = themeById(activeThemeId) ?? themes[0]!;
+  const activePalette = paletteById(activeTheme.paletteId)!;
+  const activeFonts = fontPairingById(activeTheme.fontPairingId)!;
+
+  const layoutApplied = (l: LayoutPreset) =>
+    (l.type === 'hero' && config.hero === l.previewKey.slice(5)) ||
+    (l.type === 'card' && config.cardStyle === l.previewKey.slice(5));
   const [moods, setMoods] = useState<Mood[]>([]);
   const [industries, setIndustries] = useState<Industry[]>([]);
 
@@ -169,7 +181,15 @@ export default function Gallery({ activeThemeId, onSelectTheme }: GalleryProps) 
             return (
               <GroupedSection key={id} title={label} count={items.length}>
                 {items.map((l) => (
-                  <LayoutCard key={l.id} preset={l} />
+                  <LayoutCard
+                    key={l.id}
+                    preset={l}
+                    palette={activePalette}
+                    fonts={activeFonts}
+                    applied={layoutApplied(l)}
+                    onApply={onApplyLayout}
+                    brand={activeTheme.name}
+                  />
                 ))}
               </GroupedSection>
             );

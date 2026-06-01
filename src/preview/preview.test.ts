@@ -4,6 +4,7 @@ import {
   HERO_VARIANTS,
   INTENSITIES,
   configForTheme,
+  layoutToConfig,
 } from './previewConfig';
 import type { CardStyle, HeroVariant } from './previewConfig';
 import { hoverLift, motionSpec } from './motion';
@@ -40,6 +41,21 @@ describe('configForTheme', () => {
 
   it('exposes the three intensities', () => {
     expect(INTENSITIES).toEqual(['subtle', 'standard', 'expressive']);
+  });
+});
+
+describe('layoutToConfig', () => {
+  it('maps hero/card previewKeys to config patches', () => {
+    expect(layoutToConfig('hero-editorial')).toEqual({ hero: 'editorial' });
+    expect(layoutToConfig('hero-gradient-mesh')).toEqual({ hero: 'gradient-mesh' });
+    expect(layoutToConfig('card-glass')).toEqual({ cardStyle: 'glass' });
+    expect(layoutToConfig('card-inset')).toEqual({ cardStyle: 'inset' });
+  });
+
+  it('returns null for non-applicable or unknown keys', () => {
+    expect(layoutToConfig('sec-pricing-tiers')).toBeNull();
+    expect(layoutToConfig('nav-sidebar')).toBeNull();
+    expect(layoutToConfig('hero-nonsense')).toBeNull();
   });
 });
 

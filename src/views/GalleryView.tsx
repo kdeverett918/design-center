@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PreviewConfig } from '../preview/previewConfig';
-import { configForTheme } from '../preview/previewConfig';
+import { configForTheme, layoutToConfig } from '../preview/previewConfig';
 import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
 import { fontPairingById } from '../data/fonts';
@@ -35,6 +35,11 @@ export default function GalleryView() {
     setParams(id === themes[0]!.id ? {} : { theme: id }, { replace: false });
   };
 
+  const applyLayout = (previewKey: string) => {
+    const patch = layoutToConfig(previewKey);
+    if (patch) setConfig((c) => ({ ...c, ...patch }));
+  };
+
   return (
     <div className="mx-auto max-w-[1500px] px-5 py-6 sm:px-8">
       <div className="mb-6 max-w-2xl">
@@ -49,7 +54,12 @@ export default function GalleryView() {
 
       <div className="flex flex-col gap-6 lg:flex-row">
         <div className="order-2 min-w-0 flex-1 lg:order-1">
-          <Gallery activeThemeId={activeThemeId} onSelectTheme={selectTheme} />
+          <Gallery
+            activeThemeId={activeThemeId}
+            onSelectTheme={selectTheme}
+            config={config}
+            onApplyLayout={applyLayout}
+          />
         </div>
 
         <div className="order-1 lg:order-2 lg:w-[440px] xl:w-[500px]">
