@@ -1,5 +1,8 @@
 import type { FontPairing, Palette, PaletteColors } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';
+import { layoutById } from '../../data/layouts';
+
+const layoutName = (previewKey: string): string => layoutById(previewKey)?.name ?? previewKey;
 
 export interface BriefInput {
   brand: string;
@@ -39,6 +42,9 @@ export function buildBriefText(p: BriefInput): string {
     `Layout:`,
     `  Hero     ${p.config.hero}`,
     `  Cards    ${p.config.cardStyle}`,
+    `  Nav      ${layoutName(p.config.nav)}`,
+    `  Footer   ${layoutName(p.config.footer)}`,
+    `  Sections ${p.config.sections.length ? p.config.sections.map(layoutName).join(', ') : 'none'}`,
     `  Motion   ${p.config.motion}`,
   ];
   if (p.notes?.trim()) {

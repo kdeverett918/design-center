@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { RotateCcw, Shuffle } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Check, Link2, RotateCcw, Shuffle } from 'lucide-react';
+import { decodeBoard, encodeBoard } from './shareBoard';
 import type { PreviewConfig } from '../preview/previewConfig';
 import {
   CARD_STYLES,
@@ -50,12 +52,15 @@ function loadSaved(): SavedBoard | null {
 }
 
 export default function MoodBoardView() {
-  const [saved] = useState(loadSaved);
-  const [paletteId, setPaletteId] = useState(() => saved?.paletteId ?? 'meridian');
-  const [fontId, setFontId] = useState(() => saved?.fontId ?? 'clearwater');
-  const [config, setConfig] = useState<PreviewConfig>(() => saved?.config ?? DEFAULT_CONFIG);
-  const [brand, setBrand] = useState(() => saved?.brand ?? 'Your Practice');
-  const [notes, setNotes] = useState(() => saved?.notes ?? '');
+  const [params] = useSearchParams();
+  // A ?b= share link wins over the locally-saved board.
+  const [initial] = useState(() => decodeBoard(params.get('b')) ?? loadSaved());
+  const [paletteId, setPaletteId] = useState(() => initial?.paletteId ?? 'meridian');
+  const [fontId, setFontId] = useState(() => initial?.fontId ?? 'clearwater');
+  const [config, setConfig] = useState<PreviewConfig>(() => initial?.config ?? DEFAULT_CONFIG);
+  const [brand, setBrand] = useState(() => initial?.brand ?? 'Your Practice');
+  const [notes, setNotes] = useState(() => initial?.notes ?? '');
+  const [copied, setCopied] = useState(false);
 
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
@@ -96,6 +101,18 @@ export default function MoodBoardView() {
     setNotes('');
   };
 
+  const copyShareLink = async () => {
+    const token = encodeBoard({ paletteId, fontId, config, brand, notes });
+    const url = `${window.location.origin}/moodboard?b=${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
+
   return (
     <div className="mx-auto max-w-[1500px] px-5 py-6 sm:px-8">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -110,6 +127,14 @@ export default function MoodBoardView() {
         </div>
         <div className="flex items-center gap-2">
           <span className="hidden text-xs text-shell-mute sm:inline">Saved automatically</span>
+          <button
+            type="button"
+            onClick={copyShareLink}
+            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-ink hover:border-shell-glow/50"
+          >
+            {copied ? <Check size={15} className="text-emerald-400" /> : <Link2 size={15} className="text-shell-glow" />}
+            {copied ? 'Link copied' : 'Share link'}
+          </button>
           <button
             type="button"
             onClick={reset}

@@ -78,6 +78,9 @@ export default function BriefSummary(props: BriefSummaryProps) {
         <Row label="Body" value={`${fonts.body.family} · ${fonts.body.weights.join('/')}`} />
         <Row label="Hero" value={config.hero} />
         <Row label="Cards" value={config.cardStyle} />
+        <Row label="Nav" value={config.nav.replace('nav-', '').replace('-', ' ')} />
+        <Row label="Footer" value={config.footer.replace('footer-', '').replace('-', ' ')} />
+        <Row label="Sections" value={config.sections.length ? `${config.sections.length} chosen` : 'none'} />
         <Row label="Motion" value={config.motion} />
       </dl>
 

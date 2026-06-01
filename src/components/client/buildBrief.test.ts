@@ -7,7 +7,14 @@ import type { PreviewConfig } from '../../preview/previewConfig';
 
 const palette = paletteById('nocturne')!; // dark, to exercise the (dark) branch
 const fonts = fontPairingById('telemetry')!;
-const config: PreviewConfig = { hero: 'centered', cardStyle: 'glass', motion: 'expressive' };
+const config: PreviewConfig = {
+  hero: 'centered',
+  cardStyle: 'glass',
+  nav: 'nav-centered-logo',
+  footer: 'footer-cta-band',
+  sections: ['sec-pricing-tiers', 'sec-faq-accordion'],
+  motion: 'expressive',
+};
 
 const base: BriefInput = {
   brand: 'Aurora Clinic',
@@ -46,11 +53,16 @@ describe('buildBriefText', () => {
     expect(text).toContain(fonts.personality);
   });
 
-  it('includes the layout config values', () => {
+  it('includes the full composition (hero, cards, nav, footer, sections, motion)', () => {
     const text = buildBriefText(base);
     expect(text).toContain('centered');
     expect(text).toContain('glass');
     expect(text).toContain('expressive');
+    // nav/footer/sections resolved to their layout names
+    expect(text).toContain('Centered Logo Nav');
+    expect(text).toContain('CTA-band Footer');
+    expect(text).toContain('Pricing Tiers');
+    expect(text).toContain('FAQ Accordion');
   });
 
   it('appends trimmed notes only when present', () => {
