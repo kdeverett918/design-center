@@ -31,14 +31,14 @@ export default function BentoGrid({ brand = 'Your Practice' }: SectionProps) {
         </div>
 
         <div className="rounded-3xl tk-tint-secondary p-5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-bg tk-shadow">
             <ShieldCheck size={17} className="text-primary" />
           </span>
           <h3 className="mt-4 font-heading text-sm font-semibold text-ink">Private by design</h3>
         </div>
 
         <div className="rounded-3xl tk-tint-accent p-5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-bg tk-shadow">
             <MessageSquareText size={17} className="text-primary" />
           </span>
           <h3 className="mt-4 font-heading text-sm font-semibold text-ink">Secure messaging</h3>

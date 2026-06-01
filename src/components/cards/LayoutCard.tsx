@@ -67,9 +67,10 @@ export default function LayoutCard({ preset, palette, fonts, applied, onApply, b
         <FavoriteStar kind="layout" id={preset.id} label={preset.name} tone="shell" />
       </div>
 
-      {/* live, themed thumbnail */}
-      <div className="overflow-hidden border-b border-shell-line bg-shell-base">
-        <ThemedScope palette={palette} fonts={fonts}>
+      {/* live, themed thumbnail — paint the theme's page background so transparent
+          heroes/sections render their ink on the correct surface (never dark-on-dark). */}
+      <div className="overflow-hidden border-b border-shell-line">
+        <ThemedScope palette={palette} fonts={fonts} className="bg-bg">
           <ScaledFrame height={HEIGHT[preset.type]}>
             <Preview preset={preset} brand={brand} />
           </ScaledFrame>
