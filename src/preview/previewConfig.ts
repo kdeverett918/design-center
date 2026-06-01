@@ -8,9 +8,11 @@ export type HeroVariant =
   | 'centered'
   | 'fullbleed'
   | 'gradient-mesh'
-  | 'typeonly';
+  | 'typeonly'
+  | 'editorial'
+  | 'showcase';
 
-export type CardStyle = 'elevated' | 'bordered' | 'glass' | 'accentbar';
+export type CardStyle = 'elevated' | 'bordered' | 'glass' | 'accentbar' | 'gradient';
 
 export type DeviceMode = 'desktop' | 'tablet' | 'mobile';
 
@@ -26,6 +28,8 @@ export const HERO_VARIANTS: { id: HeroVariant; label: string }[] = [
   { id: 'fullbleed', label: 'Full-bleed' },
   { id: 'gradient-mesh', label: 'Gradient mesh' },
   { id: 'typeonly', label: 'Type-only' },
+  { id: 'editorial', label: 'Editorial' },
+  { id: 'showcase', label: 'Showcase' },
 ];
 
 export const CARD_STYLES: { id: CardStyle; label: string }[] = [
@@ -33,6 +37,7 @@ export const CARD_STYLES: { id: CardStyle; label: string }[] = [
   { id: 'bordered', label: 'Bordered' },
   { id: 'glass', label: 'Glass' },
   { id: 'accentbar', label: 'Accent bar' },
+  { id: 'gradient', label: 'Gradient' },
 ];
 
 export const INTENSITIES: AnimationIntensity[] = ['subtle', 'standard', 'expressive'];
@@ -47,6 +52,14 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
   launchpad: { hero: 'gradient-mesh', cardStyle: 'glass' },
   obsidian: { hero: 'fullbleed', cardStyle: 'glass' },
   joyride: { hero: 'gradient-mesh', cardStyle: 'accentbar' },
+  terracotta: { hero: 'fullbleed', cardStyle: 'bordered' },
+  frost: { hero: 'centered', cardStyle: 'elevated' },
+  meadow: { hero: 'split', cardStyle: 'bordered' },
+  velvet: { hero: 'editorial', cardStyle: 'gradient' },
+  keystone: { hero: 'showcase', cardStyle: 'accentbar' },
+  sunbeam: { hero: 'gradient-mesh', cardStyle: 'gradient' },
+  inferno: { hero: 'fullbleed', cardStyle: 'glass' },
+  onyx: { hero: 'showcase', cardStyle: 'glass' },
 };
 
 export function configForTheme(theme: Theme): PreviewConfig {

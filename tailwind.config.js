@@ -13,6 +13,8 @@ export default {
         muted: 'var(--color-muted)',
         surface: 'var(--color-surface)',
         bg: 'var(--color-bg)',
+        onPrimary: 'var(--color-on-primary)',
+        onAccent: 'var(--color-on-accent)',
         // Neutral showroom shell chrome (fixed, not themed).
         shell: {
           base: '#0b0b0f',

@@ -17,6 +17,8 @@
   --color-muted: #718096;
   --color-surface: #f7fafc;
   --color-bg: #ffffff;
+  --color-on-primary: #ffffff;
+  --color-on-accent: #10131a;
   --font-heading: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 }

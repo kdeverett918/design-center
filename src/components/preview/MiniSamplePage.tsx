@@ -20,14 +20,14 @@ export default function MiniSamplePage({
       <div className="flex items-center justify-between border-b tk-line px-4 py-2.5">
         <div className="flex items-center gap-1.5">
           <span className="grid h-4 w-4 place-items-center rounded-md bg-primary">
-            <Activity size={10} className="text-bg" />
+            <Activity size={10} className="text-onPrimary" />
           </span>
           <span className="font-heading text-[11px] font-semibold text-ink">{brand}</span>
         </div>
         <div className="flex items-center gap-2 text-[8px] text-muted">
           <span>Services</span>
           <span>About</span>
-          <span className="rounded-full bg-primary px-2 py-0.5 text-bg">Book</span>
+          <span className="rounded-full bg-primary px-2 py-0.5 text-onPrimary">Book</span>
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export default function MiniSamplePage({
           Evidence-based, compassionate support — from first visit to lasting progress.
         </p>
         <div className="mt-2.5 flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-[8px] font-semibold text-bg">
+          <span className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-[8px] font-semibold text-onPrimary">
             Get started <ArrowRight size={8} />
           </span>
           <span className="rounded-lg border tk-line-strong px-2.5 py-1 text-[8px] font-medium text-ink">

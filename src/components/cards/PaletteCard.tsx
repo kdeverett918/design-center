@@ -49,7 +49,7 @@ export default function PaletteCard({ palette }: { palette: Palette }) {
         <p className="mt-0.5 text-xs capitalize text-muted">{palette.moods.join(' · ')}</p>
 
         <div className="mt-4 flex items-center gap-2">
-          <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-bg">
+          <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-onPrimary">
             Button
           </span>
           <span className="rounded-lg tk-tint-secondary px-3 py-1.5 text-xs font-medium text-ink">

@@ -17,7 +17,7 @@ const SUB =
 function CtaRow() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-bg">
+      <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
         Get started <ArrowRight size={16} />
       </span>
       <span className="inline-flex items-center gap-2 rounded-xl border tk-line-strong px-5 py-3 text-sm font-medium text-ink">
@@ -53,7 +53,7 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-3xl tk-mesh tk-shadow">
           <div className="absolute inset-0 grid place-items-center">
-            <span className="font-heading text-2xl font-semibold text-bg/90">{brand}</span>
+            <span className="font-heading text-2xl font-semibold text-onPrimary/90">{brand}</span>
           </div>
         </div>
       </motion.section>
@@ -83,18 +83,18 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
         <div className="absolute inset-0 bg-primary" />
         <div className="absolute inset-0 opacity-90 tk-mesh" />
         <div className="relative max-w-xl">
-          <span className="inline-block rounded-full bg-bg/20 px-3 py-1 text-xs font-medium text-bg backdrop-blur">
+          <span className="inline-block rounded-full bg-bg/20 px-3 py-1 text-xs font-medium text-onPrimary backdrop-blur">
             Now accepting new clients
           </span>
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-bg sm:text-5xl">
+          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-onPrimary sm:text-5xl">
             {HEADLINE}
           </h1>
-          <p className="mt-5 max-w-md text-base leading-relaxed text-bg/85">{SUB}</p>
+          <p className="mt-5 max-w-md text-base leading-relaxed text-onPrimary/85">{SUB}</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <span className="inline-flex items-center gap-2 rounded-xl bg-bg px-5 py-3 text-sm font-semibold text-primary">
               Get started <ArrowRight size={16} />
             </span>
-            <span className="rounded-xl border border-bg/40 px-5 py-3 text-sm font-medium text-bg">
+            <span className="rounded-xl border border-bg/40 px-5 py-3 text-sm font-medium text-onPrimary">
               Meet the team
             </span>
           </div>
@@ -125,7 +125,62 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
     );
   }
 
-  // typeonly
+  if (variant === 'editorial') {
+    return (
+      <motion.section variants={item} className="px-8 py-16">
+        <div className="flex items-center justify-between border-b tk-line-strong pb-3 text-[11px] uppercase tracking-[0.2em] text-muted">
+          <span>Care &amp; Practice</span>
+          <span>Est. 2024</span>
+        </div>
+        <h1 className="mt-8 font-heading text-5xl font-semibold leading-[0.95] tracking-tight text-ink sm:text-[4.5rem]">
+          {HEADLINE}
+        </h1>
+        <div className="mt-8 grid gap-6 border-t tk-line pt-6 sm:grid-cols-[1.4fr_1fr]">
+          <p className="text-lg leading-relaxed text-muted">{SUB}</p>
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <CtaRow />
+            <span className="text-xs text-muted">Trusted by 12,000+ clients</span>
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
+
+  if (variant === 'showcase') {
+    return (
+      <motion.section variants={item} className="px-8 py-16 text-center">
+        <div className="mx-auto max-w-2xl">
+          <Eyebrow />
+          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-[3rem]">
+            {HEADLINE}
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted">{SUB}</p>
+          <div className="mt-7 flex justify-center">
+            <CtaRow />
+          </div>
+        </div>
+        {/* product/app mockup */}
+        <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-2xl border tk-line-strong bg-surface tk-shadow">
+          <div className="flex items-center gap-1.5 border-b tk-line px-4 py-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+            <span className="h-2.5 w-2.5 rounded-full tk-tint-secondary" />
+            <span className="h-2.5 w-2.5 rounded-full tk-tint-primary" />
+          </div>
+          <div className="grid gap-3 p-5 sm:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-xl tk-tint-primary p-4 text-left">
+                <div className="h-2 w-10 rounded-full bg-primary" />
+                <div className="mt-3 h-2 w-full rounded-full tk-line-strong border-t" />
+                <div className="mt-2 h-2 w-2/3 rounded-full tk-line-strong border-t" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
+
+  // typeonly (default)
   return (
     <motion.section variants={item} className="px-8 py-20">
       <Eyebrow />
@@ -134,7 +189,7 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
       </h1>
       <div className="mt-8 flex max-w-3xl items-end justify-between gap-8 border-t tk-line pt-6">
         <p className="max-w-md text-base leading-relaxed text-muted">{SUB}</p>
-        <span className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-bg sm:inline-flex">
+        <span className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary sm:inline-flex">
           Get started <ArrowRight size={16} />
         </span>
       </div>

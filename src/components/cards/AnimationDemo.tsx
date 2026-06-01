@@ -272,6 +272,101 @@ export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
         </Stage>
       );
 
+    case 'text-shimmer':
+      return (
+        <Stage>
+          <motion.span
+            className="bg-clip-text text-xl font-semibold text-transparent"
+            style={{
+              backgroundImage:
+                'linear-gradient(100deg, #7c9eff 20%, #ffd166 45%, #ffffff 50%, #ffd166 55%, #a78bfa 80%)',
+              backgroundSize: '200% 100%',
+            }}
+            animate={{ backgroundPosition: ['100% 0%', '-100% 0%'] }}
+            transition={{ duration: d, ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.4 }}
+          >
+            Shimmer
+          </motion.span>
+        </Stage>
+      );
+
+    case 'tilt-3d':
+      return (
+        <Stage>
+          <div style={{ perspective: 400 }}>
+            <motion.div
+              className="grid h-16 w-24 place-items-center rounded-xl bg-gradient-to-br from-shell-glow to-[#7c9eff] text-xs font-semibold text-shell-base"
+              style={{ transformStyle: 'preserve-3d' }}
+              animate={{ rotateY: [-18, 18, -18], rotateX: [10, -10, 10] }}
+              transition={{ duration: 3, ease: 'easeInOut', repeat: Infinity }}
+            >
+              Tilt 3D
+            </motion.div>
+          </div>
+        </Stage>
+      );
+
+    case 'reveal-mask':
+      return (
+        <Stage>
+          <motion.div
+            className="grid h-14 w-28 place-items-center rounded-lg bg-gradient-to-br from-shell-glow to-[#a78bfa] text-xs font-semibold text-shell-base"
+            animate={{ clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)'] }}
+            transition={loop(0.7)}
+          >
+            Revealed
+          </motion.div>
+        </Stage>
+      );
+
+    case 'marquee':
+      return (
+        <Stage>
+          <div className="relative w-28 overflow-hidden rounded-lg border border-shell-line py-2">
+            <motion.div
+              className="flex w-max gap-3 whitespace-nowrap text-[10px] font-semibold text-shell-mute"
+              animate={{ x: ['0%', '-50%'] }}
+              transition={{ duration: d, ease: 'linear', repeat: Infinity }}
+            >
+              {[0, 1].map((rep) => (
+                <span key={rep} className="flex gap-3" aria-hidden={rep === 1}>
+                  <span className="text-[#7c9eff]">Design</span>
+                  <span>•</span>
+                  <span className="text-[#a78bfa]">Build</span>
+                  <span>•</span>
+                  <span className="text-[#ffd166]">Ship</span>
+                  <span>•</span>
+                </span>
+              ))}
+            </motion.div>
+          </div>
+        </Stage>
+      );
+
+    case 'ripple':
+      return (
+        <Stage>
+          <div className="relative grid h-14 w-14 place-items-center">
+            <span className="h-3 w-3 rounded-full bg-shell-glow" />
+            {[0, 1].map((i) => (
+              <motion.span
+                key={i}
+                className="absolute inset-0 rounded-full border-2 border-[#7c9eff]"
+                animate={{ scale: [0, 1], opacity: [0.6, 0] }}
+                transition={{ duration: d, ease: 'easeOut', repeat: Infinity, delay: i * (d / 2) }}
+              />
+            ))}
+          </div>
+        </Stage>
+      );
+
+    case 'typewriter':
+      return (
+        <Stage>
+          <Typewriter duration={d} />
+        </Stage>
+      );
+
     default:
       return <Stage>{Tile}</Stage>;
   }
@@ -309,5 +404,36 @@ function CountUp({ duration }: { duration: number }) {
       </div>
       <div className="text-[10px] text-shell-mute">sessions delivered</div>
     </div>
+  );
+}
+
+// Types a fixed string in character by character on a loop, holds, then resets,
+// driven by a stepped framer motion value over the preset's duration.
+function Typewriter({ duration }: { duration: number }) {
+  const phrase = 'Hello, world.';
+  const mv = useMotionValue(0);
+  const [count, setCount] = useState(0);
+  useMotionValueEvent(mv, 'change', (v) => setCount(Math.round(v)));
+
+  useEffect(() => {
+    const controls = animate(mv, phrase.length, {
+      duration,
+      ease: 'linear',
+      repeat: Infinity,
+      repeatDelay: 1,
+      repeatType: 'loop',
+    });
+    return () => controls.stop();
+  }, [mv, duration]);
+
+  return (
+    <span className="font-display text-sm font-semibold text-shell-ink">
+      {phrase.slice(0, count)}
+      <motion.span
+        className="ml-0.5 inline-block h-4 w-0.5 -mb-0.5 bg-shell-glow"
+        animate={{ opacity: [1, 0, 1] }}
+        transition={{ duration: 0.8, ease: 'linear', repeat: Infinity }}
+      />
+    </span>
   );
 }

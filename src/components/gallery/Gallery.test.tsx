@@ -64,9 +64,12 @@ describe('Gallery', () => {
   it('shows an empty state when filters match nothing, and clears it', async () => {
     const user = userEvent.setup();
     renderGallery();
-    // No theme carries the "minimal" mood, so this filter yields zero results.
-    expect(themes.filter((t) => t.moods.includes('minimal'))).toHaveLength(0);
-    await user.click(screen.getByRole('button', { name: /^minimal$/i }));
+    // No theme is both "playful" AND healthcare → this combination yields zero.
+    expect(
+      themes.filter((t) => t.moods.includes('playful') && t.industries.includes('healthcare')),
+    ).toHaveLength(0);
+    await user.click(screen.getByRole('button', { name: /^playful$/i }));
+    await user.click(screen.getByRole('button', { name: /^healthcare$/i }));
 
     expect(screen.getByText(/nothing matches those filters/i)).toBeInTheDocument();
 

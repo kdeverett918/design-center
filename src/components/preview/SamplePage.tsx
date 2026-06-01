@@ -38,7 +38,7 @@ export default function SamplePage({ brand, config }: SamplePageProps) {
       >
         <div className="flex items-center gap-2">
           <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary">
-            <Activity size={16} className="text-bg" />
+            <Activity size={16} className="text-onPrimary" />
           </span>
           <span className="font-heading text-lg font-semibold text-ink">{brand}</span>
         </div>
@@ -46,7 +46,7 @@ export default function SamplePage({ brand, config }: SamplePageProps) {
           <span>Services</span>
           <span>About</span>
           <span>Resources</span>
-          <span className="rounded-full bg-primary px-4 py-1.5 font-medium text-bg">Book a visit</span>
+          <span className="rounded-full bg-primary px-4 py-1.5 font-medium text-onPrimary">Book a visit</span>
         </nav>
       </motion.header>
 
@@ -64,8 +64,8 @@ export default function SamplePage({ brand, config }: SamplePageProps) {
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
-              <div className="font-heading text-3xl font-semibold text-bg">{s.value}</div>
-              <div className="mt-1 text-xs text-bg/80">{s.label}</div>
+              <div className="font-heading text-3xl font-semibold text-onPrimary">{s.value}</div>
+              <div className="mt-1 text-xs text-onPrimary/80">{s.label}</div>
             </div>
           ))}
         </div>
@@ -91,7 +91,7 @@ export default function SamplePage({ brand, config }: SamplePageProps) {
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
             <span className="grid h-6 w-6 place-items-center rounded-lg bg-primary">
-              <Activity size={13} className="text-bg" />
+              <Activity size={13} className="text-onPrimary" />
             </span>
             <span className="font-heading text-sm font-semibold text-ink">{brand}</span>
           </div>

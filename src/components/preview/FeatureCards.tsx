@@ -19,6 +19,8 @@ function cardClasses(style: CardStyle): string {
       return 'rounded-2xl border border-bg/10 bg-surface/60 p-5 backdrop-blur-md tk-shadow';
     case 'accentbar':
       return 'rounded-2xl border-t-4 border-accent bg-surface p-5 tk-shadow';
+    case 'gradient':
+      return 'rounded-2xl tk-tint-primary p-5 ring-1 tk-line';
   }
 }
 
