@@ -46,8 +46,12 @@ export default function NavBar() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-3.5 py-1.5 text-sm text-shell-mute">
-          <Star size={14} className="text-amber-400" />
+        <div
+          role="status"
+          aria-label={`${count} ${count === 1 ? 'item' : 'items'} favorited`}
+          className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-3.5 py-1.5 text-sm text-shell-mute"
+        >
+          <Star size={14} className="text-amber-400" aria-hidden="true" />
           <span className="font-medium text-shell-ink">{count}</span>
           <span className="hidden sm:inline">favorited</span>
         </div>

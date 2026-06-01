@@ -5,6 +5,7 @@ import {
   motion,
   useMotionValue,
   useMotionValueEvent,
+  useReducedMotion,
   type Transition,
 } from 'framer-motion';
 import type { AnimationPreset } from '../../types';
@@ -28,7 +29,19 @@ function ease(easing: string): Transition['ease'] {
 // Each demo plays the real effect on a loop so clients SEE the motion, using the
 // preset's own duration + easing (never one-size-fits-all timing).
 export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
+  const reduced = useReducedMotion();
   const d = Math.max(preset.durationMs, 150) / 1000;
+
+  // Honor reduced-motion: show a static representative frame instead of looping.
+  if (reduced) {
+    return (
+      <Stage>
+        <span className="rounded-xl bg-shell-glow px-4 py-2 text-xs font-semibold text-shell-base">
+          {preset.name}
+        </span>
+      </Stage>
+    );
+  }
   const loop = (repeatDelay = 0.7): Transition => ({
     duration: d,
     ease: ease(preset.easing),

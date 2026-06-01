@@ -1,50 +1,9 @@
 import { useState } from 'react';
 import { Check, ClipboardCopy, Printer } from 'lucide-react';
-import type { FontPairing, Palette, PaletteColors } from '../../types';
-import type { PreviewConfig } from '../../preview/previewConfig';
+import { buildBriefText, COLOR_ROLES } from './buildBrief';
+import type { BriefInput } from './buildBrief';
 
-interface BriefSummaryProps {
-  brand: string;
-  themeName?: string;
-  palette: Palette;
-  fonts: FontPairing;
-  config: PreviewConfig;
-  notes?: string;
-}
-
-const COLOR_ROLES: (keyof PaletteColors)[] = [
-  'primary',
-  'secondary',
-  'accent',
-  'ink',
-  'muted',
-  'surface',
-  'background',
-];
-
-function buildBriefText(p: BriefSummaryProps): string {
-  const lines = [
-    `DESIGN BRIEF — ${p.brand}`,
-    p.themeName ? `Theme: ${p.themeName}` : 'Theme: Custom mix',
-    '',
-    `Palette: ${p.palette.name}${p.palette.isDark ? ' (dark)' : ''}`,
-    ...COLOR_ROLES.map((r) => `  ${r.padEnd(11)} ${p.palette.colors[r]}`),
-    '',
-    `Typography:`,
-    `  Heading  ${p.fonts.heading.family} (${p.fonts.heading.weights.join('/')})`,
-    `  Body     ${p.fonts.body.family} (${p.fonts.body.weights.join('/')})`,
-    `  Pairing  ${p.fonts.name} — ${p.fonts.personality}`,
-    '',
-    `Layout:`,
-    `  Hero     ${p.config.hero}`,
-    `  Cards    ${p.config.cardStyle}`,
-    `  Motion   ${p.config.motion}`,
-  ];
-  if (p.notes?.trim()) {
-    lines.push('', 'Notes:', `  ${p.notes.trim()}`);
-  }
-  return lines.join('\n');
-}
+type BriefSummaryProps = BriefInput;
 
 export default function BriefSummary(props: BriefSummaryProps) {
   const { brand, themeName, palette, fonts, config, notes } = props;
@@ -96,16 +55,19 @@ export default function BriefSummary(props: BriefSummaryProps) {
         </div>
         <div className="grid grid-cols-7 overflow-hidden rounded-lg ring-1 ring-shell-line">
           {COLOR_ROLES.map((r) => (
-            <div key={r} className="group relative h-9" style={{ backgroundColor: palette.colors[r] }}>
-              <span className="pointer-events-none absolute inset-x-0 -bottom-5 text-center text-[8px] text-shell-mute opacity-0 transition-opacity group-hover:opacity-100">
-                {palette.colors[r]}
-              </span>
-            </div>
+            <div
+              key={r}
+              className="h-9"
+              style={{ backgroundColor: palette.colors[r] }}
+              title={`${r} ${palette.colors[r]}`}
+            />
           ))}
         </div>
-        <div className="mt-1 grid grid-cols-7 text-center text-[8px] capitalize text-shell-mute/80">
+        <div className="mt-1.5 grid grid-cols-7 gap-0.5 text-center text-[10px] capitalize text-shell-mute">
           {COLOR_ROLES.map((r) => (
-            <span key={r} className="truncate">{r}</span>
+            <span key={r} className="truncate" title={palette.colors[r]}>
+              {r.slice(0, 3)}
+            </span>
           ))}
         </div>
       </div>

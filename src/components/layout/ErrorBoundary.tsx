@@ -31,7 +31,9 @@ export default class ErrorBoundary extends Component<Props, State> {
             Something went sideways.
           </h2>
           <p className="mt-2 text-sm text-shell-mute">
-            {this.state.message ?? 'An unexpected error occurred.'}
+            {import.meta.env.DEV
+              ? (this.state.message ?? 'An unexpected error occurred.')
+              : 'An unexpected error occurred.'}
           </p>
           <button
             type="button"

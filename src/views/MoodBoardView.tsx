@@ -77,8 +77,9 @@ export default function MoodBoardView() {
         {/* builder + brief */}
         <div className="order-2 space-y-5 lg:w-[380px] xl:w-[420px]">
           <div className="rounded-3xl border border-shell-line bg-shell-panel p-5">
-            <Field label="Brand name">
+            <Field label="Brand name" htmlFor="mb-brand">
               <input
+                id="mb-brand"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 className="w-full rounded-lg border border-shell-line bg-shell-base px-3 py-2 text-sm text-shell-ink outline-none focus:border-shell-glow/60"
@@ -127,13 +128,14 @@ export default function MoodBoardView() {
               </div>
             </Field>
 
-            <Field label="Notes for the brief">
+            <Field label="Notes for the brief" htmlFor="mb-notes">
               <textarea
+                id="mb-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
                 placeholder="e.g. warm but clinical, lots of whitespace…"
-                className="w-full resize-none rounded-lg border border-shell-line bg-shell-base px-3 py-2 text-sm text-shell-ink outline-none placeholder:text-shell-mute/60 focus:border-shell-glow/60"
+                className="w-full resize-none rounded-lg border border-shell-line bg-shell-base px-3 py-2 text-sm text-shell-ink outline-none placeholder:text-shell-mute focus:border-shell-glow/60"
               />
             </Field>
           </div>
@@ -145,12 +147,25 @@ export default function MoodBoardView() {
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({
+  label,
+  htmlFor,
+  children,
+}: {
+  label: string;
+  htmlFor?: string;
+  children: ReactNode;
+}) {
+  const cls = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute';
   return (
     <div className="mb-4 last:mb-0">
-      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
-        {label}
-      </div>
+      {htmlFor ? (
+        <label htmlFor={htmlFor} className={cls}>
+          {label}
+        </label>
+      ) : (
+        <div className={cls}>{label}</div>
+      )}
       {children}
     </div>
   );

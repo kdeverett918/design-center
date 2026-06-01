@@ -89,6 +89,7 @@ export default function PreviewControls({
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
+            aria-controls="preview-customizer"
             className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
               open ? 'bg-shell-glow/15 text-shell-ink' : 'text-shell-mute hover:text-shell-ink'
             }`}
@@ -118,7 +119,7 @@ export default function PreviewControls({
 
       {/* collapsible customizer */}
       {open && (
-        <div className="space-y-3 border-t border-shell-line bg-shell-base/40 px-4 py-3">
+        <div id="preview-customizer" className="space-y-3 border-t border-shell-line bg-shell-base/40 px-4 py-3">
           <Row label="Hero">
             <Seg<HeroVariant>
               ariaLabel="Hero layout"

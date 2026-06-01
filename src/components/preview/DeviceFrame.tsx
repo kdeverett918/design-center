@@ -33,7 +33,9 @@ export default function DeviceFrame({ mode, height, children }: DeviceFrameProps
   }, []);
 
   const base = DEVICE_WIDTH[mode];
-  const paneHeight = height === 'fill' ? size.h : height;
+  // Fall back to a sane height before the first ResizeObserver tick to avoid a
+  // zero-height flash in fill (full-screen) mode.
+  const paneHeight = height === 'fill' ? size.h || 600 : height;
   // Never upscale past 1; mobile/tablet sit centered with side gutters.
   const target = mode === 'desktop' ? size.w : Math.min(size.w, base);
   const scale = size.w > 0 ? Math.min(target / base, 1) : 1;

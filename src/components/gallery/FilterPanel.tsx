@@ -73,7 +73,7 @@ export default function FilterPanel({
 
       {showMoods && (
         <div className="mb-2">
-          <div className="mb-1.5 text-[10px] uppercase tracking-wide text-shell-mute/70">Mood</div>
+          <div className="mb-1.5 text-[10px] uppercase tracking-wide text-shell-mute">Mood</div>
           <div className="flex flex-wrap gap-1.5">
             {MOODS.map((m) => (
               <Chip key={m} label={m} active={moods.includes(m)} onClick={() => onToggleMood(m)} />
@@ -84,7 +84,7 @@ export default function FilterPanel({
 
       {showIndustries && (
         <div>
-          <div className="mb-1.5 text-[10px] uppercase tracking-wide text-shell-mute/70">
+          <div className="mb-1.5 text-[10px] uppercase tracking-wide text-shell-mute">
             Industry
           </div>
           <div className="flex flex-wrap gap-1.5">

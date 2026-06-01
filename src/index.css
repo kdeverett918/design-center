@@ -45,6 +45,28 @@
   ::selection {
     background: rgba(201, 184, 255, 0.3);
   }
+
+  /* Visible keyboard focus everywhere (offset ring reads on both shell + light). */
+  :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-bg, #0b0b0f),
+      0 0 0 4px #c9b8ff;
+    border-radius: inherit;
+  }
+}
+
+/* Respect reduced-motion globally: neutralize CSS loops/transitions. Framer
+   components additionally gate on useReducedMotion(). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ===========================================================================

@@ -16,6 +16,17 @@ const ROLES: { key: keyof PaletteColors; label: string }[] = [
 
 export default function PaletteCard({ palette }: { palette: Palette }) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const copyHex = async (key: string, hex: string) => {
+    try {
+      await navigator.clipboard.writeText(hex);
+      setCopied(key);
+      window.setTimeout(() => setCopied((c) => (c === key ? null : c)), 1400);
+    } catch {
+      /* clipboard unavailable — no-op */
+    }
+  };
 
   return (
     <motion.article
@@ -53,6 +64,7 @@ export default function PaletteCard({ palette }: { palette: Palette }) {
         {ROLES.map(({ key, label }) => {
           const hex = palette.colors[key];
           const isHover = hovered === key;
+          const isCopied = copied === key;
           return (
             <button
               key={key}
@@ -61,17 +73,18 @@ export default function PaletteCard({ palette }: { palette: Palette }) {
               onMouseLeave={() => setHovered(null)}
               onFocus={() => setHovered(key)}
               onBlur={() => setHovered(null)}
-              className="relative h-14 outline-none"
+              onClick={() => copyHex(key, hex)}
+              className="relative h-14"
               style={{ backgroundColor: hex }}
-              aria-label={`${label} ${hex}`}
+              aria-label={`Copy ${label} ${hex}`}
             >
               <span
                 className={`absolute inset-x-0 bottom-1 text-center font-ui text-[9px] font-semibold uppercase tracking-wide transition-opacity ${
-                  isHover ? 'opacity-100' : 'opacity-0'
+                  isHover || isCopied ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{ color: contrastText(hex) }}
               >
-                {hex}
+                {isCopied ? 'Copied' : hex}
               </span>
             </button>
           );

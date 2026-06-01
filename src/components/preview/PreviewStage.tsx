@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Eye, X } from 'lucide-react';
 import type { FavoriteKind, FontPairing, Palette } from '../../types';
@@ -37,6 +37,25 @@ export default function PreviewStage({
   const [device, setDevice] = useState<DeviceMode>('desktop');
   const [replay, setReplay] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  // Modal a11y: move focus in, Escape to close, lock scroll, restore focus out.
+  useEffect(() => {
+    if (!fullscreen) return;
+    const prev = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullscreen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+      prev?.focus?.();
+    };
+  }, [fullscreen]);
 
   const frame = (
     <PreviewFrame
@@ -95,7 +114,9 @@ export default function PreviewStage({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col bg-shell-base/95 backdrop-blur-sm"
+            ref={dialogRef}
+            tabIndex={-1}
+            className="fixed inset-0 z-50 flex flex-col bg-shell-base/95 outline-none backdrop-blur-sm"
             role="dialog"
             aria-modal="true"
             aria-label={`${title} full-screen preview`}

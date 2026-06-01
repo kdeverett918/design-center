@@ -1,0 +1,154 @@
+import { describe, expect, it } from 'vitest';
+import { palettes, paletteById } from './palettes';
+import { fontPairings, fontPairingById } from './fonts';
+import { themes, themeById } from './themes';
+import { animationPresets, animationById } from './animations';
+import { layoutPresets, layoutById } from './layouts';
+import {
+  INDUSTRIES,
+  MOODS,
+  matchIndustries,
+  matchMoods,
+} from './taxonomy';
+import type { PaletteColors } from '../types';
+
+const HEX = /^#[0-9A-Fa-f]{6}$/;
+const COLOR_ROLES: (keyof PaletteColors)[] = [
+  'primary',
+  'secondary',
+  'accent',
+  'ink',
+  'muted',
+  'surface',
+  'background',
+];
+
+describe('data integrity — counts', () => {
+  it('has the expected catalog sizes', () => {
+    expect(palettes).toHaveLength(12);
+    expect(fontPairings).toHaveLength(12);
+    expect(themes).toHaveLength(8);
+    expect(animationPresets).toHaveLength(15);
+  });
+});
+
+describe('palettes', () => {
+  it('have unique, lowercase ids', () => {
+    const ids = palettes.map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id).toBe(id.toLowerCase()));
+  });
+
+  it('every color is a 6-digit hex', () => {
+    palettes.forEach((p) => {
+      COLOR_ROLES.forEach((role) => {
+        expect(p.colors[role], `${p.id}.${role}`).toMatch(HEX);
+      });
+    });
+  });
+
+  it('paletteById resolves real ids and returns undefined otherwise', () => {
+    expect(paletteById('meridian')?.name).toBe('Meridian');
+    expect(paletteById('does-not-exist')).toBeUndefined();
+  });
+
+  it('exactly one palette is dark', () => {
+    expect(palettes.filter((p) => p.isDark).map((p) => p.id)).toEqual(['nocturne']);
+  });
+});
+
+describe('font pairings', () => {
+  it('have unique, lowercase ids', () => {
+    const ids = fontPairings.map((f) => f.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id).toBe(id.toLowerCase()));
+  });
+
+  it('every face has a non-empty family and at least one weight', () => {
+    fontPairings.forEach((f) => {
+      [f.heading, f.body].forEach((face) => {
+        expect(face.family.length).toBeGreaterThan(0);
+        expect(face.weights.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  it('fontPairingById resolves', () => {
+    expect(fontPairingById('clearwater')?.name).toBe('Clearwater');
+    expect(fontPairingById('nope')).toBeUndefined();
+  });
+});
+
+describe('themes', () => {
+  it('have unique, lowercase ids', () => {
+    const ids = themes.map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id).toBe(id.toLowerCase()));
+  });
+
+  it('every paletteId resolves to a real palette', () => {
+    themes.forEach((t) => {
+      expect(paletteById(t.paletteId), `${t.id} → ${t.paletteId}`).toBeDefined();
+    });
+  });
+
+  it('every fontPairingId resolves to a real pairing', () => {
+    themes.forEach((t) => {
+      expect(fontPairingById(t.fontPairingId), `${t.id} → ${t.fontPairingId}`).toBeDefined();
+    });
+  });
+
+  it('themeById resolves', () => {
+    expect(themeById('obsidian')?.name).toBe('Obsidian');
+    expect(themeById('ghost')).toBeUndefined();
+  });
+});
+
+describe('animations', () => {
+  it('have unique, lowercase ids', () => {
+    const ids = animationPresets.map((a) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    ids.forEach((id) => expect(id).toBe(id.toLowerCase()));
+  });
+
+  it('durationMs is non-negative', () => {
+    animationPresets.forEach((a) => expect(a.durationMs).toBeGreaterThanOrEqual(0));
+  });
+
+  it('animationById resolves', () => {
+    expect(animationById('fade-up')?.name).toBe('Fade Up');
+    expect(animationById('zzz')).toBeUndefined();
+  });
+});
+
+describe('layouts', () => {
+  it('have unique ids and layoutById resolves', () => {
+    const ids = layoutPresets.map((l) => l.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(layoutById('hero-split')?.name).toBe('Split Hero');
+    expect(layoutById('missing')).toBeUndefined();
+  });
+});
+
+describe('taxonomy match functions', () => {
+  it('empty selection matches everything (no constraint)', () => {
+    expect(matchMoods(['calm'], [])).toBe(true);
+    expect(matchIndustries(['healthcare'], [])).toBe(true);
+  });
+
+  it('returns true on overlap and false when disjoint', () => {
+    expect(matchMoods(['calm', 'warm'], ['warm'])).toBe(true);
+    expect(matchMoods(['calm'], ['bold'])).toBe(false);
+    expect(matchIndustries(['saas', 'creative'], ['creative'])).toBe(true);
+    expect(matchIndustries(['healthcare'], ['ecommerce'])).toBe(false);
+  });
+
+  it('taxonomy vocab covers every mood/industry used in data', () => {
+    const usedMoods = new Set(palettes.flatMap((p) => p.moods).concat(themes.flatMap((t) => t.moods)));
+    usedMoods.forEach((m) => expect(MOODS).toContain(m));
+    const usedIndustries = new Set(
+      fontPairings.flatMap((f) => f.goodFor).concat(themes.flatMap((t) => t.industries)),
+    );
+    usedIndustries.forEach((i) => expect(INDUSTRIES).toContain(i));
+  });
+});
