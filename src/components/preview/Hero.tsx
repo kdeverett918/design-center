@@ -253,6 +253,76 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
     );
   }
 
+  if (variant === 'poster') {
+    return (
+      <motion.section variants={item} className="px-8 py-16">
+        <span className="block text-[11px] font-medium uppercase tracking-[0.32em] text-muted">
+          The Quarterly &mdash; Issue No. 04
+        </span>
+        <h1 className="mt-6 max-w-4xl font-heading text-6xl font-semibold leading-[0.9] tracking-tight text-ink sm:text-[5.5rem]">
+          {HEADLINE}
+        </h1>
+        <div className="mt-8 h-px w-full tk-line-strong border-t" />
+        <div className="mt-7 grid gap-8 sm:grid-cols-[1fr_2fr]">
+          <p className="max-w-xs text-sm leading-relaxed text-muted">{SUB}</p>
+          <div className="flex items-start">
+            <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
+              Read the issue <ArrowRight size={16} />
+            </span>
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
+
+  if (variant === 'brutal') {
+    return (
+      <motion.section variants={item} className="px-8 py-16">
+        <span className="inline-block rounded-none bg-ink px-2 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-bg">
+          No nonsense
+        </span>
+        <h1 className="mt-6 font-heading text-6xl font-bold uppercase leading-[0.82] tracking-tight text-ink sm:text-8xl">
+          {HEADLINE}
+        </h1>
+        <div className="mt-8 border-y-2 border-ink py-5">
+          <p className="max-w-xl text-base font-medium leading-snug text-ink">{SUB}</p>
+        </div>
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <span className="inline-flex items-center gap-2 rounded-none bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-onPrimary shadow-[6px_6px_0_0_var(--color-ink)]">
+            Get started <ArrowRight size={16} />
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-none border-2 border-ink px-6 py-3 text-sm font-bold uppercase tracking-wide text-ink">
+            <Play size={13} /> Watch
+          </span>
+        </div>
+      </motion.section>
+    );
+  }
+
+  if (variant === 'chrome') {
+    return (
+      <motion.section variants={item} className="relative overflow-hidden px-8 py-24 text-center">
+        <div className={`absolute inset-0 tk-mesh ${expressive ? 'animate-gradient-drift' : ''}`} />
+        <div className="pointer-events-none absolute -left-16 top-8 h-64 w-64 rounded-full tk-tint-accent blur-3xl" />
+        <div className="pointer-events-none absolute -right-16 bottom-4 h-64 w-64 rounded-full tk-tint-secondary blur-3xl" />
+        <div className="relative mx-auto max-w-2xl">
+          <span className="inline-block rounded-full bg-bg/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-onPrimary backdrop-blur">
+            Now loading the future
+          </span>
+          <h1 className="mt-6 font-heading text-5xl font-bold leading-[0.95] tracking-tight text-onPrimary drop-shadow-[0_2px_12px_rgba(0,0,0,0.25)] sm:text-7xl">
+            {HEADLINE}
+          </h1>
+          <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-onPrimary/90">{SUB}</p>
+          <div className="mt-8 flex justify-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-bg px-7 py-3.5 text-sm font-semibold text-primary tk-shadow">
+              Get started <ArrowRight size={16} />
+            </span>
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
+
   // typeonly (default)
   return (
     <motion.section variants={item} className="px-8 py-20">

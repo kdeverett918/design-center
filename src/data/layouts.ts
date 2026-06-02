@@ -14,6 +14,9 @@ export const layoutPresets: LayoutPreset[] = [
   { id: 'hero-showcase', name: 'Showcase Hero', type: 'hero', description: 'Centered with product mockup', previewKey: 'hero-showcase' },
   { id: 'hero-overlap', name: 'Overlap Hero', type: 'hero', description: 'Asymmetric offset panels', previewKey: 'hero-overlap' },
   { id: 'hero-siderail', name: 'Side-rail Hero', type: 'hero', description: 'Vertical brand rail + stats', previewKey: 'hero-siderail' },
+  { id: 'hero-poster', name: 'Poster Hero', type: 'hero', description: 'Editorial masthead poster', previewKey: 'hero-poster' },
+  { id: 'hero-brutal', name: 'Brutalist Hero', type: 'hero', description: 'Oversized blocky type, hard edges', previewKey: 'hero-brutal' },
+  { id: 'hero-chrome', name: 'Chrome Hero', type: 'hero', description: 'Y2K neon/chrome gradient', previewKey: 'hero-chrome' },
 
   // Nav
   { id: 'nav-sticky-clear', name: 'Sticky Clear Nav', type: 'nav', description: 'Transparent → solid on scroll', previewKey: 'nav-sticky-clear' },
@@ -27,6 +30,8 @@ export const layoutPresets: LayoutPreset[] = [
   { id: 'card-accentbar', name: 'Accent-bar Card', type: 'card', description: 'Colored top edge', previewKey: 'card-accentbar' },
   { id: 'card-gradient', name: 'Gradient Card', type: 'card', description: 'Soft tinted fill', previewKey: 'card-gradient' },
   { id: 'card-inset', name: 'Inset Card', type: 'card', description: 'Recessed inset ring', previewKey: 'card-inset' },
+  { id: 'card-sticker', name: 'Sticker Card', type: 'card', description: 'Hard offset shadow, playful', previewKey: 'card-sticker' },
+  { id: 'card-outline-bold', name: 'Bold Outline Card', type: 'card', description: 'Thick outline, no fill', previewKey: 'card-outline-bold' },
 
   // Sections
   { id: 'sec-zigzag', name: 'Zigzag', type: 'section', description: 'Alternating image/text', previewKey: 'sec-zigzag' },

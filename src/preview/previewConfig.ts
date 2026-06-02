@@ -12,7 +12,10 @@ export type HeroVariant =
   | 'editorial'
   | 'showcase'
   | 'overlap'
-  | 'siderail';
+  | 'siderail'
+  | 'poster'
+  | 'brutal'
+  | 'chrome';
 
 export type CardStyle =
   | 'elevated'
@@ -20,7 +23,9 @@ export type CardStyle =
   | 'glass'
   | 'accentbar'
   | 'gradient'
-  | 'inset';
+  | 'inset'
+  | 'sticker'
+  | 'outline-bold';
 
 export type DeviceMode = 'desktop' | 'tablet' | 'mobile';
 
@@ -64,6 +69,9 @@ export const HERO_VARIANTS: { id: HeroVariant; label: string }[] = [
   { id: 'showcase', label: 'Showcase' },
   { id: 'overlap', label: 'Overlap' },
   { id: 'siderail', label: 'Side rail' },
+  { id: 'poster', label: 'Poster' },
+  { id: 'brutal', label: 'Brutalist' },
+  { id: 'chrome', label: 'Chrome' },
 ];
 
 export const CARD_STYLES: { id: CardStyle; label: string }[] = [
@@ -73,6 +81,8 @@ export const CARD_STYLES: { id: CardStyle; label: string }[] = [
   { id: 'accentbar', label: 'Accent bar' },
   { id: 'gradient', label: 'Gradient' },
   { id: 'inset', label: 'Inset' },
+  { id: 'sticker', label: 'Sticker' },
+  { id: 'outline-bold', label: 'Bold outline' },
 ];
 
 export const INTENSITIES: AnimationIntensity[] = ['subtle', 'standard', 'expressive'];
@@ -101,6 +111,14 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
   teahouse: { hero: 'siderail', cardStyle: 'bordered' },
   tundra: { hero: 'overlap', cardStyle: 'glass' },
   caravan: { hero: 'split', cardStyle: 'inset' },
+  broadsheet: { hero: 'poster', cardStyle: 'bordered' },
+  riso: { hero: 'poster', cardStyle: 'sticker' },
+  brutalist: { hero: 'brutal', cardStyle: 'outline-bold' },
+  acidhouse: { hero: 'brutal', cardStyle: 'sticker' },
+  chromewave: { hero: 'chrome', cardStyle: 'glass' },
+  vaporwave: { hero: 'chrome', cardStyle: 'gradient' },
+  maison: { hero: 'editorial', cardStyle: 'inset' },
+  atelier: { hero: 'poster', cardStyle: 'bordered' },
 };
 
 const HERO_IDS = new Set<string>(HERO_VARIANTS.map((h) => h.id));

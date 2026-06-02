@@ -23,6 +23,10 @@ function cardClasses(style: CardStyle): string {
       return 'rounded-2xl tk-tint-primary p-5 ring-1 tk-line';
     case 'inset':
       return 'rounded-2xl bg-bg p-5 ring-1 ring-inset tk-line-strong';
+    case 'sticker':
+      return 'rounded-2xl border tk-line-strong bg-surface p-5 shadow-[5px_5px_0_0_var(--color-ink)]';
+    case 'outline-bold':
+      return 'rounded-xl border-2 border-ink bg-bg p-5';
   }
 }
 
