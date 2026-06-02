@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Eye, Link2, X } from 'lucide-react';
+import { Check, Eye, Link2, Sparkles, X } from 'lucide-react';
 import type { FavoriteKind, FontPairing, Palette } from '../../types';
 import type { DeviceMode, PreviewConfig } from '../../preview/previewConfig';
+import { animationById } from '../../data/animations';
+import AnimationDemo from '../cards/AnimationDemo';
 import PreviewControls from './PreviewControls';
 import PreviewFrame from './PreviewFrame';
 import DeviceFrame from './DeviceFrame';
@@ -22,6 +24,8 @@ interface PreviewStageProps {
   onShare?: () => void | Promise<void>;
   /** Inline preview height in px. */
   height?: number;
+  /** Selected animation preset ids — played live beneath the preview. */
+  effects?: string[];
 }
 
 export default function PreviewStage({
@@ -36,7 +40,11 @@ export default function PreviewStage({
   favorite,
   onShare,
   height = 520,
+  effects,
 }: PreviewStageProps) {
+  const effectPresets = (effects ?? [])
+    .map((id) => animationById(id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const [shared, setShared] = useState(false);
   // Default to the mobile frame on small screens — a 1280px desktop render
   // scaled into a ~340px column is illegible; mobile sits near 1:1.
@@ -53,7 +61,28 @@ export default function PreviewStage({
     const prev = document.activeElement as HTMLElement | null;
     dialogRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setFullscreen(false);
+      if (e.key === 'Escape') {
+        setFullscreen(false);
+        return;
+      }
+      // Trap Tab inside the dialog so keyboard focus can't escape to the page.
+      if (e.key !== 'Tab') return;
+      const root = dialogRef.current;
+      if (!root) return;
+      const focusables = root.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!first || !last) return;
+      const activeEl = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (activeEl === first || activeEl === root)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && activeEl === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
@@ -130,6 +159,29 @@ export default function PreviewStage({
           </DeviceFrame>
         </div>
       </div>
+
+      {/* selected effects — each plays its real motion so the picks come to life */}
+      {effectPresets.length > 0 && (
+        <div className="border-t border-shell-line px-4 pb-4 pt-3.5">
+          <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+            <Sparkles size={12} className="text-shell-glow" />
+            Selected effects, in motion
+            <span className="font-normal normal-case tracking-normal text-shell-mute/70">
+              ({effectPresets.length})
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+            {effectPresets.map((preset) => (
+              <div key={preset.id} className="space-y-1.5">
+                <AnimationDemo preset={preset} />
+                <div className="truncate text-center text-[11px] font-medium text-shell-ink" title={preset.effect}>
+                  {preset.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* full-screen modal */}
       <AnimatePresence>

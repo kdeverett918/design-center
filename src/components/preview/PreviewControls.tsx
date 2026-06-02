@@ -51,7 +51,7 @@ function Seg<T extends string>({
           type="button"
           aria-pressed={value === o.id}
           onClick={() => onChange(o.id)}
-          className={`rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize transition-colors ${
+          className={`rounded-lg px-2.5 py-1.5 text-[11px] font-medium capitalize transition-colors ${
             value === o.id
               ? 'bg-shell-glow/15 text-shell-ink ring-1 ring-shell-glow/50'
               : 'text-shell-mute hover:text-shell-ink'
@@ -93,7 +93,7 @@ export default function PreviewControls({
               aria-pressed={device === id}
               title={label}
               onClick={() => onDevice(id)}
-              className={`grid h-7 w-7 place-items-center rounded-md transition-colors ${
+              className={`grid h-8 w-8 place-items-center rounded-md transition-colors ${
                 device === id ? 'bg-shell-panel text-shell-glow' : 'text-shell-mute hover:text-shell-ink'
               }`}
             >
@@ -119,7 +119,7 @@ export default function PreviewControls({
             onClick={onReplay}
             aria-label="Replay animation"
             title="Replay animation"
-            className="grid h-7 w-7 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
+            className="grid h-8 w-8 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
           >
             <RotateCcw size={14} />
           </button>
@@ -128,7 +128,7 @@ export default function PreviewControls({
             onClick={onFullscreen}
             aria-label="Full-screen preview"
             title="Full-screen preview"
-            className="grid h-7 w-7 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
+            className="grid h-8 w-8 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
           >
             <Maximize2 size={14} />
           </button>

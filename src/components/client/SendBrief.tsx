@@ -26,7 +26,7 @@ export default function SendBrief(props: BriefInput) {
   const submitting = status.kind === 'submitting';
 
   const openMailto = (briefText: string) => {
-    const subject = encodeURIComponent(`New design selections — ${brand}`);
+    const subject = encodeURIComponent(`New design selections: ${brand}`);
     const body = encodeURIComponent(`${message ? message + '\n\n' : ''}${briefText}`);
     window.location.href = `mailto:${STUDIO_EMAIL}?subject=${subject}&body=${body}`;
   };

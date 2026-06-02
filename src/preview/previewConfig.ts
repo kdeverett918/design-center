@@ -126,6 +126,37 @@ const CARD_IDS = new Set<string>(CARD_STYLES.map((c) => c.id));
 const NAV_IDS = new Set<string>(NAV_VARIANTS.map((n) => n.id));
 const FOOTER_IDS = new Set<string>(FOOTER_VARIANTS.map((f) => f.id));
 
+// Canonical fresh preview — the single source of truth for a default page.
+export const DEFAULT_PREVIEW_CONFIG: PreviewConfig = {
+  hero: 'split',
+  cardStyle: 'elevated',
+  nav: 'nav-sticky-clear',
+  footer: 'footer-minimal',
+  sections: [...DEFAULT_SECTIONS],
+  motion: 'standard',
+};
+
+// Merge an untrusted (saved or shared-link) config onto the defaults, validating
+// every field against known ids. A partial or tampered payload can therefore
+// never seed invalid state that would throw during preview render.
+export function sanitizePreviewConfig(raw: unknown): PreviewConfig {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const pick = <T extends string>(val: unknown, ids: Set<string>, fallback: T): T =>
+    typeof val === 'string' && ids.has(val) ? (val as T) : fallback;
+  return {
+    hero: pick(r.hero, HERO_IDS, DEFAULT_PREVIEW_CONFIG.hero),
+    cardStyle: pick(r.cardStyle, CARD_IDS, DEFAULT_PREVIEW_CONFIG.cardStyle),
+    nav: pick(r.nav, NAV_IDS, DEFAULT_PREVIEW_CONFIG.nav),
+    footer: pick(r.footer, FOOTER_IDS, DEFAULT_PREVIEW_CONFIG.footer),
+    sections: Array.isArray(r.sections)
+      ? r.sections.filter((s): s is string => typeof s === 'string')
+      : [...DEFAULT_SECTIONS],
+    motion: INTENSITIES.includes(r.motion as AnimationIntensity)
+      ? (r.motion as AnimationIntensity)
+      : DEFAULT_PREVIEW_CONFIG.motion,
+  };
+}
+
 // Map a single-select layout previewKey (hero / card / nav / footer) to a
 // PreviewConfig patch. Sections are multi-select (toggled), so they return null
 // here and are handled by the caller. Also null for non-applicable layouts

@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { FavoriteKind } from '../../types';
 import { useFavorites } from '../../contexts/favoritesContext';
 
@@ -16,6 +16,7 @@ interface FavoriteStarProps {
 export default function FavoriteStar({ kind, id, label, tone = 'shell' }: FavoriteStarProps) {
   const { has, toggle } = useFavorites();
   const active = has(kind, id);
+  const reduced = useReducedMotion();
 
   const ring =
     tone === 'shell'
@@ -25,7 +26,7 @@ export default function FavoriteStar({ kind, id, label, tone = 'shell' }: Favori
   return (
     <motion.button
       type="button"
-      whileTap={{ scale: 0.85 }}
+      whileTap={reduced ? undefined : { scale: 0.85 }}
       onClick={(e) => {
         e.stopPropagation();
         toggle(kind, id);

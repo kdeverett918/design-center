@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Moon, Star, Sun } from 'lucide-react';
+import { Columns2, LayoutGrid, Moon, Shuffle, Star, Sun } from 'lucide-react';
 import { useFavorites } from '../../contexts/favoritesContext';
 import { useColorMode } from '../../hooks/useColorMode';
 import Logo from './Logo';
 
 const links = [
-  { to: '/', label: 'Gallery', end: true },
-  { to: '/moodboard', label: 'Mood board', end: false },
-  { to: '/compare', label: 'Compare', end: false },
+  { to: '/', label: 'Gallery', end: true, icon: LayoutGrid },
+  { to: '/moodboard', label: 'Mood board', end: false, icon: Shuffle },
+  { to: '/compare', label: 'Compare', end: false, icon: Columns2 },
 ];
 
 export default function NavBar() {
@@ -24,11 +24,11 @@ export default function NavBar() {
             aria-label="Design Center — home"
           >
             <Logo className="h-10 w-10 shrink-0 transition-transform duration-500 ease-premium group-hover:scale-105" />
-            <div className="leading-tight">
-              <div className="font-display text-[15px] font-semibold tracking-tight text-shell-ink">
+            <div className="hidden leading-tight min-[400px]:block">
+              <div className="whitespace-nowrap font-display text-[15px] font-semibold tracking-tight text-shell-ink">
                 Design Center
               </div>
-              <div className="text-[10px] font-medium uppercase tracking-[0.22em] text-shell-mute">
+              <div className="hidden whitespace-nowrap text-[10px] font-medium uppercase tracking-[0.22em] text-shell-mute sm:block">
                 Tech SLP Studio
               </div>
             </div>
@@ -43,15 +43,17 @@ export default function NavBar() {
                 key={l.to}
                 to={l.to}
                 end={l.end}
+                aria-label={l.label}
                 className={({ isActive }) =>
-                  `rounded-full px-3 py-1.5 text-sm font-medium transition-all duration-300 ease-premium sm:px-3.5 ${
+                  `flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm font-medium transition-all duration-300 ease-premium sm:px-3.5 ${
                     isActive
                       ? 'bg-shell-glow/15 text-shell-ink shadow-[inset_0_0_0_1px_var(--shell-line)]'
                       : 'text-shell-mute hover:bg-shell-ink/5 hover:text-shell-ink'
                   }`
                 }
               >
-                {l.label}
+                <l.icon size={15} className="shrink-0" />
+                <span className="hidden sm:inline">{l.label}</span>
               </NavLink>
             ))}
           </nav>

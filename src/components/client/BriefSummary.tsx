@@ -43,7 +43,7 @@ export default function BriefSummary(props: BriefSummaryProps) {
   };
 
   const emailBrief = () => {
-    const subject = encodeURIComponent(`Design brief — ${brand}`);
+    const subject = encodeURIComponent(`Design brief: ${brand}`);
     const body = encodeURIComponent(buildBriefText(props));
     window.location.href = `mailto:kristine@thetechslp.com?subject=${subject}&body=${body}`;
   };

@@ -6,14 +6,16 @@ import { decodeBoard, encodeBoard } from './shareBoard';
 import type { PreviewConfig } from '../preview/previewConfig';
 import {
   CARD_STYLES,
+  DEFAULT_PREVIEW_CONFIG,
   FOOTER_VARIANTS,
   HERO_VARIANTS,
   INTENSITIES,
   NAV_VARIANTS,
+  sanitizePreviewConfig,
 } from '../preview/previewConfig';
 import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
-import { animationPresets } from '../data/animations';
+import { animationById, animationPresets } from '../data/animations';
 import type { AnimationCategory } from '../types';
 import { loadFonts } from '../theme/loadFonts';
 import PreviewStage from '../components/preview/PreviewStage';
@@ -32,14 +34,8 @@ const ANIMATION_CATEGORIES: AnimationCategory[] = [
 
 const STORAGE_KEY = 'dc:moodboard:v1';
 
-const DEFAULT_CONFIG: PreviewConfig = {
-  hero: 'split',
-  cardStyle: 'elevated',
-  nav: 'nav-sticky-clear',
-  footer: 'footer-minimal',
-  sections: ['sec-stats-band', 'sec-testimonial-slider'],
-  motion: 'standard',
-};
+// Shared canonical default so saved/shared/shuffled boards never drift apart.
+const DEFAULT_CONFIG: PreviewConfig = DEFAULT_PREVIEW_CONFIG;
 
 interface SavedBoard {
   paletteId: string;
@@ -59,9 +55,12 @@ function loadSaved(): SavedBoard | null {
     if (p && p.config && paletteById(p.paletteId) && fontPairingById(p.fontId)) {
       return {
         ...p,
-        config: { ...DEFAULT_CONFIG, ...p.config },
-        // Old saved boards predate animations.
-        animationIds: Array.isArray(p.animationIds) ? p.animationIds : [],
+        // Validate + merge so a partial/legacy saved board can't seed bad state.
+        config: sanitizePreviewConfig(p.config),
+        // Old saved boards predate animations; drop ids that no longer resolve.
+        animationIds: Array.isArray(p.animationIds)
+          ? p.animationIds.filter((id: unknown) => typeof id === 'string' && animationById(id))
+          : [],
       } as SavedBoard;
     }
   } catch {
@@ -197,6 +196,7 @@ export default function MoodBoardView() {
             title="Custom mix"
             subtitle={`${palette.name} · ${fonts.name}`}
             height={560}
+            effects={animationIds}
           />
         </div>
 

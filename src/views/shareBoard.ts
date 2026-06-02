@@ -1,6 +1,8 @@
 import type { PreviewConfig } from '../preview/previewConfig';
+import { sanitizePreviewConfig } from '../preview/previewConfig';
 import { paletteById } from '../data/palettes';
 import { fontPairingById } from '../data/fonts';
+import { animationById } from '../data/animations';
 import { decodeToken, encodeToken } from '../lib/urlToken';
 
 export interface ShareBoard {
@@ -31,8 +33,15 @@ export function decodeBoard(param: string | null): ShareBoard | null {
     paletteById(p.paletteId) &&
     fontPairingById(p.fontId)
   ) {
-    // Tolerate older tokens that predate the animations field.
-    return { ...p, animationIds: Array.isArray(p.animationIds) ? p.animationIds : [] } as ShareBoard;
+    // Validate against the current schema: merge the config onto defaults and
+    // drop any animation ids that no longer resolve (legacy/tampered tokens).
+    return {
+      ...p,
+      config: sanitizePreviewConfig(p.config),
+      animationIds: Array.isArray(p.animationIds)
+        ? p.animationIds.filter((id) => typeof id === 'string' && animationById(id))
+        : [],
+    } as ShareBoard;
   }
   return null;
 }

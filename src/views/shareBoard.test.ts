@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decodeBoard, encodeBoard } from './shareBoard';
 import type { ShareBoard } from './shareBoard';
-import { configForTheme } from '../preview/previewConfig';
+import { configForTheme, DEFAULT_PREVIEW_CONFIG } from '../preview/previewConfig';
 import { themes } from '../data/themes';
 
 const board: ShareBoard = {
@@ -41,5 +41,23 @@ describe('shareBoard', () => {
     void _omit;
     const token = encodeBoard(legacy as ShareBoard);
     expect(decodeBoard(token)?.animationIds).toEqual([]);
+  });
+
+  it('sanitizes a partial/tampered config back to safe defaults', () => {
+    // A legacy or tampered link with an incomplete + invalid config must not
+    // seed bad state into the live preview.
+    const token = encodeBoard({
+      ...board,
+      config: { hero: 'not-a-hero', motion: 'wild' } as unknown as ShareBoard['config'],
+    });
+    expect(decodeBoard(token)?.config).toEqual(DEFAULT_PREVIEW_CONFIG);
+  });
+
+  it('drops animationIds that no longer resolve', () => {
+    const token = encodeBoard({
+      ...board,
+      animationIds: ['fade-up', 'totally-fake', 'hover-lift'],
+    });
+    expect(decodeBoard(token)?.animationIds).toEqual(['fade-up', 'hover-lift']);
   });
 });

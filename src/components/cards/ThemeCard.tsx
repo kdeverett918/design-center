@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import type { Theme } from '../../types';
 import { paletteById } from '../../data/palettes';
@@ -16,6 +16,7 @@ interface ThemeCardProps {
 // A tiny, fully-colored live page in the theme's own DNA. The grid of these is
 // the colorful showroom wall — each card different colors + fonts at rest.
 export default function ThemeCard({ theme, active, onSelect }: ThemeCardProps) {
+  const reduced = useReducedMotion();
   const palette = paletteById(theme.paletteId);
   const fonts = fontPairingById(theme.fontPairingId);
   if (!palette || !fonts) return null;
@@ -26,7 +27,7 @@ export default function ThemeCard({ theme, active, onSelect }: ThemeCardProps) {
         hidden: { opacity: 0, y: 18 },
         show: { opacity: 1, y: 0 },
       }}
-      whileHover={{ y: -4 }}
+      whileHover={reduced ? undefined : { y: -4 }}
       transition={{ type: 'spring', stiffness: 320, damping: 26 }}
       className={`group relative overflow-hidden rounded-3xl border bg-shell-panel transition-colors ${
         active ? 'border-shell-glow ring-1 ring-shell-glow/50' : 'border-shell-line'

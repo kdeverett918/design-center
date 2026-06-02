@@ -370,6 +370,127 @@ export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
         </Stage>
       );
 
+    case 'marquee-ticker':
+      return (
+        <Stage>
+          <div className="relative w-32 overflow-hidden">
+            <motion.div
+              className="flex w-max gap-3 whitespace-nowrap text-sm font-bold uppercase tracking-tight"
+              animate={{ x: ['0%', '-50%'] }}
+              transition={{ duration: d, ease: 'linear', repeat: Infinity }}
+            >
+              {[0, 1].map((rep) => (
+                <span key={rep} className="flex gap-3" aria-hidden={rep === 1}>
+                  <span className="text-shell-glow">DESIGN</span>
+                  <span className="text-shell-mute">★</span>
+                  <span className="text-[#7c9eff]">BUILD</span>
+                  <span className="text-shell-mute">★</span>
+                  <span className="text-[#ffd166]">SHIP</span>
+                  <span className="text-shell-mute">★</span>
+                </span>
+              ))}
+            </motion.div>
+          </div>
+        </Stage>
+      );
+
+    case 'kinetic-type':
+      return (
+        <Stage>
+          <div className="flex flex-col items-center gap-0.5">
+            {['Move', 'with', 'force'].map((w, i) => (
+              <motion.span
+                key={w}
+                className="text-lg font-bold leading-none text-shell-ink"
+                animate={{ y: [18, 0, 0], opacity: [0, 1, 1] }}
+                transition={{
+                  duration: d,
+                  ease: [0.16, 1, 0.3, 1],
+                  repeat: Infinity,
+                  repeatDelay: 0.9,
+                  delay: i * 0.14,
+                }}
+              >
+                {w}
+              </motion.span>
+            ))}
+          </div>
+        </Stage>
+      );
+
+    case 'text-scramble':
+      return (
+        <Stage>
+          <Scramble duration={d} />
+        </Stage>
+      );
+
+    case 'glitch-shift':
+      return (
+        <Stage>
+          <div className="relative text-2xl font-bold uppercase tracking-tight text-shell-ink">
+            <span>Glitch</span>
+            <motion.span
+              aria-hidden
+              className="absolute inset-0 text-[#ff3b6b] mix-blend-screen"
+              animate={{ x: [0, -2.5, 2, 0, 0], opacity: [0, 0.85, 0.85, 0, 0] }}
+              transition={{ duration: 2, ease: 'linear', repeat: Infinity, times: [0, 0.05, 0.12, 0.2, 1] }}
+            >
+              Glitch
+            </motion.span>
+            <motion.span
+              aria-hidden
+              className="absolute inset-0 text-[#23d5ff] mix-blend-screen"
+              animate={{ x: [0, 2.5, -2, 0, 0], opacity: [0, 0.85, 0.85, 0, 0] }}
+              transition={{ duration: 2, ease: 'linear', repeat: Infinity, times: [0, 0.05, 0.12, 0.2, 1] }}
+            >
+              Glitch
+            </motion.span>
+          </div>
+        </Stage>
+      );
+
+    case 'chrome-shine':
+      return (
+        <Stage>
+          <div className="relative h-14 w-28 overflow-hidden rounded-xl bg-gradient-to-br from-[#9aa3b2] via-[#eef2f8] to-[#6b7384]">
+            <motion.div
+              className="absolute inset-y-0 w-1/3 -skew-x-12 bg-white/70 blur-md"
+              animate={{ x: [-50, 130] }}
+              transition={{ duration: d, ease: 'easeInOut', repeat: Infinity, repeatDelay: 0.6 }}
+            />
+          </div>
+        </Stage>
+      );
+
+    case 'sticker-spin':
+      return (
+        <Stage>
+          <motion.span
+            className="grid h-16 w-16 place-items-center rounded-full bg-shell-glow text-[10px] font-bold uppercase tracking-wide text-shell-base ring-2 ring-shell-base"
+            animate={{ rotate: [0, 360], scale: [1, 1.16, 1] }}
+            transition={{ duration: d, ease: [0.34, 1.56, 0.64, 1], repeat: Infinity, repeatDelay: 0.7 }}
+          >
+            New
+          </motion.span>
+        </Stage>
+      );
+
+    case 'poster-reveal':
+      return (
+        <Stage>
+          <div className="overflow-hidden px-1 py-1">
+            <motion.div
+              className="text-3xl font-bold uppercase leading-none tracking-tight text-shell-ink"
+              animate={{ y: ['100%', '0%', '0%'] }}
+              transition={{ duration: d, ease: [0.16, 1, 0.3, 1], repeat: Infinity, repeatDelay: 0.9 }}
+            >
+              Poster
+            </motion.div>
+          </div>
+        </Stage>
+      );
+
     case 'cursor-dot':
       return <CursorDotDemo />;
     case 'cursor-follow':
@@ -382,6 +503,8 @@ export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
       return <CursorTiltDemo />;
     case 'cursor-ripple':
       return <CursorRippleDemo />;
+    case 'cursor-magnet':
+      return <CursorMagnetDemo />;
 
     default:
       return <Stage>{Tile}</Stage>;
@@ -601,11 +724,83 @@ function CursorRippleDemo() {
   );
 }
 
+// Nearby chips lean toward the pointer (idle-orbit when not hovered).
+function CursorMagnetDemo() {
+  const f = useCursorField({ stiffness: 200, damping: 18 });
+  return (
+    <CursorStage fieldRef={f.ref} onMove={f.onMove} onEnter={() => f.setActive(true)} onLeave={() => f.setActive(false)}>
+      <div className="flex gap-3">
+        {[0.32, 0.2, 0.32].map((factor, i) => (
+          <MagnetDot key={i} x={f.sx} y={f.sy} factor={factor} />
+        ))}
+      </div>
+      <span className="pointer-events-none absolute bottom-1.5 right-2 text-[8px] uppercase tracking-wide text-shell-mute/70">
+        come closer
+      </span>
+    </CursorStage>
+  );
+}
+
+function MagnetDot({
+  x,
+  y,
+  factor,
+}: {
+  x: import('framer-motion').MotionValue<number>;
+  y: import('framer-motion').MotionValue<number>;
+  factor: number;
+}) {
+  const tx = useTransform(x, (v) => v * factor);
+  const ty = useTransform(y, (v) => v * factor);
+  return (
+    <motion.span
+      className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-shell-glow to-[#7c9eff] text-[9px] font-semibold text-shell-base"
+      style={{ x: tx, y: ty }}
+    >
+      Aa
+    </motion.span>
+  );
+}
+
 function Stage({ children }: { children: ReactNode }) {
   return (
     <div className="grid h-28 place-items-center rounded-2xl border border-shell-line bg-shell-base">
       {children}
     </div>
+  );
+}
+
+// Letters decode from random glyphs into the target word on a loop.
+function Scramble({ duration }: { duration: number }) {
+  const target = 'DECODE';
+  const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@$';
+  const mv = useMotionValue(0);
+  const [text, setText] = useState(target);
+  useMotionValueEvent(mv, 'change', (v) => {
+    const revealed = Math.floor(v);
+    let out = '';
+    for (let i = 0; i < target.length; i++) {
+      out +=
+        i < revealed
+          ? target.charAt(i)
+          : glyphs.charAt((Math.floor(v * 9) + i * 5) % glyphs.length);
+    }
+    setText(out);
+  });
+  useEffect(() => {
+    const controls = animate(mv, target.length, {
+      duration,
+      ease: 'linear',
+      repeat: Infinity,
+      repeatDelay: 1.1,
+      repeatType: 'loop',
+    });
+    return () => controls.stop();
+  }, [mv, duration]);
+  return (
+    <span className="font-display text-lg font-semibold tracking-[0.18em] text-shell-glow">
+      {text}
+    </span>
   );
 }
 

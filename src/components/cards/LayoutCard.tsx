@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { Check, Plus } from 'lucide-react';
 import type { FontPairing, LayoutPreset, Palette } from '../../types';
@@ -57,6 +57,7 @@ export default function LayoutCard({
   onApply,
   brand = 'Your Practice',
 }: LayoutCardProps) {
+  const reduced = useReducedMotion();
   const isSection = preset.type === 'section';
   // The dashboard sidebar isn't a marketing-page nav, so it stays browse-only.
   const navApplicable = preset.type === 'nav' && preset.previewKey !== 'nav-sidebar';
@@ -68,7 +69,7 @@ export default function LayoutCard({
   return (
     <motion.article
       variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
-      whileHover={{ y: -3 }}
+      whileHover={reduced ? undefined : { y: -3 }}
       transition={{ type: 'spring', stiffness: 320, damping: 26 }}
       className={`group relative overflow-hidden rounded-3xl border bg-shell-panel transition-colors ${
         applied ? 'border-shell-glow ring-1 ring-shell-glow/50' : 'border-shell-line'
