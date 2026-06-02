@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, Loader2, Send } from 'lucide-react';
+import { CheckCircle2, FileDown, Loader2, Send } from 'lucide-react';
 import { buildBriefText } from './buildBrief';
 import type { BriefInput } from './buildBrief';
 import { sendBrief } from '../../lib/sendBrief';
@@ -123,6 +123,16 @@ export default function SendBrief(props: BriefInput) {
           )}
         </button>
       </form>
+
+      {/* Secondary action — keep a polished PDF copy of the selections. Reuses the
+          print-only brief portaled by BriefSummary (@media print shows only it). */}
+      <button
+        type="button"
+        onClick={() => window.print()}
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-full border border-shell-line px-4 py-2 text-xs font-medium text-shell-mute transition-colors hover:text-shell-ink hover:border-shell-glow/40"
+      >
+        <FileDown size={13} /> Download a PDF copy for your records
+      </button>
 
       <div aria-live="polite" className="mt-3 min-h-[1rem]">
         {status.kind === 'success' && (

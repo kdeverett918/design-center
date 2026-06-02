@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Design Center', () => {
   test('home loads the gallery', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /find the look that fits/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /customize your unique design/i })).toBeVisible();
     // Themes tab is active by default.
     await expect(page.getByRole('button', { name: /^Themes/ })).toHaveAttribute(
       'aria-pressed',

@@ -72,7 +72,7 @@ export default function App() {
         </ErrorBoundary>
 
         <footer className="border-t border-shell-line px-5 py-6 text-center text-xs text-shell-mute sm:px-8">
-          Tech SLP Studio · Design Center — a living style gallery. Build a brief in the mood board.
+          Tech SLP Studio · Design Center. A living style gallery. Build your brief in the mood board.
         </footer>
       </div>
     </FavoritesProvider>

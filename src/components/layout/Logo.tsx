@@ -13,7 +13,14 @@ import { useEffect, useRef } from 'react';
  * `prefers-reduced-motion` by rendering one static frame instead of animating.
  */
 
-const DOTS = 80;
+const DOTS = 260;
+
+// Light direction (upper-left, toward viewer) for smooth sphere shading.
+const LIGHT = (() => {
+  const v = [-0.4, -0.7, 0.7];
+  const m = Math.hypot(v[0], v[1], v[2]);
+  return [v[0] / m, v[1] / m, v[2] / m];
+})();
 
 // Latitude gradient stops (top → equator → bottom).
 const TOP = [0x9b, 0x6b, 0xff];
@@ -34,7 +41,14 @@ function latitudeColor(y: number) {
   return `rgb(${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k)},${lerp(a[2], b[2], k)})`;
 }
 
-type Point = { x: number; y: number; z: number; color: string };
+type Point = { x: number; y: number; z: number; color: string; size: number };
+
+// Deterministic pseudo-random in [0, 1) from an index — keeps dot sizes stable
+// across renders without pulling in Math.random().
+function hashUnit(i: number) {
+  const v = Math.sin(i * 12.9898) * 43758.5453;
+  return v - Math.floor(v);
+}
 
 function buildSphere(): Point[] {
   const pts: Point[] = [];
@@ -48,6 +62,8 @@ function buildSphere(): Point[] {
       y,
       z: Math.sin(theta) * radius,
       color: latitudeColor(y),
+      // Gentle size variation — enough to feel organic, not speckly.
+      size: 0.85 + hashUnit(i) * 0.3,
     });
   }
   return pts;
@@ -92,6 +108,26 @@ export default function Logo({ className = '' }: { className?: string }) {
       const ca = Math.cos(angle);
       const sa = Math.sin(angle);
 
+      // Soft shaded base orb so the dots read as one smooth sphere, with the
+      // highlight offset toward the light. Subtle enough to keep the point
+      // texture; solid enough to kill the scattered, abstract feel.
+      ctx.globalAlpha = 1;
+      const base = ctx.createRadialGradient(
+        cx - R * 0.32,
+        cy - R * 0.42,
+        R * 0.05,
+        cx,
+        cy,
+        R * 1.08,
+      );
+      base.addColorStop(0, 'rgba(135,165,255,0.32)');
+      base.addColorStop(0.55, 'rgba(95,125,220,0.14)');
+      base.addColorStop(1, 'rgba(95,125,220,0)');
+      ctx.fillStyle = base;
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * 1.08, 0, Math.PI * 2);
+      ctx.fill();
+
       const projected = points.map((p) => {
         // Spin around Y…
         const x = p.x * ca + p.z * sa;
@@ -100,20 +136,25 @@ export default function Logo({ className = '' }: { className?: string }) {
         const y = p.y * cosTilt - zr * sinTilt;
         const z = p.y * sinTilt + zr * cosTilt;
         const s = persp / (persp - z);
-        return { sx: cx + x * R * s, sy: cy + y * R * s, depth: z, scale: s, color: p.color };
+        // Surface normal == position on the unit sphere; light it so the orb
+        // reads as a smoothly shaded solid rather than a scatter of points.
+        const lambert = Math.max(0, x * LIGHT[0] + y * LIGHT[1] + z * LIGHT[2]);
+        const shade = 0.32 + 0.68 * lambert;
+        return { sx: cx + x * R * s, sy: cy + y * R * s, depth: z, scale: s, color: p.color, size: p.size, shade };
       });
       // Painter's algorithm: far points first.
       projected.sort((a, b) => a.depth - b.depth);
 
       for (const d of projected) {
         const t = (d.depth + 1) / 2; // 0 = back, 1 = front
-        const alpha = 0.22 + t * 0.78;
-        const radius = (0.65 + t * 1.4) * d.scale;
+        const alpha = Math.min(1, d.shade * (0.6 + 0.4 * t));
+        // Dense, even cores that overlap into a continuous shaded surface.
+        const radius = (0.55 + t * 0.4) * d.scale * d.size;
         ctx.fillStyle = d.color;
-        // Soft bloom.
-        ctx.globalAlpha = alpha * 0.22;
+        // Subtle bloom.
+        ctx.globalAlpha = alpha * 0.1;
         ctx.beginPath();
-        ctx.arc(d.sx, d.sy, radius * 2.6, 0, Math.PI * 2);
+        ctx.arc(d.sx, d.sy, radius * 2, 0, Math.PI * 2);
         ctx.fill();
         // Crisp core.
         ctx.globalAlpha = alpha;
@@ -133,7 +174,8 @@ export default function Logo({ className = '' }: { className?: string }) {
     }
 
     const loop = () => {
-      angle += 0.006;
+      // Slow, calming drift — roughly one full turn per minute.
+      angle += 0.0018;
       draw();
       raf = requestAnimationFrame(loop);
     };

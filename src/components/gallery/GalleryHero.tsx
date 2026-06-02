@@ -11,7 +11,7 @@ import MiniSamplePage from '../preview/MiniSamplePage';
 // Standout themes for the rotating live cluster — each carries its own colors.
 const HERO_THEME_IDS = ['broadsheet', 'chromewave', 'joyride', 'maison'];
 
-const HEADLINE = ["Design that doesn't", 'look like everyone else.'];
+const HEADLINE = ['Customize your', 'unique design.'];
 
 interface GalleryHeroProps {
   /** Scrolls to the gallery section (the "Browse the library" CTA). */
@@ -64,8 +64,8 @@ export default function GalleryHero({ onBrowse }: GalleryHeroProps) {
             variants={lineIn}
             className="mt-5 max-w-md text-base leading-relaxed text-shell-mute sm:text-lg"
           >
-            Browse a library of themes, palettes, and font pairings shown live and in motion — each
-            in its own real colors. Find a look, then make it yours.
+            Browse real themes, color palettes, and font pairings, each one playing live in its own
+            colors. Pick the pieces you love, then customize them into a look that feels like yours.
           </motion.p>
           <motion.div variants={lineIn} className="mt-7 flex flex-wrap items-center gap-3">
             <button
