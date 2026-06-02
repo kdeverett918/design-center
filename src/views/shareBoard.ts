@@ -9,6 +9,7 @@ export interface ShareBoard {
   config: PreviewConfig;
   brand: string;
   notes: string;
+  animationIds: string[];
 }
 
 // Encode the full mood-board into a compact URL-safe token (?b=...).
@@ -30,7 +31,8 @@ export function decodeBoard(param: string | null): ShareBoard | null {
     paletteById(p.paletteId) &&
     fontPairingById(p.fontId)
   ) {
-    return p as ShareBoard;
+    // Tolerate older tokens that predate the animations field.
+    return { ...p, animationIds: Array.isArray(p.animationIds) ? p.animationIds : [] } as ShareBoard;
   }
   return null;
 }

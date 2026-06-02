@@ -65,6 +65,19 @@ describe('buildBriefText', () => {
     expect(text).toContain('FAQ Accordion');
   });
 
+  it('lists chosen animations by name under Motion & effects', () => {
+    const text = buildBriefText({ ...base, animationIds: ['fade-up', 'hover-lift'] });
+    expect(text).toContain('Motion & effects:');
+    expect(text).toContain('Fade Up');
+    expect(text).toContain('Hover Lift');
+  });
+
+  it('prints "none" under Motion & effects when nothing is chosen', () => {
+    const text = buildBriefText(base);
+    expect(text).toContain('Motion & effects:');
+    expect(text).toMatch(/Motion & effects:\n {2}none/);
+  });
+
   it('appends trimmed notes only when present', () => {
     expect(buildBriefText(base)).not.toContain('Notes:');
     const withNotes = buildBriefText({ ...base, notes: '  warm but clinical  ' });

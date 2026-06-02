@@ -1,8 +1,10 @@
 import type { FontPairing, Palette, PaletteColors } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';
 import { layoutById } from '../../data/layouts';
+import { animationById } from '../../data/animations';
 
 const layoutName = (previewKey: string): string => layoutById(previewKey)?.name ?? previewKey;
+const animationName = (id: string): string => animationById(id)?.name ?? id;
 
 export interface BriefInput {
   brand: string;
@@ -11,6 +13,7 @@ export interface BriefInput {
   fonts: FontPairing;
   config: PreviewConfig;
   notes?: string;
+  animationIds?: string[];
 }
 
 export const COLOR_ROLES: (keyof PaletteColors)[] = [
@@ -46,6 +49,11 @@ export function buildBriefText(p: BriefInput): string {
     `  Footer   ${layoutName(p.config.footer)}`,
     `  Sections ${p.config.sections.length ? p.config.sections.map(layoutName).join(', ') : 'none'}`,
     `  Motion   ${p.config.motion}`,
+    '',
+    `Motion & effects:`,
+    ...(p.animationIds?.length
+      ? p.animationIds.map((id) => `  ${animationName(id)}`)
+      : ['  none']),
   ];
   if (p.notes?.trim()) {
     lines.push('', 'Notes:', `  ${p.notes.trim()}`);

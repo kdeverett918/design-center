@@ -5,11 +5,15 @@ import { Check, ClipboardCopy, Download, Mail, Printer } from 'lucide-react';
 import { buildBriefText, COLOR_ROLES } from './buildBrief';
 import type { BriefInput } from './buildBrief';
 import { toCssVars, toJson, toTailwind } from '../../lib/designTokens';
+import { animationById } from '../../data/animations';
+
+const animationName = (id: string): string => animationById(id)?.name ?? id;
 
 type BriefSummaryProps = BriefInput;
 
 export default function BriefSummary(props: BriefSummaryProps) {
-  const { brand, themeName, palette, fonts, config, notes } = props;
+  const { brand, themeName, palette, fonts, config, notes, animationIds } = props;
+  const animations = animationIds ?? [];
   const [copied, setCopied] = useState(false);
 
   const copy = async () => {
@@ -41,7 +45,7 @@ export default function BriefSummary(props: BriefSummaryProps) {
   const emailBrief = () => {
     const subject = encodeURIComponent(`Design brief — ${brand}`);
     const body = encodeURIComponent(buildBriefText(props));
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:kristine@thetechslp.com?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -109,6 +113,25 @@ export default function BriefSummary(props: BriefSummaryProps) {
         <Row label="Motion" value={config.motion} />
       </dl>
 
+      {/* motion & effects */}
+      <div className="mt-4 border-t border-shell-line pt-4">
+        <div className="mb-1.5 text-[10px] uppercase tracking-wide text-shell-mute">
+          Motion &amp; effects · {animations.length ? `${animations.length} chosen` : 'none'}
+        </div>
+        {animations.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {animations.map((id) => (
+              <span
+                key={id}
+                className="rounded-md border border-shell-glow/40 bg-shell-glow/10 px-2 py-1 text-[11px] text-shell-ink"
+              >
+                {animationName(id)}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
       {notes?.trim() && (
         <p className="mt-4 border-t border-shell-line pt-3 text-xs leading-relaxed text-shell-mute">
           “{notes.trim()}”
@@ -120,7 +143,7 @@ export default function BriefSummary(props: BriefSummaryProps) {
         <div className="mb-2 text-[10px] uppercase tracking-wide text-shell-mute">Export &amp; handoff</div>
         <div className="flex flex-wrap gap-1.5">
           <CopyChip label="CSS vars" getText={() => toCssVars(palette, fonts)} />
-          <CopyChip label="JSON" getText={() => toJson(palette, fonts, config)} />
+          <CopyChip label="JSON" getText={() => toJson(palette, fonts, config, animations)} />
           <CopyChip label="Tailwind" getText={() => toTailwind(palette, fonts)} />
           <button
             type="button"
@@ -188,7 +211,8 @@ const niceLabel = (key: string) =>
 
 // Clean, monochrome, paper-friendly brief. Hidden on screen; shown only in print
 // (portaled to <body> so the rest of the app can be display:none in @media print).
-function PrintBrief({ brand, themeName, palette, fonts, config, notes }: BriefSummaryProps) {
+function PrintBrief({ brand, themeName, palette, fonts, config, notes, animationIds }: BriefSummaryProps) {
+  const animations = animationIds ?? [];
   return (
     <div className="print-only" style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#111' }}>
       <div style={{ borderBottom: '2px solid #111', paddingBottom: 12, marginBottom: 20 }}>
@@ -238,6 +262,29 @@ function PrintBrief({ brand, themeName, palette, fonts, config, notes }: BriefSu
           v={config.sections.length ? config.sections.map(niceLabel).join(', ') : 'none'}
         />
         <PrintRow k="Motion" v={config.motion} />
+      </PrintSection>
+
+      <PrintSection title="Motion & effects">
+        {animations.length ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {animations.map((id) => (
+              <span
+                key={id}
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  border: '1px solid #ddd',
+                  borderRadius: 6,
+                  padding: '3px 8px',
+                }}
+              >
+                {animationName(id)}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: 13, color: '#666' }}>none</div>
+        )}
       </PrintSection>
 
       {notes?.trim() && (

@@ -1,148 +1,160 @@
+import { useEffect, useRef } from 'react';
+
 /**
- * Design Center brand mark — an animated "design-system nucleus".
+ * Design Center brand mark — a rotating point-cloud sphere.
  *
- * A glassy, beveled hub sits at the center with a focusing aperture glyph. Four
- * luminous satellites — one per gallery axis (themes / palettes / fonts /
- * motion) — orbit on the outer ring, each tethered to the hub by a thin spoke
- * with energy flowing along it. A second micro-orbit counter-rotates inside for
- * parallax depth, and a soft halo breathes behind everything.
+ * Points are distributed evenly over a sphere (Fibonacci spiral), spun around
+ * the Y axis with a fixed tilt, then perspective-projected so near points grow
+ * brighter and larger while far ones recede — a real sense of depth in ~40px.
+ * Dots are tinted along a violet→blue→teal latitude gradient, so the mark reads
+ * as "live and colorful" on both the light and dark showroom shells.
  *
- * Pure SVG + Tailwind keyframes — no JS animation loop — so the global
- * `prefers-reduced-motion` rule in index.css freezes every loop for free. The
- * hub gradient and accents track `--shell-glow`, so the mark re-tints between
- * the light and dark showroom shells.
+ * It's a small canvas with a single rAF loop that honors
+ * `prefers-reduced-motion` by rendering one static frame instead of animating.
  */
 
-const SATELLITES = [
-  { x: 24, y: 7, r: 2.2, color: 'var(--shell-glow)' }, // themes
-  { x: 41, y: 24, r: 1.9, color: '#7c9eff' }, // motion
-  { x: 24, y: 41, r: 2.2, color: '#4fd1c5' }, // fonts
-  { x: 7, y: 24, r: 1.9, color: '#f6ad55' }, // palettes
-];
+const DOTS = 80;
 
-// Spokes run from just outside the hub face to each satellite, so they read as
-// connectors rather than crossing through the hub.
-const SPOKES = [
-  { x1: 24, y1: 14.6, x2: 24, y2: 8.4 },
-  { x1: 33.4, y1: 24, x2: 39.6, y2: 24 },
-  { x1: 24, y1: 33.4, x2: 24, y2: 39.6 },
-  { x1: 14.6, y1: 24, x2: 8.4, y2: 24 },
-];
+// Latitude gradient stops (top → equator → bottom).
+const TOP = [0x9b, 0x6b, 0xff];
+const MID = [0x5b, 0x9d, 0xff];
+const BOT = [0x2f, 0xd0, 0xc0];
+
+function lerp(a: number, b: number, t: number) {
+  return Math.round(a + (b - a) * t);
+}
+
+function latitudeColor(y: number) {
+  // y in [-1, 1] → t in [0, 1] from top to bottom.
+  const t = (1 - y) / 2;
+  const [a, b, k] =
+    t < 0.5
+      ? [TOP, MID, t / 0.5]
+      : [MID, BOT, (t - 0.5) / 0.5];
+  return `rgb(${lerp(a[0], b[0], k)},${lerp(a[1], b[1], k)},${lerp(a[2], b[2], k)})`;
+}
+
+type Point = { x: number; y: number; z: number; color: string };
+
+function buildSphere(): Point[] {
+  const pts: Point[] = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < DOTS; i++) {
+    const y = 1 - (i / (DOTS - 1)) * 2;
+    const radius = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = golden * i;
+    pts.push({
+      x: Math.cos(theta) * radius,
+      y,
+      z: Math.sin(theta) * radius,
+      color: latitudeColor(y),
+    });
+  }
+  return pts;
+}
 
 export default function Logo({ className = '' }: { className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
+
+    const points = buildSphere();
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Fixed tilt so the poles never sit dead-on.
+    const TILT = 0.5;
+    const cosTilt = Math.cos(TILT);
+    const sinTilt = Math.sin(TILT);
+
+    let raf = 0;
+    let angle = 0;
+    let dpr = 1;
+    let size = 40;
+
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      size = canvas.clientWidth || 40;
+      canvas.width = Math.round(size * dpr);
+      canvas.height = Math.round(size * dpr);
+    };
+
+    const draw = () => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, size, size);
+
+      const cx = size / 2;
+      const cy = size / 2;
+      const R = size * 0.34;
+      const persp = 2.4;
+      const ca = Math.cos(angle);
+      const sa = Math.sin(angle);
+
+      const projected = points.map((p) => {
+        // Spin around Y…
+        const x = p.x * ca + p.z * sa;
+        const zr = -p.x * sa + p.z * ca;
+        // …then tilt around X.
+        const y = p.y * cosTilt - zr * sinTilt;
+        const z = p.y * sinTilt + zr * cosTilt;
+        const s = persp / (persp - z);
+        return { sx: cx + x * R * s, sy: cy + y * R * s, depth: z, scale: s, color: p.color };
+      });
+      // Painter's algorithm: far points first.
+      projected.sort((a, b) => a.depth - b.depth);
+
+      for (const d of projected) {
+        const t = (d.depth + 1) / 2; // 0 = back, 1 = front
+        const alpha = 0.22 + t * 0.78;
+        const radius = (0.65 + t * 1.4) * d.scale;
+        ctx.fillStyle = d.color;
+        // Soft bloom.
+        ctx.globalAlpha = alpha * 0.22;
+        ctx.beginPath();
+        ctx.arc(d.sx, d.sy, radius * 2.6, 0, Math.PI * 2);
+        ctx.fill();
+        // Crisp core.
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(d.sx, d.sy, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    resize();
+
+    if (reduce) {
+      angle = 0.7;
+      draw();
+      return;
+    }
+
+    const loop = () => {
+      angle += 0.006;
+      draw();
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, []);
+
   return (
-    <span className={`relative inline-grid place-items-center ${className}`}>
-      <svg
-        viewBox="0 0 48 48"
-        width="100%"
-        height="100%"
-        role="img"
-        aria-label="Design Center"
-        className="overflow-visible"
-      >
-        <defs>
-          <linearGradient id="dc-hub" x1="0.1" y1="0" x2="0.9" y2="1">
-            <stop offset="0%" stopColor="var(--shell-glow)" />
-            <stop offset="55%" stopColor="#8a8cff" />
-            <stop offset="100%" stopColor="#6f8cff" />
-          </linearGradient>
-          {/* Glassy top sheen for the hub bevel. */}
-          <linearGradient id="dc-sheen" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
-            <stop offset="55%" stopColor="#ffffff" stopOpacity="0" />
-          </linearGradient>
-          <radialGradient id="dc-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="var(--shell-glow)" stopOpacity="0.45" />
-            <stop offset="65%" stopColor="var(--shell-glow)" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="var(--shell-glow)" stopOpacity="0" />
-          </radialGradient>
-          {/* Soft bloom that makes satellites read as luminous. */}
-          <filter id="dc-glow" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="1.2" />
-          </filter>
-        </defs>
-
-        {/* Breathing halo. */}
-        <circle
-          cx="24"
-          cy="24"
-          r="24"
-          fill="url(#dc-halo)"
-          className="origin-center animate-logo-glow [transform-box:fill-box]"
-        />
-
-        {/* Outer orbit guide. */}
-        <circle
-          cx="24"
-          cy="24"
-          r="17"
-          fill="none"
-          stroke="var(--shell-glow)"
-          strokeOpacity="0.22"
-          strokeWidth="0.7"
-          strokeDasharray="0.5 3.4"
-          strokeLinecap="round"
-        />
-
-        {/* Counter-rotating inner micro-orbit for parallax depth. */}
-        <g className="origin-center animate-orbit-reverse [transform-box:fill-box]">
-          <circle cx="32.5" cy="15.5" r="1" fill="var(--shell-glow)" fillOpacity="0.6" />
-          <circle cx="15.5" cy="32.5" r="1" fill="var(--shell-glow)" fillOpacity="0.6" />
-        </g>
-
-        {/* Spokes + satellites orbit together, drawn beneath the hub. */}
-        <g className="origin-center animate-orbit [transform-box:fill-box]">
-          <g
-            className="animate-logo-flow"
-            stroke="var(--shell-glow)"
-            strokeOpacity="0.4"
-            strokeWidth="0.8"
-            strokeLinecap="round"
-            strokeDasharray="0.5 2.6"
-          >
-            {SPOKES.map((s, i) => (
-              <line key={i} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} />
-            ))}
-          </g>
-          <g className="animate-logo-twinkle">
-            {SATELLITES.map((s, i) => (
-              <g key={i}>
-                <circle cx={s.x} cy={s.y} r={s.r + 1.1} fill={s.color} opacity="0.5" filter="url(#dc-glow)" />
-                <circle cx={s.x} cy={s.y} r={s.r} fill={s.color} />
-              </g>
-            ))}
-          </g>
-        </g>
-
-        {/* Glassy hub. */}
-        <g className="origin-center animate-logo-pulse [transform-box:fill-box]">
-          <rect x="14.5" y="14.5" width="19" height="19" rx="6.5" fill="url(#dc-hub)" />
-          <rect x="14.5" y="14.5" width="19" height="19" rx="6.5" fill="url(#dc-sheen)" />
-          {/* Bevel highlight. */}
-          <rect
-            x="15.25"
-            y="15.25"
-            width="17.5"
-            height="17.5"
-            rx="5.9"
-            fill="none"
-            stroke="#ffffff"
-            strokeOpacity="0.35"
-            strokeWidth="0.6"
-          />
-          {/* Focusing aperture glyph. */}
-          <circle
-            cx="24"
-            cy="24"
-            r="3.4"
-            fill="none"
-            stroke="var(--shell-base)"
-            strokeOpacity="0.85"
-            strokeWidth="1.1"
-          />
-          <circle cx="24" cy="24" r="1.15" fill="var(--shell-base)" fillOpacity="0.9" />
-        </g>
-      </svg>
-    </span>
+    <canvas
+      ref={canvasRef}
+      role="img"
+      aria-label="Design Center"
+      style={{ display: 'block' }}
+      className={className}
+    />
   );
 }

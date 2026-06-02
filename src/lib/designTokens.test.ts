@@ -27,10 +27,19 @@ describe('toJson', () => {
       colors: { primary: string };
       typography: { heading: { family: string } };
       layout: { hero: string };
+      animations: string[];
     };
     expect(parsed.colors.primary).toBe(palette.colors.primary);
     expect(parsed.typography.heading.family).toBe(fonts.heading.family);
     expect(parsed.layout.hero).toBeDefined();
+    // animations defaults to [] when not supplied
+    expect(parsed.animations).toEqual([]);
+  });
+
+  it('includes the chosen animations when supplied', () => {
+    const json = toJson(palette, fonts, config, ['fade-up', 'hover-lift']);
+    const parsed = JSON.parse(json) as { animations: string[] };
+    expect(parsed.animations).toEqual(['fade-up', 'hover-lift']);
   });
 });
 

@@ -1,20 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutGrid, Palette as PaletteIcon, SearchX, Sparkles, Type, Wand2 } from 'lucide-react';
-import type { AnimationCategory, Industry, LayoutPreset, Mood } from '../../types';
+import { LayoutGrid, Palette as PaletteIcon, Sparkles, Type, Wand2 } from 'lucide-react';
+import type { AnimationCategory, LayoutPreset } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';
 import { themeById, themes } from '../../data/themes';
 import { paletteById, palettes } from '../../data/palettes';
 import { fontPairingById, fontPairings } from '../../data/fonts';
 import { animationPresets } from '../../data/animations';
 import { layoutPresets } from '../../data/layouts';
-import { matchIndustries, matchMoods } from '../../data/taxonomy';
+import { collectionById, collections } from '../../data/collections';
 import ThemeCard from '../cards/ThemeCard';
 import PaletteCard from '../cards/PaletteCard';
 import FontCard from '../cards/FontCard';
 import AnimationCard from '../cards/AnimationCard';
 import LayoutCard from '../cards/LayoutCard';
-import FilterPanel from './FilterPanel';
 
 type Tab = 'themes' | 'palettes' | 'fonts' | 'layouts' | 'animations';
 
@@ -58,6 +57,8 @@ interface GalleryProps {
 
 export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyLayout }: GalleryProps) {
   const [tab, setTab] = useState<Tab>('themes');
+  // Curated collection on the Themes tab — null means "All".
+  const [collection, setCollection] = useState<string | null>(null);
 
   // Resolve the active theme so layout thumbnails render in the live theme.
   const activeTheme = themeById(activeThemeId) ?? themes[0]!;
@@ -70,34 +71,19 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
     (l.type === 'nav' && config.nav === l.previewKey) ||
     (l.type === 'footer' && config.footer === l.previewKey) ||
     (l.type === 'section' && config.sections.includes(l.previewKey));
-  const [moods, setMoods] = useState<Mood[]>([]);
-  const [industries, setIndustries] = useState<Industry[]>([]);
 
-  const toggle = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, val: T) =>
-    setter((prev) => (prev.includes(val) ? prev.filter((x) => x !== val) : [...prev, val]));
-
-  const filteredThemes = useMemo(
-    () => themes.filter((t) => matchMoods(t.moods, moods) && matchIndustries(t.industries, industries)),
-    [moods, industries],
-  );
-  const filteredPalettes = useMemo(() => palettes.filter((p) => matchMoods(p.moods, moods)), [moods]);
-  const filteredFonts = useMemo(
-    () => fontPairings.filter((f) => matchIndustries(f.goodFor, industries)),
-    [industries],
-  );
+  // Themes shown on the Themes tab — all of them, or the active collection's set.
+  const activeCollection = collection ? collectionById(collection) : undefined;
+  const shownThemes = activeCollection
+    ? activeCollection.themeIds.map((id) => themeById(id)).filter((t): t is NonNullable<typeof t> => Boolean(t))
+    : themes;
 
   const counts: Record<Tab, number> = {
-    themes: filteredThemes.length,
-    palettes: filteredPalettes.length,
-    fonts: filteredFonts.length,
+    themes: themes.length,
+    palettes: palettes.length,
+    fonts: fontPairings.length,
     layouts: layoutPresets.length,
     animations: animationPresets.length,
-  };
-
-  const showFilters = tab === 'themes' || tab === 'palettes' || tab === 'fonts';
-  const clear = () => {
-    setMoods([]);
-    setIndustries([]);
   };
 
   return (
@@ -128,52 +114,89 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
         })}
       </div>
 
-      {showFilters && (
+      {/* curated collection rail — themes tab only */}
+      {tab === 'themes' && (
         <div className="px-1 pb-4">
-          <FilterPanel
-            moods={moods}
-            industries={industries}
-            onToggleMood={(m) => toggle(setMoods, m)}
-            onToggleIndustry={(i) => toggle(setIndustries, i)}
-            onClear={clear}
-            showMoods={tab === 'themes' || tab === 'palettes'}
-            showIndustries={tab === 'themes' || tab === 'fonts'}
-            resultCount={counts[tab]}
-          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setCollection(null)}
+              aria-pressed={collection === null}
+              className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                collection === null
+                  ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
+                  : 'border-shell-line bg-shell-panel text-shell-mute hover:text-shell-ink'
+              }`}
+            >
+              All
+            </button>
+            {collections.map((c) => {
+              const active = collection === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setCollection(c.id)}
+                  aria-pressed={active}
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                    active
+                      ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
+                      : 'border-shell-line bg-shell-panel text-shell-mute hover:text-shell-ink'
+                  }`}
+                >
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+          {activeCollection && (
+            <p className="mt-2.5 px-1 text-xs text-shell-mute">{activeCollection.description}</p>
+          )}
         </div>
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-1 pb-8">
         {/* simple grids (themes / palettes / fonts) */}
-        {showFilters && (
+        {tab === 'themes' && (
           <motion.div
-            key={`${tab}:${moods.join(',')}:${industries.join(',')}`}
+            key={`themes:${collection ?? 'all'}`}
             variants={gridVariants}
             initial="hidden"
             animate="show"
-            className={
-              tab === 'themes'
-                ? 'grid grid-cols-1 gap-5 sm:grid-cols-2'
-                : 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3'
-            }
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2"
           >
-            {tab === 'themes' &&
-              filteredThemes.map((t) => (
-                <ThemeCard key={t.id} theme={t} active={t.id === activeThemeId} onSelect={onSelectTheme} />
-              ))}
-            {tab === 'palettes' && filteredPalettes.map((p) => <PaletteCard key={p.id} palette={p} />)}
-            {tab === 'fonts' && filteredFonts.map((f) => <FontCard key={f.id} pairing={f} />)}
+            {shownThemes.map((t) => (
+              <ThemeCard key={t.id} theme={t} active={t.id === activeThemeId} onSelect={onSelectTheme} />
+            ))}
           </motion.div>
         )}
 
-        {showFilters && counts[tab] === 0 && (
-          <div className="grid place-items-center rounded-2xl border border-dashed border-shell-line py-16 text-center">
-            <SearchX size={22} className="text-shell-mute" />
-            <p className="mt-3 text-sm text-shell-ink">Nothing matches those filters.</p>
-            <button type="button" onClick={clear} className="mt-2 text-xs font-medium text-shell-glow hover:underline">
-              Clear filters
-            </button>
-          </div>
+        {tab === 'palettes' && (
+          <motion.div
+            key="palettes"
+            variants={gridVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
+          >
+            {palettes.map((p) => (
+              <PaletteCard key={p.id} palette={p} />
+            ))}
+          </motion.div>
+        )}
+
+        {tab === 'fonts' && (
+          <motion.div
+            key="fonts"
+            variants={gridVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
+          >
+            {fontPairings.map((f) => (
+              <FontCard key={f.id} pairing={f} />
+            ))}
+          </motion.div>
         )}
 
         {/* Layouts — grouped by type */}

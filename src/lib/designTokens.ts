@@ -44,6 +44,7 @@ export function toJson(
   palette: Palette,
   fonts: FontPairing,
   config: PreviewConfig,
+  animations: string[] = [],
 ): string {
   const colors: Record<string, string> = {};
   for (const key of COLOR_KEYS) {
@@ -65,6 +66,7 @@ export function toJson(
       sections: config.sections,
       motion: config.motion,
     },
+    animations,
   };
   return JSON.stringify(doc, null, 2);
 }

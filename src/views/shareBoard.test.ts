@@ -10,6 +10,7 @@ const board: ShareBoard = {
   config: configForTheme(themes[0]!),
   brand: 'Acme Care',
   notes: 'warm but clinical',
+  animationIds: ['fade-up', 'hover-lift'],
 };
 
 describe('shareBoard', () => {
@@ -27,5 +28,18 @@ describe('shareBoard', () => {
     // valid encoding but referencing a palette that no longer exists
     const stale = encodeBoard({ ...board, paletteId: 'does-not-exist' });
     expect(decodeBoard(stale)).toBeNull();
+  });
+
+  it('round-trips the chosen animationIds', () => {
+    const token = encodeBoard(board);
+    expect(decodeBoard(token)?.animationIds).toEqual(['fade-up', 'hover-lift']);
+  });
+
+  it('defaults animationIds to [] for older tokens missing the field', () => {
+    // Encode a board, then strip animationIds to simulate a pre-animations token.
+    const { animationIds: _omit, ...legacy } = board;
+    void _omit;
+    const token = encodeBoard(legacy as ShareBoard);
+    expect(decodeBoard(token)?.animationIds).toEqual([]);
   });
 });

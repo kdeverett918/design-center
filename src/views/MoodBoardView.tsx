@@ -13,9 +13,22 @@ import {
 } from '../preview/previewConfig';
 import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
+import { animationPresets } from '../data/animations';
+import type { AnimationCategory } from '../types';
 import { loadFonts } from '../theme/loadFonts';
 import PreviewStage from '../components/preview/PreviewStage';
 import BriefSummary from '../components/client/BriefSummary';
+import SendBrief from '../components/client/SendBrief';
+
+// Order the "Motion & effects" picker presents its categories in.
+const ANIMATION_CATEGORIES: AnimationCategory[] = [
+  'entrance',
+  'scroll',
+  'hover',
+  'cursor',
+  'continuous',
+  'transition',
+];
 
 const STORAGE_KEY = 'dc:moodboard:v1';
 
@@ -34,6 +47,7 @@ interface SavedBoard {
   config: PreviewConfig;
   brand: string;
   notes: string;
+  animationIds: string[];
 }
 
 // Hydrate the last saved brief, validating the referenced palette/font still exist.
@@ -43,7 +57,12 @@ function loadSaved(): SavedBoard | null {
     if (!raw) return null;
     const p = JSON.parse(raw);
     if (p && p.config && paletteById(p.paletteId) && fontPairingById(p.fontId)) {
-      return { ...p, config: { ...DEFAULT_CONFIG, ...p.config } } as SavedBoard;
+      return {
+        ...p,
+        config: { ...DEFAULT_CONFIG, ...p.config },
+        // Old saved boards predate animations.
+        animationIds: Array.isArray(p.animationIds) ? p.animationIds : [],
+      } as SavedBoard;
     }
   } catch {
     /* ignore */
@@ -60,6 +79,7 @@ export default function MoodBoardView() {
   const [config, setConfig] = useState<PreviewConfig>(() => initial?.config ?? DEFAULT_CONFIG);
   const [brand, setBrand] = useState(() => initial?.brand ?? 'Your Practice');
   const [notes, setNotes] = useState(() => initial?.notes ?? '');
+  const [animationIds, setAnimationIds] = useState<string[]>(() => initial?.animationIds ?? []);
   const [copied, setCopied] = useState(false);
 
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
@@ -73,11 +93,14 @@ export default function MoodBoardView() {
   // Auto-save the full brief so it survives refreshes / return visits.
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ paletteId, fontId, config, brand, notes }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ paletteId, fontId, config, brand, notes, animationIds }),
+      );
     } catch {
       /* ignore */
     }
-  }, [paletteId, fontId, config, brand, notes]);
+  }, [paletteId, fontId, config, brand, notes, animationIds]);
 
   const shuffle = () => {
     const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]!;
@@ -91,6 +114,10 @@ export default function MoodBoardView() {
       sections: [...DEFAULT_CONFIG.sections],
       motion: pick(INTENSITIES),
     });
+    // Pick 2–3 distinct random animations.
+    const count = 2 + Math.floor(Math.random() * 2);
+    const shuffled = [...animationPresets].sort(() => Math.random() - 0.5);
+    setAnimationIds(shuffled.slice(0, count).map((a) => a.id));
   };
 
   const reset = () => {
@@ -99,10 +126,15 @@ export default function MoodBoardView() {
     setConfig(DEFAULT_CONFIG);
     setBrand('Your Practice');
     setNotes('');
+    setAnimationIds([]);
+  };
+
+  const toggleAnimation = (id: string) => {
+    setAnimationIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
   };
 
   const copyShareLink = async () => {
-    const token = encodeBoard({ paletteId, fontId, config, brand, notes });
+    const token = encodeBoard({ paletteId, fontId, config, brand, notes, animationIds });
     const url = `${window.location.origin}/moodboard?b=${token}`;
     try {
       await navigator.clipboard.writeText(url);
@@ -222,6 +254,43 @@ export default function MoodBoardView() {
               </div>
             </Field>
 
+            <Field label="Motion & effects">
+              <div className="max-h-52 space-y-2.5 overflow-y-auto scrollbar-thin pr-1">
+                {ANIMATION_CATEGORIES.map((category) => {
+                  const items = animationPresets.filter((a) => a.category === category);
+                  if (!items.length) return null;
+                  return (
+                    <div key={category}>
+                      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-shell-mute/80">
+                        {category}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {items.map((a) => {
+                          const on = animationIds.includes(a.id);
+                          return (
+                            <button
+                              key={a.id}
+                              type="button"
+                              aria-pressed={on}
+                              title={a.effect}
+                              onClick={() => toggleAnimation(a.id)}
+                              className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
+                                on
+                                  ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
+                                  : 'border-shell-line text-shell-mute hover:text-shell-ink'
+                              }`}
+                            >
+                              {a.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Field>
+
             <Field label="Notes for the brief" htmlFor="mb-notes">
               <textarea
                 id="mb-notes"
@@ -234,7 +303,23 @@ export default function MoodBoardView() {
             </Field>
           </div>
 
-          <BriefSummary brand={brand} palette={palette} fonts={fonts} config={config} notes={notes} />
+          <BriefSummary
+            brand={brand}
+            palette={palette}
+            fonts={fonts}
+            config={config}
+            notes={notes}
+            animationIds={animationIds}
+          />
+
+          <SendBrief
+            brand={brand}
+            palette={palette}
+            fonts={fonts}
+            config={config}
+            notes={notes}
+            animationIds={animationIds}
+          />
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import FavoritesProvider from '../../contexts/FavoritesProvider';
 import Gallery from './Gallery';
 import { themes } from '../../data/themes';
 import { animationPresets } from '../../data/animations';
+import { collectionById, collections } from '../../data/collections';
 import { configForTheme } from '../../preview/previewConfig';
 
 function renderGallery() {
@@ -51,35 +52,33 @@ describe('Gallery', () => {
     expect(screen.getByRole('heading', { name: 'View Transition' })).toBeInTheDocument();
   });
 
-  it('a mood filter chip reduces the theme count', async () => {
-    const user = userEvent.setup();
+  it('renders the curated collection rail on the Themes tab', () => {
     renderGallery();
-    const themesTab = tab(/^Themes/);
-    const before = themes.length;
-
-    // "playful" only applies to a subset of themes → count must shrink.
-    const chip = screen.getByRole('button', { name: /^playful$/i });
-    await user.click(chip);
-
-    const playfulCount = themes.filter((t) => t.moods.includes('playful')).length;
-    expect(playfulCount).toBeGreaterThan(0);
-    expect(playfulCount).toBeLessThan(before);
-    expect(within(themesTab).getByText(String(playfulCount))).toBeInTheDocument();
+    // "All" plus one chip per collection.
+    expect(screen.getByRole('button', { name: /^All$/ })).toBeInTheDocument();
+    for (const c of collections) {
+      expect(screen.getByRole('button', { name: c.name })).toBeInTheDocument();
+    }
   });
 
-  it('shows an empty state when filters match nothing, and clears it', async () => {
+  it('selecting a collection narrows the themes shown to that set', async () => {
     const user = userEvent.setup();
     renderGallery();
-    // No theme is both "playful" AND healthcare → this combination yields zero.
+    const editorial = collectionById('editorial')!;
+    await user.click(screen.getByRole('button', { name: editorial.name }));
+
+    // The collection's description caption appears.
+    expect(screen.getByText(editorial.description)).toBeInTheDocument();
+    // Only the collection's themes have a preview card (one button per theme).
+    for (const id of editorial.themeIds) {
+      const theme = themes.find((t) => t.id === id)!;
+      expect(
+        screen.getByRole('button', { name: new RegExp(`Preview the ${theme.name} theme`) }),
+      ).toBeInTheDocument();
+    }
+    // A theme outside the editorial collection is not shown.
     expect(
-      themes.filter((t) => t.moods.includes('playful') && t.industries.includes('healthcare')),
-    ).toHaveLength(0);
-    await user.click(screen.getByRole('button', { name: /^playful$/i }));
-    await user.click(screen.getByRole('button', { name: /^healthcare$/i }));
-
-    expect(screen.getByText(/nothing matches those filters/i)).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /clear filters/i }));
-    expect(screen.queryByText(/nothing matches those filters/i)).not.toBeInTheDocument();
+      screen.queryByRole('button', { name: /Preview the Stillwater theme/ }),
+    ).not.toBeInTheDocument();
   });
 });

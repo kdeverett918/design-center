@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { PreviewConfig } from '../preview/previewConfig';
 import { configForTheme, layoutToConfig } from '../preview/previewConfig';
@@ -7,10 +7,14 @@ import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
 import { fontPairingById } from '../data/fonts';
 import Gallery from '../components/gallery/Gallery';
+import GalleryHero from '../components/gallery/GalleryHero';
 import PreviewStage from '../components/preview/PreviewStage';
 
 export default function GalleryView() {
   const [params, setParams] = useSearchParams();
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const scrollToGallery = () =>
+    galleryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   // Active theme is driven by the ?theme= URL param so previews are shareable
   // and the favorites view can deep-link straight to one.
   const paramTheme = params.get('theme');
@@ -65,17 +69,9 @@ export default function GalleryView() {
 
   return (
     <div className="mx-auto max-w-[1500px] px-5 py-6 sm:px-8">
-      <div className="mb-6 max-w-2xl">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-shell-ink sm:text-4xl">
-          Find the look that fits.
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed text-shell-mute sm:text-base">
-          Browse live themes, color palettes, font pairings, and animations — each shown in its
-          real colors and motion. Tap a theme to preview a full page, then tune the layout.
-        </p>
-      </div>
+      <GalleryHero onBrowse={scrollToGallery} />
 
-      <div className="flex flex-col gap-6 lg:flex-row">
+      <div ref={galleryRef} className="mt-10 flex flex-col gap-6 scroll-mt-[84px] lg:flex-row">
         <div className="order-2 min-w-0 flex-1 lg:order-1">
           <Gallery
             activeThemeId={activeThemeId}
