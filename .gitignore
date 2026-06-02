@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Local env (real Web3Forms key etc.) — never commit
+.env
+.env.*
+!.env.example
+
 # Playwright / verification artifacts
 .playwright-mcp/
 *.jpeg

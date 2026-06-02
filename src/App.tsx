@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes, useLocation } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import './App.css';
 import FavoritesProvider from './contexts/FavoritesProvider';
 import NavBar from './components/layout/NavBar';
@@ -36,6 +37,29 @@ function NotFound() {
   );
 }
 
+// Subtle per-route entrance so navigating feels deliberate, not a hard cut.
+// Keyed on pathname; reduced-motion users get a plain mount (no offset/fade).
+function RouteTransition() {
+  const { pathname } = useLocation();
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      key={pathname}
+      initial={reduce ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
+      <Routes>
+        <Route path="/" element={<GalleryView />} />
+        <Route path="/moodboard" element={<MoodBoardView />} />
+        <Route path="/compare" element={<CompareView />} />
+        <Route path="/favorites" element={<FavoritesView />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </motion.div>
+  );
+}
+
 export default function App() {
   return (
     <FavoritesProvider>
@@ -43,13 +67,7 @@ export default function App() {
         <NavBar />
         <ErrorBoundary>
           <Suspense fallback={<ViewFallback />}>
-            <Routes>
-              <Route path="/" element={<GalleryView />} />
-              <Route path="/moodboard" element={<MoodBoardView />} />
-              <Route path="/compare" element={<CompareView />} />
-              <Route path="/favorites" element={<FavoritesView />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <RouteTransition />
           </Suspense>
         </ErrorBoundary>
 
