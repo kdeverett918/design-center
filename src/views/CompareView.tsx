@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ArrowLeftRight, Check, Link2 } from 'lucide-react';
+import Button from '../components/ui/Button';
 import { configForTheme } from '../preview/previewConfig';
 import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
@@ -145,26 +146,14 @@ export default function CompareView() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={swap}
-            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-1.5 text-sm font-medium text-shell-mute transition-colors hover:text-shell-ink"
-          >
+          <Button tone="accent" onClick={swap}>
             <ArrowLeftRight size={15} />
             Swap
-          </button>
-          <button
-            type="button"
-            onClick={shareComparison}
-            className="flex items-center gap-1.5 rounded-full border border-shell-line px-3 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
-          >
-            {copied ? (
-              <Check size={13} className="text-emerald-400" />
-            ) : (
-              <Link2 size={13} className="text-shell-glow" />
-            )}
+          </Button>
+          <Button tone="info" onClick={shareComparison}>
+            {copied ? <Check size={15} /> : <Link2 size={15} />}
             {copied ? 'Copied' : 'Share comparison'}
-          </button>
+          </Button>
         </div>
       </div>
 

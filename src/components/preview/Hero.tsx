@@ -95,6 +95,20 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
             <CtaRow />
           </div>
         </div>
+        {/* framed feature block below the centered copy — a real photo when present */}
+        {heroImage && (
+          <div className="relative mx-auto mt-12 aspect-[16/9] max-w-3xl overflow-hidden rounded-3xl border tk-line-strong tk-shadow">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            {/* light scrim so the brand label keeps AA */}
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/15 to-transparent" />
+            <span className="absolute bottom-5 left-1/2 -translate-x-1/2 font-heading text-xl font-semibold text-onPrimary drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]">
+              {brand}
+            </span>
+          </div>
+        )}
       </motion.section>
     );
   }
@@ -147,15 +161,28 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           style={{ opacity: 0.22 }}
         />
         <div className="pointer-events-none absolute -right-20 -top-16 h-72 w-72 rounded-full tk-tint-primary blur-3xl" />
-        <div className="relative max-w-2xl">
-          <Eyebrow />
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">
-            {HEADLINE}
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">{SUB}</p>
-          <div className="mt-7">
-            <CtaRow />
+        {/* dark ink body text — keep the photo to a SIDE panel, never behind the copy */}
+        <div className="relative grid items-center gap-8 sm:grid-cols-[1.2fr_0.8fr]">
+          <div className="max-w-2xl">
+            <Eyebrow />
+            <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">
+              {HEADLINE}
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">{SUB}</p>
+            <div className="mt-7">
+              <CtaRow />
+            </div>
           </div>
+          {heroImage && (
+            <div className="relative hidden aspect-[4/5] overflow-hidden rounded-3xl tk-shadow sm:block">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              {/* faint primary scrim ties the panel to the palette */}
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/55 via-transparent to-transparent" />
+            </div>
+          )}
         </div>
       </motion.section>
     );
@@ -171,6 +198,19 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <h1 className="mt-8 font-heading text-5xl font-semibold leading-[0.95] tracking-tight text-ink sm:text-[4.5rem]">
           {HEADLINE}
         </h1>
+        {/* wide editorial photo band beneath the headline */}
+        {heroImage && (
+          <div className="relative mt-8 aspect-[21/9] w-full overflow-hidden rounded-2xl tk-shadow">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
+            <span className="absolute bottom-4 left-5 text-[11px] uppercase tracking-[0.2em] text-bg drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+              {brand} &mdash; Feature
+            </span>
+          </div>
+        )}
         <div className="mt-8 grid gap-6 border-t tk-line pt-6 sm:grid-cols-[1.4fr_1fr]">
           <p className="text-lg leading-relaxed text-muted">{SUB}</p>
           <div className="flex flex-col items-start gap-3 sm:items-end">
@@ -202,15 +242,26 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
             <span className="h-2.5 w-2.5 rounded-full tk-tint-secondary" />
             <span className="h-2.5 w-2.5 rounded-full tk-tint-primary" />
           </div>
-          <div className="grid gap-3 p-5 sm:grid-cols-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="rounded-xl tk-tint-primary p-4 text-left">
-                <div className="h-2 w-10 rounded-full bg-primary" />
-                <div className="mt-3 h-2 w-full rounded-full tk-line-strong border-t" />
-                <div className="mt-2 h-2 w-2/3 rounded-full tk-line-strong border-t" />
-              </div>
-            ))}
-          </div>
+          {heroImage ? (
+            // real screenshot inside the browser chrome
+            <div className="relative aspect-[16/9] w-full overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
+            </div>
+          ) : (
+            <div className="grid gap-3 p-5 sm:grid-cols-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="rounded-xl tk-tint-primary p-4 text-left">
+                  <div className="h-2 w-10 rounded-full bg-primary" />
+                  <div className="mt-3 h-2 w-full rounded-full tk-line-strong border-t" />
+                  <div className="mt-2 h-2 w-2/3 rounded-full tk-line-strong border-t" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </motion.section>
     );
@@ -284,6 +335,19 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           <div className="mt-7 flex items-center gap-6">
             <CtaRow />
           </div>
+          {/* image panel beside the brand rail, sitting under the content */}
+          {heroImage && (
+            <div className="relative mt-9 aspect-[16/7] w-full overflow-hidden rounded-2xl tk-shadow">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/55 via-primary/15 to-transparent" />
+              <span className="absolute bottom-4 left-5 font-heading text-lg font-semibold text-onPrimary drop-shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+                {brand}
+              </span>
+            </div>
+          )}
           <div className="mt-9 flex flex-wrap gap-x-10 gap-y-3 border-t tk-line pt-6">
             {[
               ['12k+', 'clients served'],
@@ -311,6 +375,16 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           {HEADLINE}
         </h1>
         <div className="mt-8 h-px w-full tk-line-strong border-t" />
+        {/* full-width poster image band */}
+        {heroImage && (
+          <div className="relative mt-7 aspect-[21/8] w-full overflow-hidden tk-shadow">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
+          </div>
+        )}
         <div className="mt-7 grid gap-8 sm:grid-cols-[1fr_2fr]">
           <p className="max-w-xs text-sm leading-relaxed text-muted">{SUB}</p>
           <div className="flex items-start">
@@ -335,6 +409,20 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <div className="mt-8 border-y-2 border-ink py-5">
           <p className="max-w-xl text-base font-medium leading-snug text-ink">{SUB}</p>
         </div>
+        {/* hard-edged image slab — no rounding, thick ink border */}
+        {heroImage && (
+          <div className="relative mt-8 aspect-[21/9] w-full overflow-hidden border-2 border-ink">
+            <div
+              className="absolute inset-0 bg-cover bg-center grayscale"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            {/* hard primary scrim keeps the brand stamp at AA */}
+            <div className="absolute inset-0 bg-primary/70 mix-blend-multiply" />
+            <span className="absolute bottom-3 left-3 bg-ink px-2 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-bg">
+              {brand}
+            </span>
+          </div>
+        )}
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <span className="inline-flex items-center gap-2 rounded-none bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-onPrimary shadow-[6px_6px_0_0_var(--color-ink)]">
             Get started <ArrowRight size={16} />
@@ -350,7 +438,20 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
   if (variant === 'chrome') {
     return (
       <motion.section variants={item} className="relative overflow-hidden px-8 py-24 text-center">
-        <div className={`absolute inset-0 tk-mesh ${expressive ? 'animate-gradient-drift' : ''}`} />
+        {heroImage && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            {/* dark-leaning scrim keeps the light onPrimary text at AA */}
+            <div className="absolute inset-0 bg-ink/55" />
+            <div className="absolute inset-0 bg-primary/40 mix-blend-multiply" />
+          </>
+        )}
+        <div
+          className={`absolute inset-0 tk-mesh ${expressive ? 'animate-gradient-drift' : ''} ${heroImage ? 'opacity-50' : ''}`}
+        />
         <div className="pointer-events-none absolute -left-16 top-8 h-64 w-64 rounded-full tk-tint-accent blur-3xl" />
         <div className="pointer-events-none absolute -right-16 bottom-4 h-64 w-64 rounded-full tk-tint-secondary blur-3xl" />
         <div className="relative mx-auto max-w-2xl">
@@ -384,6 +485,16 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           Get started <ArrowRight size={16} />
         </span>
       </div>
+      {/* thin full-width image band — accent only, type stays dominant */}
+      {heroImage && (
+        <div className="relative mt-10 aspect-[32/9] w-full overflow-hidden rounded-2xl tk-shadow">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/45 via-transparent to-transparent" />
+        </div>
+      )}
     </motion.section>
   );
 }

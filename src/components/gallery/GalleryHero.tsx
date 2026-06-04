@@ -7,6 +7,7 @@ import { paletteById } from '../../data/palettes';
 import { fontPairingById } from '../../data/fonts';
 import ThemedScope from '../../theme/ThemedScope';
 import MiniSamplePage from '../preview/MiniSamplePage';
+import { buttonClasses } from '../ui/Button';
 
 // Standout themes for the rotating live cluster — each carries its own colors.
 const HERO_THEME_IDS = ['broadsheet', 'chromewave', 'joyride', 'maison'];
@@ -87,22 +88,19 @@ export default function GalleryHero({ onBrowse }: GalleryHeroProps) {
             <motion.button
               type="button"
               onClick={onBrowse}
-              whileHover={reduce ? undefined : { scale: 1.03 }}
+              whileHover={reduce ? undefined : { y: -1 }}
               whileTap={reduce ? undefined : { scale: 0.98 }}
               transition={{ duration: 0.25, ease: PREMIUM_EASE }}
-              className="inline-flex items-center gap-2 rounded-full border border-shell-glow/60 bg-shell-glow/10 px-5 py-2.5 text-sm font-semibold text-shell-ink transition-colors hover:bg-shell-glow/20"
+              className={buttonClasses('primary', 'md')}
             >
               Browse the library
-              <ArrowDown size={15} className="text-shell-glow" />
+              <ArrowDown size={15} />
             </motion.button>
             <motion.div
               whileHover={reduce ? undefined : { y: -1 }}
               transition={{ duration: 0.25, ease: PREMIUM_EASE }}
             >
-              <Link
-                to="/moodboard"
-                className="inline-flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-5 py-2.5 text-sm font-semibold text-shell-mute transition-colors hover:text-shell-ink"
-              >
+              <Link to="/moodboard" className={buttonClasses('accent', 'md')}>
                 <Shuffle size={15} />
                 Mix your own
               </Link>

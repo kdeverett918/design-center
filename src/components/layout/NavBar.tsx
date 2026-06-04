@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Columns2, LayoutGrid, Moon, Shuffle, Star, Sun } from 'lucide-react';
 import { useFavorites } from '../../contexts/favoritesContext';
 import { useColorMode } from '../../hooks/useColorMode';
+import { buttonClasses } from '../ui/Button';
 import Logo from './Logo';
 
 const links = [
@@ -100,16 +101,14 @@ export default function NavBar() {
             to="/favorites"
             aria-label={`Shortlist — ${count} ${count === 1 ? 'item' : 'items'} favorited`}
             className={({ isActive }) =>
-              `flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm shadow-sm transition-all duration-300 ease-premium will-change-transform motion-safe:hover:scale-[1.03] ${
-                isActive
-                  ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                  : 'border-shell-line bg-shell-panel/60 text-shell-mute motion-safe:hover:-translate-y-px hover:border-shell-glow/40 hover:text-shell-ink'
+              `${buttonClasses('info', 'sm')} shadow-sm ${
+                isActive ? 'ring-2 ring-white/70 ring-offset-2 ring-offset-shell-base' : ''
               }`
             }
           >
-            <Star size={14} className="text-amber-400" aria-hidden="true" />
-            <span className="font-medium text-shell-ink">{count}</span>
-            <span className="hidden sm:inline">shortlist</span>
+            <Star size={14} className="text-amber-300" aria-hidden="true" />
+            <span className="font-semibold text-white">{count}</span>
+            <span className="hidden text-white sm:inline">shortlist</span>
           </NavLink>
         </div>
       </div>

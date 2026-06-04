@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Star, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Button, { buttonClasses } from '../components/ui/Button';
 import { useFavorites } from '../contexts/favoritesContext';
 import { themeById, themes } from '../data/themes';
 import { paletteById } from '../data/palettes';
@@ -51,13 +52,9 @@ export default function FavoritesView() {
           </p>
         </div>
         {count > 0 && (
-          <button
-            type="button"
-            onClick={clear}
-            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-mute hover:border-rose-400/50 hover:text-shell-ink"
-          >
+          <Button tone="danger" onClick={clear}>
             <Trash2 size={15} /> Clear shortlist
-          </button>
+          </Button>
         )}
       </div>
 
@@ -68,10 +65,7 @@ export default function FavoritesView() {
           <p className="mt-1 text-sm text-shell-mute">
             Tap the ★ on any theme, palette, font, layout, or animation to save it here.
           </p>
-          <Link
-            to="/"
-            className="mt-5 rounded-full bg-shell-glow px-5 py-2 text-sm font-semibold text-shell-base"
-          >
+          <Link to="/" className={`mt-5 ${buttonClasses('primary', 'md')}`}>
             Browse the gallery
           </Link>
         </div>

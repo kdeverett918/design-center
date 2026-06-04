@@ -24,6 +24,7 @@ export const themes: Theme[] = [
     paletteId: 'reef',
     fontPairingId: 'telemetry',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/vital.webp',
   },
   {
     id: 'haven',
@@ -45,6 +46,7 @@ export const themes: Theme[] = [
     paletteId: 'halcyon',
     fontPairingId: 'daylight',
     animationIntensity: 'subtle',
+    heroImage: '/theme-images/quietude.webp',
   },
   {
     id: 'dispatch',
@@ -55,6 +57,7 @@ export const themes: Theme[] = [
     paletteId: 'mauveine',
     fontPairingId: 'folio',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/dispatch.webp',
   },
   {
     id: 'launchpad',
@@ -65,6 +68,7 @@ export const themes: Theme[] = [
     paletteId: 'vesper',
     fontPairingId: 'vector',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/launchpad.webp',
   },
   {
     id: 'obsidian',
@@ -86,6 +90,7 @@ export const themes: Theme[] = [
     paletteId: 'solstice',
     fontPairingId: 'megaphone',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/joyride.webp',
   },
   {
     id: 'terracotta',
@@ -107,6 +112,7 @@ export const themes: Theme[] = [
     paletteId: 'nordic',
     fontPairingId: 'beacon',
     animationIntensity: 'subtle',
+    heroImage: '/theme-images/frost.webp',
   },
   {
     id: 'meadow',
@@ -117,6 +123,7 @@ export const themes: Theme[] = [
     paletteId: 'botanic',
     fontPairingId: 'scholar',
     animationIntensity: 'subtle',
+    heroImage: '/theme-images/meadow.webp',
   },
   {
     id: 'velvet',
@@ -127,6 +134,7 @@ export const themes: Theme[] = [
     paletteId: 'aubergine',
     fontPairingId: 'codex',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/velvet.webp',
   },
   {
     id: 'keystone',
@@ -137,6 +145,7 @@ export const themes: Theme[] = [
     paletteId: 'cobalt',
     fontPairingId: 'pulse',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/keystone.webp',
   },
   {
     id: 'sunbeam',
@@ -147,6 +156,7 @@ export const themes: Theme[] = [
     paletteId: 'marigold',
     fontPairingId: 'marquee',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/sunbeam.webp',
   },
   {
     id: 'inferno',
@@ -157,6 +167,7 @@ export const themes: Theme[] = [
     paletteId: 'ember',
     fontPairingId: 'monolith',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/inferno.webp',
   },
   {
     id: 'onyx',
@@ -167,6 +178,7 @@ export const themes: Theme[] = [
     paletteId: 'carbon',
     fontPairingId: 'telemetry',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/onyx.webp',
   },
   {
     id: 'bisque',
@@ -177,6 +189,7 @@ export const themes: Theme[] = [
     paletteId: 'porcelain',
     fontPairingId: 'manuscript',
     animationIntensity: 'subtle',
+    heroImage: '/theme-images/bisque.webp',
   },
   {
     id: 'voltage',
@@ -187,6 +200,7 @@ export const themes: Theme[] = [
     paletteId: 'ultraviolet',
     fontPairingId: 'voltage',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/voltage.webp',
   },
   {
     id: 'claret',
@@ -197,6 +211,7 @@ export const themes: Theme[] = [
     paletteId: 'oxblood',
     fontPairingId: 'apothecary',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/claret.webp',
   },
   {
     id: 'teahouse',
@@ -207,6 +222,7 @@ export const themes: Theme[] = [
     paletteId: 'matcha',
     fontPairingId: 'garden',
     animationIntensity: 'subtle',
+    heroImage: '/theme-images/teahouse.webp',
   },
   {
     id: 'tundra',
@@ -217,6 +233,7 @@ export const themes: Theme[] = [
     paletteId: 'glacier',
     fontPairingId: 'frequency',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/tundra.webp',
   },
   {
     id: 'caravan',
@@ -227,6 +244,7 @@ export const themes: Theme[] = [
     paletteId: 'dune',
     fontPairingId: 'beacon',
     animationIntensity: 'subtle',
+    heroImage: '/theme-images/caravan.webp',
   },
   {
     id: 'broadsheet',
@@ -237,6 +255,7 @@ export const themes: Theme[] = [
     paletteId: 'newsprint',
     fontPairingId: 'broadsheet',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/broadsheet.webp',
   },
   {
     id: 'riso',
@@ -247,6 +266,7 @@ export const themes: Theme[] = [
     paletteId: 'risograph',
     fontPairingId: 'gazette',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/riso.webp',
   },
   {
     id: 'brutalist',
@@ -257,6 +277,7 @@ export const themes: Theme[] = [
     paletteId: 'concrete',
     fontPairingId: 'concrete',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/brutalist.webp',
   },
   {
     id: 'acidhouse',
@@ -267,6 +288,7 @@ export const themes: Theme[] = [
     paletteId: 'acid',
     fontPairingId: 'rebar',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/acidhouse.webp',
   },
   {
     id: 'chromewave',
@@ -277,6 +299,7 @@ export const themes: Theme[] = [
     paletteId: 'chrome',
     fontPairingId: 'chrome',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/chromewave.webp',
   },
   {
     id: 'vaporwave',
@@ -287,6 +310,7 @@ export const themes: Theme[] = [
     paletteId: 'vapor',
     fontPairingId: 'circuit',
     animationIntensity: 'expressive',
+    heroImage: '/theme-images/vaporwave.webp',
   },
   {
     id: 'maison',
@@ -297,6 +321,7 @@ export const themes: Theme[] = [
     paletteId: 'noir',
     fontPairingId: 'maison',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/maison.webp',
   },
   {
     id: 'atelier',
@@ -307,6 +332,7 @@ export const themes: Theme[] = [
     paletteId: 'couture',
     fontPairingId: 'couture',
     animationIntensity: 'standard',
+    heroImage: '/theme-images/atelier.webp',
   },
   {
     id: 'sunnyside',

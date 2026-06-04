@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Check, ChevronDown, ClipboardCopy, Code2, Download, Mail, Printer } from 'lucide-react';
 import { buildBriefText, COLOR_ROLES } from './buildBrief';
 import type { BriefInput } from './buildBrief';
+import { buttonClasses } from '../ui/Button';
 import { toCssVars, toJson, toTailwind } from '../../lib/designTokens';
 import { animationById } from '../../data/animations';
 
@@ -147,16 +148,16 @@ export default function BriefSummary(props: BriefSummaryProps) {
           <button
             type="button"
             onClick={downloadBrief}
-            className="flex items-center gap-1 rounded-lg border border-shell-line px-2.5 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+            className={buttonClasses('info', 'sm')}
           >
-            <Download size={12} className="text-shell-mute" /> Download brief
+            <Download size={12} /> Download brief
           </button>
           <button
             type="button"
             onClick={emailBrief}
-            className="flex items-center gap-1 rounded-lg border border-shell-line px-2.5 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
+            className={buttonClasses('neutral', 'sm')}
           >
-            <Mail size={12} className="text-shell-mute" /> Email
+            <Mail size={12} /> Email
           </button>
         </div>
 

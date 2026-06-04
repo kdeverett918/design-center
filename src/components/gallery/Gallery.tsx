@@ -14,6 +14,7 @@ import PaletteCard from '../cards/PaletteCard';
 import FontCard from '../cards/FontCard';
 import AnimationCard from '../cards/AnimationCard';
 import LayoutCard from '../cards/LayoutCard';
+import { buttonClasses } from '../ui/Button';
 
 type Tab = 'themes' | 'palettes' | 'fonts' | 'layouts' | 'animations';
 
@@ -118,7 +119,7 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
             type="button"
             onClick={dismissGuide}
             aria-label="Dismiss guide"
-            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-shell-mute transition-colors hover:text-shell-ink"
+            className={`${buttonClasses('neutral', 'sm')} h-7 w-7 shrink-0 !px-0`}
           >
             <X size={14} />
           </button>
@@ -135,15 +136,19 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
               type="button"
               onClick={() => setTab(id)}
               aria-pressed={active}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                 active
-                  ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                  : 'border-shell-line bg-shell-panel text-shell-mute hover:text-shell-ink'
+                  ? 'border-transparent bg-shell-glow text-shell-base shadow-sm shadow-shell-glow/30'
+                  : 'border-shell-line bg-shell-panel text-shell-mute hover:border-shell-glow/50 hover:text-shell-ink'
               }`}
             >
-              <Icon size={15} className={active ? 'text-shell-glow' : ''} />
+              <Icon size={15} className={active ? 'text-shell-base' : ''} />
               {label}
-              <span className="rounded-full bg-shell-base px-1.5 text-[11px] text-shell-mute">
+              <span
+                className={`rounded-full px-1.5 text-[11px] ${
+                  active ? 'bg-shell-base/20 text-shell-base' : 'bg-shell-base text-shell-mute'
+                }`}
+              >
                 {counts[id]}
               </span>
             </button>
@@ -159,10 +164,10 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
               type="button"
               onClick={() => setCollection(null)}
               aria-pressed={collection === null}
-              className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+              className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 collection === null
-                  ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                  : 'border-shell-line bg-shell-panel text-shell-mute hover:text-shell-ink'
+                  ? 'border-transparent bg-shell-glow text-shell-base shadow-sm shadow-shell-glow/30'
+                  : 'border-shell-line bg-shell-panel text-shell-mute hover:border-shell-glow/50 hover:text-shell-ink'
               }`}
             >
               All
@@ -175,10 +180,10 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
                   type="button"
                   onClick={() => setCollection(c.id)}
                   aria-pressed={active}
-                  className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                     active
-                      ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                      : 'border-shell-line bg-shell-panel text-shell-mute hover:text-shell-ink'
+                      ? 'border-transparent bg-shell-glow text-shell-base shadow-sm shadow-shell-glow/30'
+                      : 'border-shell-line bg-shell-panel text-shell-mute hover:border-shell-glow/50 hover:text-shell-ink'
                   }`}
                 >
                   {c.name}

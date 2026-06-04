@@ -18,6 +18,7 @@ import {
   NAV_VARIANTS,
 } from '../../preview/previewConfig';
 import { layoutPresets } from '../../data/layouts';
+import { buttonClasses } from '../ui/Button';
 
 const SECTION_OPTIONS = layoutPresets
   .filter((l) => l.type === 'section')
@@ -94,7 +95,9 @@ export default function PreviewControls({
               title={label}
               onClick={() => onDevice(id)}
               className={`grid h-8 w-8 place-items-center rounded-md transition-colors ${
-                device === id ? 'bg-shell-panel text-shell-glow' : 'text-shell-mute hover:text-shell-ink'
+                device === id
+                  ? 'bg-shell-glow text-shell-base shadow-sm'
+                  : 'text-shell-mute hover:text-shell-ink'
               }`}
             >
               <Icon size={14} />
@@ -108,9 +111,11 @@ export default function PreviewControls({
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="preview-customizer"
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
-              open ? 'bg-shell-glow/15 text-shell-ink' : 'text-shell-mute hover:text-shell-ink'
-            }`}
+            className={
+              open
+                ? `${buttonClasses('neutral', 'sm')} border-shell-glow bg-shell-glow/15 text-shell-ink`
+                : buttonClasses('neutral', 'sm')
+            }
           >
             <SlidersHorizontal size={13} /> Advanced — fine-tune
           </button>
@@ -119,7 +124,7 @@ export default function PreviewControls({
             onClick={onReplay}
             aria-label="Replay animation"
             title="Replay animation"
-            className="grid h-8 w-8 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
+            className={`${buttonClasses('neutral', 'sm')} h-8 w-8 !px-0`}
           >
             <RotateCcw size={14} />
           </button>
@@ -128,7 +133,7 @@ export default function PreviewControls({
             onClick={onFullscreen}
             aria-label="Full-screen preview"
             title="Full-screen preview"
-            className="grid h-8 w-8 place-items-center rounded-md text-shell-mute hover:text-shell-ink"
+            className={`${buttonClasses('neutral', 'sm')} h-8 w-8 !px-0`}
           >
             <Maximize2 size={14} />
           </button>

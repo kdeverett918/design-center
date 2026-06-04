@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Check, ChevronDown, Link2, RotateCcw, Shuffle } from 'lucide-react';
+import { Check, ChevronDown, Link2, RotateCcw, Shuffle, Sparkles } from 'lucide-react';
 import { decodeBoard, encodeBoard } from './shareBoard';
 import type { PreviewConfig } from '../preview/previewConfig';
 import {
   CARD_STYLES,
+  configForTheme,
   DEFAULT_PREVIEW_CONFIG,
   FOOTER_VARIANTS,
   HERO_VARIANTS,
@@ -16,8 +17,10 @@ import {
 import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
 import { animationById, animationPresets } from '../data/animations';
+import { themeById } from '../data/themes';
 import type { AnimationCategory } from '../types';
 import { loadFonts } from '../theme/loadFonts';
+import Button from '../components/ui/Button';
 import PreviewStage from '../components/preview/PreviewStage';
 import BriefSummary from '../components/client/BriefSummary';
 import SendBrief from '../components/client/SendBrief';
@@ -31,6 +34,24 @@ const ANIMATION_CATEGORIES: AnimationCategory[] = [
   'continuous',
   'transition',
 ];
+
+// A curated handful of standout themes for the "Start from a theme" quick-pick.
+// Clicking one seeds the whole mix (palette + font + config) so people start from
+// something great instead of a blank slate, then fine-tune below. Filtered against
+// the live `themes` list so a renamed/removed id can never break the row.
+const QUICK_PICK_THEME_IDS = [
+  'stillwater',
+  'launchpad',
+  'velvet',
+  'joyride',
+  'obsidian',
+  'broadsheet',
+  'aurora',
+  'terracotta',
+];
+const QUICK_PICK_THEMES = QUICK_PICK_THEME_IDS.map(themeById).filter(
+  (t): t is NonNullable<typeof t> => Boolean(t),
+);
 
 const STORAGE_KEY = 'dc:moodboard:v1';
 
@@ -122,6 +143,17 @@ export default function MoodBoardView() {
     setAnimationIds(shuffled.slice(0, count).map((a) => a.id));
   };
 
+  // Seed the whole mix from a polished theme so people start from something great
+  // and then tweak — palette + font come from the theme, config from configForTheme.
+  // (Motion picks are left untouched so a hand-curated effect list survives a reseed.)
+  const seedFromTheme = (themeId: string) => {
+    const theme = themeById(themeId);
+    if (!theme) return;
+    setPaletteId(theme.paletteId);
+    setFontId(theme.fontPairingId);
+    setConfig(configForTheme(theme));
+  };
+
   const reset = () => {
     setPaletteId('meridian');
     setFontId('clearwater');
@@ -130,6 +162,14 @@ export default function MoodBoardView() {
     setNotes('');
     setAnimationIds([]);
   };
+
+  // Highlight a quick-pick chip when the current palette + font match that theme.
+  const activeThemeId = useMemo(
+    () =>
+      QUICK_PICK_THEMES.find((t) => t.paletteId === paletteId && t.fontPairingId === fontId)?.id ??
+      null,
+    [paletteId, fontId],
+  );
 
   const toggleAnimation = (id: string) => {
     setAnimationIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
@@ -160,28 +200,16 @@ export default function MoodBoardView() {
         </div>
         <div className="flex items-center gap-2">
           <span className="hidden text-xs text-shell-mute sm:inline">Saved automatically</span>
-          <button
-            type="button"
-            onClick={copyShareLink}
-            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-ink hover:border-shell-glow/50"
-          >
-            {copied ? <Check size={15} className="text-emerald-400" /> : <Link2 size={15} className="text-shell-glow" />}
+          <Button tone="info" onClick={copyShareLink}>
+            {copied ? <Check size={15} /> : <Link2 size={15} />}
             {copied ? 'Link copied' : 'Share link'}
-          </button>
-          <button
-            type="button"
-            onClick={reset}
-            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-mute hover:text-shell-ink"
-          >
+          </Button>
+          <Button tone="danger" onClick={reset}>
             <RotateCcw size={15} /> Start over
-          </button>
-          <button
-            type="button"
-            onClick={shuffle}
-            className="flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel px-4 py-2 text-sm font-medium text-shell-ink hover:border-shell-glow/50"
-          >
-            <Shuffle size={15} className="text-shell-glow" /> Surprise me
-          </button>
+          </Button>
+          <Button tone="accent" onClick={shuffle}>
+            <Shuffle size={15} /> Surprise me
+          </Button>
         </div>
       </div>
 
@@ -213,6 +241,46 @@ export default function MoodBoardView() {
               <span><span className="text-shell-glow">3</span> · Send</span>
             </div>
 
+            {/* Start from a theme — seed a great-looking mix in one click, then tweak
+                the à-la-carte pickers below. Horizontal scroll keeps it compact. */}
+            <div className="mb-4">
+              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+                <Sparkles size={12} className="text-violet-400" />
+                Start from a theme
+              </div>
+              <div className="-mx-1 flex gap-2 overflow-x-auto scrollbar-thin px-1 pb-1.5">
+                {QUICK_PICK_THEMES.map((t) => {
+                  const tp = paletteById(t.paletteId);
+                  const active = t.id === activeThemeId;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => seedFromTheme(t.id)}
+                      aria-pressed={active}
+                      title={t.tagline}
+                      className={`group flex shrink-0 items-center gap-2 rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                        active
+                          ? 'border-violet-500 bg-violet-500/15 text-shell-ink'
+                          : 'border-shell-line text-shell-mute hover:border-violet-400/50 hover:text-shell-ink'
+                      }`}
+                    >
+                      <span
+                        aria-hidden
+                        className="h-4 w-4 shrink-0 rounded-full ring-1 ring-black/10"
+                        style={{
+                          background: tp
+                            ? `linear-gradient(135deg, ${tp.colors.primary} 0 50%, ${tp.colors.accent} 50% 100%)`
+                            : undefined,
+                        }}
+                      />
+                      {t.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <Field label="Brand name" htmlFor="mb-brand">
               <input
                 id="mb-brand"
@@ -232,8 +300,10 @@ export default function MoodBoardView() {
                     aria-label={p.name}
                     title={p.name}
                     onClick={() => setPaletteId(p.id)}
-                    className={`h-8 w-8 rounded-lg ring-2 transition-transform hover:scale-105 ${
-                      p.id === paletteId ? 'ring-shell-glow' : 'ring-transparent'
+                    className={`h-8 w-8 rounded-lg ring-2 ring-offset-2 ring-offset-shell-panel transition-transform hover:scale-105 ${
+                      p.id === paletteId
+                        ? 'scale-105 ring-shell-glow'
+                        : 'ring-transparent hover:ring-shell-line'
                     }`}
                     style={{
                       background: `linear-gradient(135deg, ${p.colors.primary} 0 50%, ${p.colors.accent} 50% 100%)`,
@@ -251,14 +321,15 @@ export default function MoodBoardView() {
                     type="button"
                     aria-pressed={f.id === fontId}
                     onClick={() => setFontId(f.id)}
-                    className={`rounded-lg border px-2.5 py-1.5 text-left text-xs transition-colors ${
+                    className={`flex items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition-colors ${
                       f.id === fontId
-                        ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                        : 'border-shell-line text-shell-mute hover:text-shell-ink'
+                        ? 'border-shell-glow bg-shell-glow/15 font-semibold text-shell-ink'
+                        : 'border-shell-line text-shell-mute hover:border-shell-glow/40 hover:text-shell-ink'
                     }`}
                     style={{ fontFamily: `"${f.heading.family}", system-ui, sans-serif` }}
                   >
-                    {f.name}
+                    <span className="truncate">{f.name}</span>
+                    {f.id === fontId && <Check size={12} className="shrink-0 text-shell-glow" />}
                   </button>
                 ))}
               </div>

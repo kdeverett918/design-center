@@ -3,6 +3,7 @@ import { CheckCircle2, FileDown, Loader2, Send } from 'lucide-react';
 import { buildBriefText } from './buildBrief';
 import type { BriefInput } from './buildBrief';
 import { sendBrief } from '../../lib/sendBrief';
+import { buttonClasses } from '../ui/Button';
 
 const STUDIO_EMAIL = 'kristine@thetechslp.com';
 
@@ -110,15 +111,15 @@ export default function SendBrief(props: BriefInput) {
         <button
           type="submit"
           disabled={submitting}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-shell-glow/60 bg-shell-glow/10 px-4 py-2.5 text-sm font-semibold text-shell-ink transition-colors hover:bg-shell-glow/20 disabled:cursor-not-allowed disabled:opacity-60"
+          className={`${buttonClasses('success', 'md')} w-full`}
         >
           {submitting ? (
             <>
-              <Loader2 size={15} className="animate-spin text-shell-glow" /> Sending…
+              <Loader2 size={15} className="animate-spin" /> Sending…
             </>
           ) : (
             <>
-              <Send size={15} className="text-shell-glow" /> Send my selections to Tech SLP Studio
+              <Send size={15} /> Send my selections to Tech SLP Studio
             </>
           )}
         </button>
@@ -129,7 +130,7 @@ export default function SendBrief(props: BriefInput) {
       <button
         type="button"
         onClick={() => window.print()}
-        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-full border border-shell-line px-4 py-2 text-xs font-medium text-shell-mute transition-colors hover:text-shell-ink hover:border-shell-glow/40"
+        className={`${buttonClasses('neutral', 'sm')} mt-2 w-full`}
       >
         <FileDown size={13} /> Download a PDF copy for your records
       </button>

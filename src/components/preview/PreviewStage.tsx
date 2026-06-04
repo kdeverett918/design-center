@@ -9,6 +9,7 @@ import PreviewControls from './PreviewControls';
 import PreviewFrame from './PreviewFrame';
 import DeviceFrame from './DeviceFrame';
 import FavoriteStar from '../cards/FavoriteStar';
+import Button, { buttonClasses } from '../ui/Button';
 
 interface PreviewStageProps {
   palette: Palette;
@@ -127,18 +128,18 @@ export default function PreviewStage({
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {onShare && (
-            <button
-              type="button"
+            <Button
+              tone="info"
+              size="sm"
               onClick={async () => {
                 await onShare();
                 setShared(true);
                 window.setTimeout(() => setShared(false), 1800);
               }}
-              className="flex items-center gap-1.5 rounded-full border border-shell-line px-3 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
             >
-              {shared ? <Check size={13} className="text-emerald-400" /> : <Link2 size={13} className="text-shell-glow" />}
+              {shared ? <Check size={13} /> : <Link2 size={13} />}
               {shared ? 'Copied' : 'Share'}
-            </button>
+            </Button>
           )}
           {favorite && (
             <FavoriteStar kind={favorite.kind} id={favorite.id} label={favorite.label} tone="shell" />
@@ -226,7 +227,7 @@ export default function PreviewStage({
                   type="button"
                   onClick={() => setFullscreen(false)}
                   aria-label="Close full-screen preview"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-shell-line text-shell-mute hover:text-shell-ink"
+                  className={`${buttonClasses('neutral', 'sm')} h-9 w-9 !px-0`}
                 >
                   <X size={16} />
                 </button>
