@@ -21,8 +21,13 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'on-first-retry',
   },
+  // Two viewports cover the same behavioral suite, plus a mobile-only responsive
+  // spec (guarded via test.skip on the desktop project). Desktop Chrome ≈ 1280px;
+  // Pixel 5 ≈ 393px with touch + isMobile, which trips the app's <768px paths
+  // (PreviewStage defaults to the mobile device frame, single-column layouts).
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'desktop-chrome', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile-chrome', use: { ...devices['Pixel 5'] } },
   ],
   webServer: {
     // Playwright 1.60 rejects specifying both `url` and `port`; we keep `url`
