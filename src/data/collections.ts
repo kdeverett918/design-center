@@ -47,6 +47,30 @@ export const collections: Collection[] = [
     description: 'Earthy, human, warm.',
     themeIds: ['terracotta', 'teahouse', 'caravan', 'sunbeam', 'haven'],
   },
+  {
+    id: 'kid-friendly',
+    name: 'Kid-Friendly',
+    description: 'Bright, playful, full of fun.',
+    themeIds: ['sunnyside', 'bubblegum', 'crayon', 'joyride', 'sunbeam'],
+  },
+  {
+    id: 'showstopper',
+    name: 'Showstopper',
+    description: 'Dramatic gradients and big display type.',
+    themeIds: ['aurora', 'nebula', 'prism', 'chromewave', 'vaporwave', 'voltage'],
+  },
+  {
+    id: 'seasonal',
+    name: 'Seasonal',
+    description: 'Warm holidays through the year.',
+    themeIds: ['harvest', 'evergreen', 'bloom', 'terracotta', 'frost'],
+  },
+  {
+    id: 'nature-spa',
+    name: 'Nature & Spa',
+    description: 'Botanical, serene, calming.',
+    themeIds: ['sage', 'driftwood', 'lagoon', 'meadow', 'teahouse', 'quietude'],
+  },
 ];
 
 export const collectionById = (id: string): Collection | undefined =>

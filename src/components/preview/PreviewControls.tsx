@@ -112,7 +112,7 @@ export default function PreviewControls({
               open ? 'bg-shell-glow/15 text-shell-ink' : 'text-shell-mute hover:text-shell-ink'
             }`}
           >
-            <SlidersHorizontal size={13} /> Customize
+            <SlidersHorizontal size={13} /> Advanced — fine-tune
           </button>
           <button
             type="button"
@@ -137,78 +137,101 @@ export default function PreviewControls({
 
       {/* collapsible customizer */}
       {open && (
-        <div id="preview-customizer" className="space-y-3 border-t border-shell-line bg-shell-base/40 px-4 py-3">
-          <Row label="Hero">
-            <Seg<HeroVariant>
-              ariaLabel="Hero layout"
-              options={HERO_VARIANTS}
-              value={config.hero}
-              onChange={(hero) => onConfig({ hero })}
-            />
-          </Row>
-          <Row label="Cards">
-            <Seg<CardStyle>
-              ariaLabel="Card style"
-              options={CARD_STYLES}
-              value={config.cardStyle}
-              onChange={(cardStyle) => onConfig({ cardStyle })}
-            />
-          </Row>
-          <Row label="Nav">
-            <Seg<NavVariant>
-              ariaLabel="Navigation"
-              options={NAV_VARIANTS}
-              value={config.nav}
-              onChange={(nav) => onConfig({ nav })}
-            />
-          </Row>
-          <Row label="Footer">
-            <Seg<FooterVariant>
-              ariaLabel="Footer"
-              options={FOOTER_VARIANTS}
-              value={config.footer}
-              onChange={(footer) => onConfig({ footer })}
-            />
-          </Row>
-          <Row label="Sections">
-            <div role="group" aria-label="Page sections" className="flex flex-wrap gap-1">
-              {SECTION_OPTIONS.map((s) => {
-                const on = config.sections.includes(s.key);
-                return (
-                  <button
-                    key={s.key}
-                    type="button"
-                    aria-pressed={on}
-                    onClick={() =>
-                      onConfig({
-                        sections: on
-                          ? config.sections.filter((x) => x !== s.key)
-                          : [...config.sections, s.key],
-                      })
-                    }
-                    className={`rounded-lg px-2 py-1 text-[11px] font-medium transition-colors ${
-                      on
-                        ? 'bg-shell-glow/15 text-shell-ink ring-1 ring-shell-glow/50'
-                        : 'text-shell-mute hover:text-shell-ink'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                );
-              })}
-            </div>
-          </Row>
-          <Row label="Motion">
-            <Seg<AnimationIntensity>
-              ariaLabel="Animation intensity"
-              options={INTENSITIES.map((i) => ({ id: i, label: i }))}
-              value={config.motion}
-              onChange={(motion) => onConfig({ motion })}
-            />
-          </Row>
+        <div id="preview-customizer" className="border-t border-shell-line bg-shell-base/40 px-4 py-3">
+          <p className="mb-3 text-[11px] leading-snug text-shell-mute">
+            Most clients can skip this — pick a ready-made look and you’re done.
+          </p>
+
+          <Cluster label="Layout">
+            <Row label="Hero">
+              <Seg<HeroVariant>
+                ariaLabel="Hero layout"
+                options={HERO_VARIANTS}
+                value={config.hero}
+                onChange={(hero) => onConfig({ hero })}
+              />
+            </Row>
+            <Row label="Cards">
+              <Seg<CardStyle>
+                ariaLabel="Card style"
+                options={CARD_STYLES}
+                value={config.cardStyle}
+                onChange={(cardStyle) => onConfig({ cardStyle })}
+              />
+            </Row>
+            <Row label="Nav">
+              <Seg<NavVariant>
+                ariaLabel="Navigation"
+                options={NAV_VARIANTS}
+                value={config.nav}
+                onChange={(nav) => onConfig({ nav })}
+              />
+            </Row>
+            <Row label="Footer">
+              <Seg<FooterVariant>
+                ariaLabel="Footer"
+                options={FOOTER_VARIANTS}
+                value={config.footer}
+                onChange={(footer) => onConfig({ footer })}
+              />
+            </Row>
+          </Cluster>
+
+          <Cluster label="Page">
+            <Row label="Sections">
+              <div role="group" aria-label="Page sections" className="flex flex-wrap gap-1">
+                {SECTION_OPTIONS.map((s) => {
+                  const on = config.sections.includes(s.key);
+                  return (
+                    <button
+                      key={s.key}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() =>
+                        onConfig({
+                          sections: on
+                            ? config.sections.filter((x) => x !== s.key)
+                            : [...config.sections, s.key],
+                        })
+                      }
+                      className={`rounded-lg px-2 py-1 text-[11px] font-medium transition-colors ${
+                        on
+                          ? 'bg-shell-glow/15 text-shell-ink ring-1 ring-shell-glow/50'
+                          : 'text-shell-mute hover:text-shell-ink'
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Row>
+            <Row label="Motion">
+              <Seg<AnimationIntensity>
+                ariaLabel="Animation intensity"
+                options={INTENSITIES.map((i) => ({ id: i, label: i }))}
+                value={config.motion}
+                onChange={(motion) => onConfig({ motion })}
+              />
+            </Row>
+          </Cluster>
         </div>
       )}
     </div>
+  );
+}
+
+function Cluster({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="mb-3 last:mb-0">
+      <div className="mb-2 flex items-center gap-2.5">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-shell-mute">
+          {label}
+        </span>
+        <span className="h-px flex-1 bg-shell-line" />
+      </div>
+      <div className="space-y-2.5">{children}</div>
+    </section>
   );
 }
 

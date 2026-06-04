@@ -16,6 +16,8 @@ interface PreviewFrameProps {
   selectionKey: string;
   /** Bump to force an entrance replay without changing selection. */
   replayNonce?: number;
+  /** Optional AI-generated hero background (themed previews only). */
+  heroImage?: string;
 }
 
 // Owns the CSS-var scope for the live preview and cross-fades whenever the
@@ -29,6 +31,7 @@ export default function PreviewFrame({
   config,
   selectionKey,
   replayNonce = 0,
+  heroImage,
 }: PreviewFrameProps) {
   useEffect(() => {
     loadFonts(fonts);
@@ -56,7 +59,7 @@ export default function PreviewFrame({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.28, ease: 'easeInOut' }}
         >
-          <SamplePage brand={brand} config={config} />
+          <SamplePage brand={brand} config={config} heroImage={heroImage} />
         </motion.div>
       </AnimatePresence>
     </div>

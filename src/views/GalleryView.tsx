@@ -94,6 +94,7 @@ export default function GalleryView() {
               subtitle={`${theme.tagline} · ${palette.name} · ${fonts.name}`}
               favorite={{ kind: 'theme', id: theme.id, label: theme.name }}
               onShare={shareGallery}
+              heroImage={theme.heroImage}
             />
           </div>
         </div>

@@ -26,6 +26,8 @@ interface PreviewStageProps {
   height?: number;
   /** Selected animation preset ids — played live beneath the preview. */
   effects?: string[];
+  /** Optional AI-generated hero background (themed previews only). */
+  heroImage?: string;
 }
 
 export default function PreviewStage({
@@ -41,6 +43,7 @@ export default function PreviewStage({
   onShare,
   height = 520,
   effects,
+  heroImage,
 }: PreviewStageProps) {
   const effectPresets = (effects ?? [])
     .map((id) => animationById(id))
@@ -102,6 +105,7 @@ export default function PreviewStage({
       config={config}
       selectionKey={selectionKey}
       replayNonce={replay}
+      heroImage={heroImage}
     />
   );
 

@@ -23,7 +23,7 @@ export default function NavBar() {
             className="group flex items-center gap-3"
             aria-label="Design Center — home"
           >
-            <Logo className="h-10 w-10 shrink-0 transition-transform duration-500 ease-premium group-hover:scale-105" />
+            <Logo className="h-10 w-10 shrink-0 transition-transform duration-500 ease-premium motion-safe:group-hover:scale-105" />
             <div className="hidden leading-tight min-[400px]:block">
               <div className="whitespace-nowrap font-display text-[15px] font-semibold tracking-tight text-shell-ink">
                 Design Center
@@ -100,10 +100,10 @@ export default function NavBar() {
             to="/favorites"
             aria-label={`Shortlist — ${count} ${count === 1 ? 'item' : 'items'} favorited`}
             className={({ isActive }) =>
-              `flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm shadow-sm transition-all duration-300 ease-premium ${
+              `flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm shadow-sm transition-all duration-300 ease-premium will-change-transform motion-safe:hover:scale-[1.03] ${
                 isActive
                   ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                  : 'border-shell-line bg-shell-panel/60 text-shell-mute hover:-translate-y-px hover:border-shell-glow/40 hover:text-shell-ink'
+                  : 'border-shell-line bg-shell-panel/60 text-shell-mute motion-safe:hover:-translate-y-px hover:border-shell-glow/40 hover:text-shell-ink'
               }`
             }
           >

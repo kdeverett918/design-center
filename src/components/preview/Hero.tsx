@@ -8,6 +8,14 @@ interface HeroProps {
   variant: HeroVariant;
   item: Variants;
   expressive?: boolean;
+  /**
+   * Optional AI-generated hero background (themed previews only). When present,
+   * the split / fullbleed / overlap variants render it as a cover layer beneath
+   * a token-colored scrim that guarantees text contrast. When absent, the
+   * existing CSS gradient (tk-mesh) renders unchanged — so the à-la-carte mixer,
+   * which passes nothing, keeps full live re-theming.
+   */
+  heroImage?: string;
 }
 
 const HEADLINE = 'Care that listens, built around you.';
@@ -37,7 +45,7 @@ function Eyebrow() {
 
 // Token-only hero, five compositions. Each is one motion item so it reveals as a
 // unit; SamplePage owns the stagger across sections.
-export default function Hero({ brand, variant, item, expressive }: HeroProps) {
+export default function Hero({ brand, variant, item, expressive, heroImage }: HeroProps) {
   if (variant === 'split') {
     return (
       <motion.section variants={item} className="grid items-center gap-8 px-8 py-16 sm:grid-cols-2">
@@ -51,9 +59,23 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
             <CtaRow />
           </div>
         </div>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-3xl tk-mesh tk-shadow">
+        <div
+          className={`relative aspect-[4/3] overflow-hidden rounded-3xl tk-shadow ${heroImage ? '' : 'tk-mesh'}`}
+        >
+          {heroImage && (
+            <>
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${heroImage})` }}
+              />
+              {/* light scrim so the centered brand label stays legible */}
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/70 via-primary/20 to-transparent" />
+            </>
+          )}
           <div className="absolute inset-0 grid place-items-center">
-            <span className="font-heading text-2xl font-semibold text-onPrimary/90">{brand}</span>
+            <span className="font-heading text-2xl font-semibold text-onPrimary/90 drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)]">
+              {brand}
+            </span>
           </div>
         </div>
       </motion.section>
@@ -81,7 +103,21 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
     return (
       <motion.section variants={item} className="relative overflow-hidden px-8 py-24">
         <div className="absolute inset-0 bg-primary" />
-        <div className="absolute inset-0 opacity-90 tk-mesh" />
+        {heroImage ? (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImage})` }}
+            />
+            {/* strong token scrim — keeps onPrimary text at AA over any image */}
+            <div className="absolute inset-0 bg-primary/80 mix-blend-multiply" />
+            {/* extra darkening from the left, where the headline sits */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/45 to-transparent" />
+            <div className="absolute inset-0 opacity-40 tk-mesh" />
+          </>
+        ) : (
+          <div className="absolute inset-0 opacity-90 tk-mesh" />
+        )}
         <div className="relative max-w-xl">
           <span className="inline-block rounded-full bg-bg/20 px-3 py-1 text-xs font-medium text-onPrimary backdrop-blur">
             Now accepting new clients
@@ -196,7 +232,19 @@ export default function Hero({ brand, variant, item, expressive }: HeroProps) {
           </div>
           {/* offset panel that tucks behind the headline */}
           <div className="relative aspect-square overflow-hidden rounded-3xl bg-primary tk-shadow sm:-ml-16">
-            <div className="absolute inset-0 opacity-80 tk-mesh" />
+            {heroImage ? (
+              <>
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${heroImage})` }}
+                />
+                {/* primary scrim keeps the corner brand label legible */}
+                <div className="absolute inset-0 bg-primary/70 mix-blend-multiply" />
+                <div className="absolute inset-0 opacity-40 tk-mesh" />
+              </>
+            ) : (
+              <div className="absolute inset-0 opacity-80 tk-mesh" />
+            )}
             <div className="absolute bottom-5 left-5 right-5 rounded-2xl bg-surface/85 p-4 backdrop-blur tk-shadow">
               <div className="flex items-baseline gap-2">
                 <span className="font-heading text-3xl font-semibold text-ink">98%</span>

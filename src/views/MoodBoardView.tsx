@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Check, Link2, RotateCcw, Shuffle } from 'lucide-react';
+import { Check, ChevronDown, Link2, RotateCcw, Shuffle } from 'lucide-react';
 import { decodeBoard, encodeBoard } from './shareBoard';
 import type { PreviewConfig } from '../preview/previewConfig';
 import {
@@ -80,6 +80,9 @@ export default function MoodBoardView() {
   const [notes, setNotes] = useState(() => initial?.notes ?? '');
   const [animationIds, setAnimationIds] = useState<string[]>(() => initial?.animationIds ?? []);
   const [copied, setCopied] = useState(false);
+  // The motion picker is the densest control, so it starts collapsed — but if a
+  // restored share/saved board already has picks, open it so they're visible.
+  const [motionOpen, setMotionOpen] = useState(() => (initial?.animationIds?.length ?? 0) > 0);
 
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
@@ -152,8 +155,7 @@ export default function MoodBoardView() {
             Mix your own.
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-shell-mute sm:text-base">
-            Pair any palette with any font and layout, dial the motion, and watch it come together
-            live. Your choices become a copy-ready design brief.
+            Pick a palette and a font — your preview updates as you go. No design skills needed.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -203,6 +205,14 @@ export default function MoodBoardView() {
         {/* builder + brief */}
         <div className="order-2 space-y-5 lg:w-[380px] xl:w-[420px]">
           <div className="rounded-3xl border border-shell-line bg-shell-panel p-5">
+            <div className="mb-4 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] font-medium text-shell-mute">
+              <span><span className="text-shell-glow">1</span> · Pick colors</span>
+              <span aria-hidden className="text-shell-line">›</span>
+              <span><span className="text-shell-glow">2</span> · Pick type</span>
+              <span aria-hidden className="text-shell-line">›</span>
+              <span><span className="text-shell-glow">3</span> · Send</span>
+            </div>
+
             <Field label="Brand name" htmlFor="mb-brand">
               <input
                 id="mb-brand"
@@ -254,42 +264,69 @@ export default function MoodBoardView() {
               </div>
             </Field>
 
-            <Field label="Motion & effects">
-              <div className="max-h-52 space-y-2.5 overflow-y-auto scrollbar-thin pr-1">
-                {ANIMATION_CATEGORIES.map((category) => {
-                  const items = animationPresets.filter((a) => a.category === category);
-                  if (!items.length) return null;
-                  return (
-                    <div key={category}>
-                      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-shell-mute/80">
-                        {category}
+            <div className="mb-4 last:mb-0">
+              <button
+                type="button"
+                onClick={() => setMotionOpen((o) => !o)}
+                aria-expanded={motionOpen}
+                aria-controls="mb-motion-panel"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border border-shell-line px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-shell-mute transition-colors hover:text-shell-ink"
+              >
+                <span className="flex items-center gap-1.5">
+                  {motionOpen ? 'Motion & effects' : '+ Add motion (optional)'}
+                  {animationIds.length > 0 && (
+                    <span className="rounded-full bg-shell-glow/15 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-shell-glow">
+                      {animationIds.length}
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  size={14}
+                  className={`shrink-0 transition-transform motion-reduce:transition-none ${
+                    motionOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              {motionOpen && (
+                <div
+                  id="mb-motion-panel"
+                  className="mt-2.5 max-h-52 space-y-2.5 overflow-y-auto scrollbar-thin pr-1"
+                >
+                  {ANIMATION_CATEGORIES.map((category) => {
+                    const items = animationPresets.filter((a) => a.category === category);
+                    if (!items.length) return null;
+                    return (
+                      <div key={category}>
+                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-shell-mute/80">
+                          {category}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {items.map((a) => {
+                            const on = animationIds.includes(a.id);
+                            return (
+                              <button
+                                key={a.id}
+                                type="button"
+                                aria-pressed={on}
+                                title={a.effect}
+                                onClick={() => toggleAnimation(a.id)}
+                                className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
+                                  on
+                                    ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
+                                    : 'border-shell-line text-shell-mute hover:text-shell-ink'
+                                }`}
+                              >
+                                {a.name}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {items.map((a) => {
-                          const on = animationIds.includes(a.id);
-                          return (
-                            <button
-                              key={a.id}
-                              type="button"
-                              aria-pressed={on}
-                              title={a.effect}
-                              onClick={() => toggleAnimation(a.id)}
-                              className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
-                                on
-                                  ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                                  : 'border-shell-line text-shell-mute hover:text-shell-ink'
-                              }`}
-                            >
-                              {a.name}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Field>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             <Field label="Notes for the brief" htmlFor="mb-notes">
               <textarea

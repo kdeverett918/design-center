@@ -27,10 +27,10 @@ const COLOR_ROLES: (keyof PaletteColors)[] = [
 
 describe('data integrity — counts', () => {
   it('has the expected catalog sizes', () => {
-    expect(palettes).toHaveLength(34);
-    expect(fontPairings).toHaveLength(31);
-    expect(themes).toHaveLength(30);
-    expect(animationPresets).toHaveLength(35);
+    expect(palettes).toHaveLength(46);
+    expect(fontPairings).toHaveLength(43);
+    expect(themes).toHaveLength(42);
+    expect(animationPresets).toHaveLength(39);
   });
 });
 
@@ -56,7 +56,17 @@ describe('palettes', () => {
 
   it('dark palettes are flagged', () => {
     const dark = palettes.filter((p) => p.isDark).map((p) => p.id).sort();
-    expect(dark).toEqual(['carbon', 'chrome', 'ember', 'glacier', 'nocturne', 'noir', 'vapor']);
+    expect(dark).toEqual([
+      'carbon',
+      'chrome',
+      'ember',
+      'glacier',
+      'lagoon',
+      'nebula',
+      'nocturne',
+      'noir',
+      'vapor',
+    ]);
   });
 });
 

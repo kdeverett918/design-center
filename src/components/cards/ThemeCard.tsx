@@ -40,13 +40,25 @@ export default function ThemeCard({ theme, active, onSelect }: ThemeCardProps) {
         aria-label={`Preview the ${theme.name} theme`}
       >
         {/* live mini page in its own palette + fonts */}
-        <ThemedScope
-          palette={palette}
-          fonts={fonts}
-          className="h-64 overflow-hidden border-b border-shell-line"
-        >
-          <MiniSamplePage brand={theme.name} />
-        </ThemedScope>
+        <div className="relative">
+          <ThemedScope
+            palette={palette}
+            fonts={fonts}
+            className="h-64 overflow-hidden border-b border-shell-line"
+          >
+            <MiniSamplePage brand={theme.name} />
+          </ThemedScope>
+          {/* subtle AI hero-image accent: a small cover thumbnail so the grid
+              previews the imagery. Absent → card is unchanged. */}
+          {theme.heroImage && (
+            <img
+              src={theme.heroImage}
+              alt=""
+              loading="lazy"
+              className="pointer-events-none absolute bottom-2.5 right-2.5 h-12 w-16 rounded-lg object-cover shadow-md ring-1 ring-black/20"
+            />
+          )}
+        </div>
 
         {/* meta row (shell chrome) */}
         <div className="flex items-center justify-between gap-3 px-5 py-4">

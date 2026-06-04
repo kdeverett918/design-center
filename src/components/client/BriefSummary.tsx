@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ClipboardCopy, Download, Mail, Printer } from 'lucide-react';
+import { Check, ChevronDown, ClipboardCopy, Code2, Download, Mail, Printer } from 'lucide-react';
 import { buildBriefText, COLOR_ROLES } from './buildBrief';
 import type { BriefInput } from './buildBrief';
 import { toCssVars, toJson, toTailwind } from '../../lib/designTokens';
@@ -15,6 +15,9 @@ export default function BriefSummary(props: BriefSummaryProps) {
   const { brand, themeName, palette, fonts, config, notes, animationIds } = props;
   const animations = animationIds ?? [];
   const [copied, setCopied] = useState(false);
+  // Developer-oriented exports (CSS vars / JSON / Tailwind) stay tucked away so
+  // the panel reads calmly for non-technical clients.
+  const [devOpen, setDevOpen] = useState(false);
 
   const copy = async () => {
     try {
@@ -138,19 +141,15 @@ export default function BriefSummary(props: BriefSummaryProps) {
         </p>
       )}
 
-      {/* export & developer handoff */}
+      {/* export & handoff — calm primary actions, dev exports tucked away */}
       <div className="mt-4 border-t border-shell-line pt-4">
-        <div className="mb-2 text-[10px] uppercase tracking-wide text-shell-mute">Export &amp; handoff</div>
         <div className="flex flex-wrap gap-1.5">
-          <CopyChip label="CSS vars" getText={() => toCssVars(palette, fonts)} />
-          <CopyChip label="JSON" getText={() => toJson(palette, fonts, config, animations)} />
-          <CopyChip label="Tailwind" getText={() => toTailwind(palette, fonts)} />
           <button
             type="button"
             onClick={downloadBrief}
             className="flex items-center gap-1 rounded-lg border border-shell-line px-2.5 py-1.5 text-[11px] font-medium text-shell-ink hover:border-shell-glow/50"
           >
-            <Download size={12} className="text-shell-mute" /> Download
+            <Download size={12} className="text-shell-mute" /> Download brief
           </button>
           <button
             type="button"
@@ -160,6 +159,31 @@ export default function BriefSummary(props: BriefSummaryProps) {
             <Mail size={12} className="text-shell-mute" /> Email
           </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setDevOpen((o) => !o)}
+          aria-expanded={devOpen}
+          aria-controls="brief-dev-handoff"
+          className="mt-2.5 flex w-full items-center justify-between gap-2 text-[10px] uppercase tracking-wide text-shell-mute transition-colors hover:text-shell-ink"
+        >
+          <span className="flex items-center gap-1.5">
+            <Code2 size={12} /> For your developer
+          </span>
+          <ChevronDown
+            size={13}
+            className={`shrink-0 transition-transform motion-reduce:transition-none ${
+              devOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </button>
+        {devOpen && (
+          <div id="brief-dev-handoff" className="mt-2 flex flex-wrap gap-1.5">
+            <CopyChip label="CSS vars" getText={() => toCssVars(palette, fonts)} />
+            <CopyChip label="JSON" getText={() => toJson(palette, fonts, config, animations)} />
+            <CopyChip label="Tailwind" getText={() => toTailwind(palette, fonts)} />
+          </div>
+        )}
       </div>
 
       {typeof document !== 'undefined' &&

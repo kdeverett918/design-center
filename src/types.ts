@@ -122,6 +122,14 @@ export interface Theme {
   paletteId: string;
   fontPairingId: string;
   animationIntensity: AnimationIntensity;
+  /**
+   * Optional pre-generated hero background image (web-optimized .webp under
+   * /theme-images/<id>.webp). Image-bearing hero variants (split / fullbleed /
+   * showcase / overlap) render it behind a token-tint scrim; absent → the
+   * existing CSS gradient. Themed only — the à-la-carte mixer stays gradient so
+   * live re-theming is never broken by a fixed raster.
+   */
+  heroImage?: string;
 }
 
 // ----- Client selections (Phase 3+, typed now so seams stay clean) ----------

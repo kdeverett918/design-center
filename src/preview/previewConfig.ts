@@ -119,6 +119,18 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
   vaporwave: { hero: 'chrome', cardStyle: 'gradient' },
   maison: { hero: 'editorial', cardStyle: 'inset' },
   atelier: { hero: 'poster', cardStyle: 'bordered' },
+  sunnyside: { hero: 'split', cardStyle: 'elevated' },
+  bubblegum: { hero: 'split', cardStyle: 'sticker' },
+  crayon: { hero: 'overlap', cardStyle: 'accentbar' },
+  aurora: { hero: 'fullbleed', cardStyle: 'glass' },
+  nebula: { hero: 'fullbleed', cardStyle: 'glass' },
+  prism: { hero: 'overlap', cardStyle: 'gradient' },
+  harvest: { hero: 'fullbleed', cardStyle: 'bordered' },
+  evergreen: { hero: 'split', cardStyle: 'inset' },
+  bloom: { hero: 'split', cardStyle: 'elevated' },
+  sage: { hero: 'split', cardStyle: 'bordered' },
+  driftwood: { hero: 'fullbleed', cardStyle: 'inset' },
+  lagoon: { hero: 'fullbleed', cardStyle: 'glass' },
 };
 
 const HERO_IDS = new Set<string>(HERO_VARIANTS.map((h) => h.id));

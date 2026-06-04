@@ -11,12 +11,14 @@ import { sectionFor } from './sections/registry';
 interface SamplePageProps {
   brand: string;
   config: PreviewConfig;
+  /** Optional AI-generated hero background (themed previews only). */
+  heroImage?: string;
 }
 
 // Token-only, fully composable live page: nav + hero + feature cards + the
 // chosen sections + footer all come from config. The reveal stagger comes from
 // config.motion (respecting prefers-reduced-motion). Keyed re-mounts replay it.
-export default function SamplePage({ brand, config }: SamplePageProps) {
+export default function SamplePage({ brand, config, heroImage }: SamplePageProps) {
   const reduced = useReducedMotion() ?? false;
   const spec = motionSpec(config.motion, reduced);
 
@@ -36,6 +38,7 @@ export default function SamplePage({ brand, config }: SamplePageProps) {
         variant={config.hero}
         item={spec.item}
         expressive={config.motion === 'expressive'}
+        heroImage={heroImage}
       />
 
       <FeatureCards cardStyle={config.cardStyle} item={spec.item} />

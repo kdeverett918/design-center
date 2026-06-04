@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutGrid, Palette as PaletteIcon, Sparkles, Type, Wand2 } from 'lucide-react';
+import { LayoutGrid, Palette as PaletteIcon, Sparkles, Type, Wand2, X } from 'lucide-react';
 import type { AnimationCategory, LayoutPreset } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';
 import { themeById, themes } from '../../data/themes';
@@ -48,6 +48,8 @@ const gridVariants = {
   show: { transition: { staggerChildren: 0.04, delayChildren: 0.03 } },
 };
 
+const GUIDE_KEY = 'dc:guide-dismissed';
+
 interface GalleryProps {
   activeThemeId: string;
   onSelectTheme: (themeId: string) => void;
@@ -59,6 +61,22 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
   const [tab, setTab] = useState<Tab>('themes');
   // Curated collection on the Themes tab — null means "All".
   const [collection, setCollection] = useState<string | null>(null);
+  // One-line orientation banner — dismissed state persists across visits.
+  const [guideOpen, setGuideOpen] = useState(() => {
+    try {
+      return localStorage.getItem(GUIDE_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+  const dismissGuide = () => {
+    setGuideOpen(false);
+    try {
+      localStorage.setItem(GUIDE_KEY, '1');
+    } catch {
+      /* storage unavailable — dismissal just won't persist */
+    }
+  };
 
   // Resolve the active theme so layout thumbnails render in the live theme.
   const activeTheme = themeById(activeThemeId) ?? themes[0]!;
@@ -88,6 +106,25 @@ export default function Gallery({ activeThemeId, onSelectTheme, config, onApplyL
 
   return (
     <div className="flex h-full flex-col">
+      {/* friendly one-line orientation guide — dismissible, above the tabs */}
+      {guideOpen && (
+        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-shell-line bg-shell-panel/60 px-4 py-2.5">
+          <Sparkles size={15} className="shrink-0 text-shell-glow" aria-hidden="true" />
+          <p className="min-w-0 flex-1 text-[13px] leading-snug text-shell-mute">
+            <span className="font-medium text-shell-ink">Browse a style on the left</span>, watch it
+            come alive on the right — then “Mix your own” or send your picks.
+          </p>
+          <button
+            type="button"
+            onClick={dismissGuide}
+            aria-label="Dismiss guide"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-shell-mute transition-colors hover:text-shell-ink"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       {/* tab bar */}
       <div className="flex flex-wrap gap-2 px-1 pb-4">
         {TABS.map(({ id, label, icon: Icon }) => {
