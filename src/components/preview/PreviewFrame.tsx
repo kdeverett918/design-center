@@ -18,6 +18,8 @@ interface PreviewFrameProps {
   replayNonce?: number;
   /** Optional AI-generated hero background (themed previews only). */
   heroImage?: string;
+  /** Render keyed preview changes synchronously instead of cross-fading. */
+  instantUpdates?: boolean;
 }
 
 // Owns the CSS-var scope for the live preview and cross-fades whenever the
@@ -32,6 +34,7 @@ export default function PreviewFrame({
   selectionKey,
   replayNonce = 0,
   heroImage,
+  instantUpdates = false,
 }: PreviewFrameProps) {
   useEffect(() => {
     loadFonts(fonts);
@@ -51,17 +54,23 @@ export default function PreviewFrame({
 
   return (
     <div data-dark={palette.isDark ? 'true' : 'false'} style={vars as CSSProperties}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={key}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.28, ease: 'easeInOut' }}
-        >
+      {instantUpdates ? (
+        <div key={key}>
           <SamplePage brand={brand} config={config} heroImage={heroImage} />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={key}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28, ease: 'easeInOut' }}
+          >
+            <SamplePage brand={brand} config={config} heroImage={heroImage} />
+          </motion.div>
+        </AnimatePresence>
+      )}
     </div>
   );
 }

@@ -1,14 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Columns2, LayoutGrid, Moon, Shuffle, Star, Sun } from 'lucide-react';
+import { LayoutGrid, Moon, Shuffle, Star, Sun } from 'lucide-react';
 import { useFavorites } from '../../contexts/favoritesContext';
 import { useColorMode } from '../../hooks/useColorMode';
 import { buttonClasses } from '../ui/Button';
 import Logo from './Logo';
 
 const links = [
-  { to: '/', label: 'Gallery', end: true, icon: LayoutGrid },
-  { to: '/moodboard', label: 'Mood board', end: false, icon: Shuffle },
-  { to: '/compare', label: 'Compare', end: false, icon: Columns2 },
+  { to: '/', label: 'Mood board', end: true, icon: Shuffle },
+  { to: '/gallery', label: 'Gallery', end: false, icon: LayoutGrid },
 ];
 
 export default function NavBar() {

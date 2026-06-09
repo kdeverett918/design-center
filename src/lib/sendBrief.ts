@@ -16,6 +16,7 @@ export interface SendBriefArgs {
   clientEmail: string;
   message: string;
   briefText: string;
+  subject?: string;
 }
 
 export interface SendResult {
@@ -35,10 +36,10 @@ export async function sendBrief(args: SendBriefArgs): Promise<SendResult> {
     return { ok: false, fallback: true };
   }
 
-  const { brand, clientName, clientEmail, message, briefText } = args;
+  const { brand, clientName, clientEmail, message, briefText, subject } = args;
   const body = {
     access_key: key,
-    subject: `New design selections — ${brand}`,
+    subject: subject ?? `New design selections — ${brand}`,
     from_name: clientName || 'Design Center client',
     replyto: clientEmail,
     name: clientName,

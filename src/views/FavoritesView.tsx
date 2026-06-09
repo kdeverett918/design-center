@@ -14,11 +14,16 @@ import PaletteCard from '../components/cards/PaletteCard';
 import FontCard from '../components/cards/FontCard';
 import AnimationCard from '../components/cards/AnimationCard';
 import LayoutCard from '../components/cards/LayoutCard';
+import SendShortlist from '../components/client/SendShortlist';
 
 const gridVariants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.04, delayChildren: 0.03 } },
 };
+
+function present<T>(value: T | undefined): value is T {
+  return Boolean(value);
+}
 
 export default function FavoritesView() {
   const { ids, count, clear } = useFavorites();
@@ -31,11 +36,11 @@ export default function FavoritesView() {
 
   const groups = useMemo(
     () => ({
-      themes: ids('theme').map(themeById).filter(Boolean),
-      palettes: ids('palette').map(paletteById).filter(Boolean),
-      fonts: ids('font').map(fontPairingById).filter(Boolean),
-      layouts: ids('layout').map(layoutById).filter(Boolean),
-      animations: ids('animation').map(animationById).filter(Boolean),
+      themes: ids('theme').map(themeById).filter(present),
+      palettes: ids('palette').map(paletteById).filter(present),
+      fonts: ids('font').map(fontPairingById).filter(present),
+      layouts: ids('layout').map(layoutById).filter(present),
+      animations: ids('animation').map(animationById).filter(present),
     }),
     [ids],
   );
@@ -70,42 +75,48 @@ export default function FavoritesView() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-8">
-          <Group title="Themes" count={groups.themes.length}>
-            {groups.themes.map((t) => (
-              <ThemeCard
-                key={t!.id}
-                theme={t!}
-                active={false}
-                onSelect={(id) => navigate(`/?theme=${id}`)}
-              />
-            ))}
-          </Group>
-          <Group title="Palettes" count={groups.palettes.length}>
-            {groups.palettes.map((p) => (
-              <PaletteCard key={p!.id} palette={p!} />
-            ))}
-          </Group>
-          <Group title="Fonts" count={groups.fonts.length}>
-            {groups.fonts.map((f) => (
-              <FontCard key={f!.id} pairing={f!} />
-            ))}
-          </Group>
-          <Group title="Layouts" count={groups.layouts.length}>
-            {groups.layouts.map((l) => (
-              <LayoutCard
-                key={l!.id}
-                preset={l!}
-                palette={defaultPalette}
-                fonts={defaultFonts}
-              />
-            ))}
-          </Group>
-          <Group title="Animations" count={groups.animations.length}>
-            {groups.animations.map((a) => (
-              <AnimationCard key={a!.id} preset={a!} />
-            ))}
-          </Group>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px] xl:items-start">
+          <div className="space-y-8">
+            <Group title="Themes" count={groups.themes.length}>
+              {groups.themes.map((t) => (
+                <ThemeCard
+                  key={t.id}
+                  theme={t}
+                  active={false}
+                  onSelect={(id) => navigate(`/gallery?theme=${id}`)}
+                />
+              ))}
+            </Group>
+            <Group title="Palettes" count={groups.palettes.length}>
+              {groups.palettes.map((p) => (
+                <PaletteCard key={p.id} palette={p} />
+              ))}
+            </Group>
+            <Group title="Fonts" count={groups.fonts.length}>
+              {groups.fonts.map((f) => (
+                <FontCard key={f.id} pairing={f} />
+              ))}
+            </Group>
+            <Group title="Layouts" count={groups.layouts.length}>
+              {groups.layouts.map((l) => (
+                <LayoutCard
+                  key={l.id}
+                  preset={l}
+                  palette={defaultPalette}
+                  fonts={defaultFonts}
+                />
+              ))}
+            </Group>
+            <Group title="Animations" count={groups.animations.length}>
+              {groups.animations.map((a) => (
+                <AnimationCard key={a.id} preset={a} />
+              ))}
+            </Group>
+          </div>
+
+          <aside className="order-first xl:order-last xl:sticky xl:top-24">
+            <SendShortlist groups={groups} count={count} />
+          </aside>
         </div>
       )}
     </div>

@@ -5,8 +5,16 @@ import { expect, test } from '@playwright/test';
 const REPRESENTATIVE_THEMES = ['maison', 'brutalist', 'launchpad', 'dispatch', 'sunnyside'];
 
 test.describe('Design Center', () => {
-  test('home loads the gallery', async ({ page }) => {
+  test('home loads the mood board landing page', async ({ page }) => {
     await page.goto('/');
+    await expect(
+      page.getByRole('heading', { name: /build the design direction/i }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: /surprise me/i })).toBeVisible();
+  });
+
+  test('gallery loads the theme library', async ({ page }) => {
+    await page.goto('/gallery');
     await expect(
       page.getByRole('heading', { name: /customize your unique design/i }),
     ).toBeVisible();
@@ -18,7 +26,7 @@ test.describe('Design Center', () => {
   });
 
   test('switches Themes → Fonts', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/gallery');
     const fontsTab = page.getByRole('button', { name: /^Fonts/ });
     await fontsTab.click();
     await expect(fontsTab).toHaveAttribute('aria-pressed', 'true');
@@ -29,7 +37,7 @@ test.describe('Design Center', () => {
   });
 
   test('selecting a theme changes the preview background var', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/gallery');
 
     // The PREVIEW frame (right column) carries the active theme's --color-bg.
     // Many [data-dark] scopes exist (hero cluster + every theme card render in
@@ -59,7 +67,7 @@ test.describe('Design Center', () => {
   // rendered theme cards; "All" shows every theme. We count the visible cards
   // directly because the Themes-tab badge always reports the full catalog size.
   test('a collection chip reduces the visible theme count', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/gallery');
 
     // Each ThemeCard renders exactly one hero thumbnail, so counting those is a
     // reliable proxy for "how many theme cards are on screen".
@@ -76,9 +84,9 @@ test.describe('Design Center', () => {
     await expect(page.getByText(/bright, playful/i)).toBeVisible();
   });
 
-  test('/moodboard loads and "Surprise me" changes the selection', async ({ page }) => {
-    await page.goto('/moodboard');
-    await expect(page.getByRole('heading', { name: /mix your own/i })).toBeVisible();
+  test('mood board "Surprise me" changes the selection', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: /build the design direction/i })).toBeVisible();
 
     const subtitle = moodboardSubtitle(page);
     const before = await subtitle.innerText();
@@ -99,12 +107,12 @@ test.describe('Design Center', () => {
   // Imagery is GLOBAL — every theme ships a /theme-images/<id>.webp.
   // ===========================================================================
 
-  test('home renders a hero thumbnail for every theme (42)', async ({ page }) => {
-    await page.goto('/');
+  test('gallery renders a hero thumbnail for every theme (46)', async ({ page }) => {
+    await page.goto('/gallery');
     const thumbs = page.locator('img[src^="/theme-images/"]');
     await expect(thumbs.first()).toBeVisible();
     // "All" collection is the default, so every catalogued theme is on screen.
-    await expect.poll(async () => thumbs.count()).toBe(42);
+    await expect.poll(async () => thumbs.count()).toBe(46);
   });
 
   test('no /theme-images asset 404s while browsing previews', async ({ page }) => {
@@ -116,11 +124,11 @@ test.describe('Design Center', () => {
       }
     });
 
-    await page.goto('/');
+    await page.goto('/gallery');
     // Visit a spread of themed previews — the inline preview hero paints the
     // image (CSS background-image / <img>), which forces the real network load.
     for (const id of REPRESENTATIVE_THEMES) {
-      await page.goto(`/?theme=${id}`);
+      await page.goto(`/gallery?theme=${id}`);
       const styled = page.locator(`[style*="/theme-images/${id}.webp"], img[src="/theme-images/${id}.webp"]`);
       await expect(styled.first()).toBeVisible();
     }
@@ -138,7 +146,7 @@ test.describe('Design Center', () => {
   });
 
   test('a deep-linked preview paints its theme hero image', async ({ page }) => {
-    await page.goto('/?theme=maison');
+    await page.goto('/gallery?theme=maison');
     // The preview hero renders the image as a CSS background or <img>.
     const hero = page.locator(
       '[style*="/theme-images/maison.webp"], img[src="/theme-images/maison.webp"]',
@@ -150,15 +158,15 @@ test.describe('Design Center', () => {
   // Color-coded button system — present, visible, enabled, and NOT monochrome.
   // ===========================================================================
 
-  test('home "Browse the library" is a visible primary CTA', async ({ page }) => {
-    await page.goto('/');
+  test('gallery "Browse the library" is a visible primary CTA', async ({ page }) => {
+    await page.goto('/gallery');
     const cta = page.getByRole('button', { name: /browse the library/i });
     await expect(cta).toBeVisible();
     await expect(cta).toBeEnabled();
   });
 
   test('moodboard send + surprise + reset buttons are color-coded & enabled', async ({ page }) => {
-    await page.goto('/moodboard');
+    await page.goto('/');
 
     const send = page.getByRole('button', { name: /send my selections/i });
     await send.scrollIntoViewIfNeeded();
@@ -205,18 +213,18 @@ test.describe('Design Center', () => {
   // ===========================================================================
 
   test('moodboard "Start from a theme" reseeds the preview subtitle', async ({ page }) => {
-    await page.goto('/moodboard');
+    await page.goto('/');
 
     const subtitle = moodboardSubtitle(page);
     const before = await subtitle.innerText();
 
     // Launchpad uses a palette + font that differ from the default mix, so the
     // "Palette · Font" subtitle must change once it seeds the board.
-    await page.getByRole('button', { name: /^Launchpad$/ }).click();
+    await page.getByRole('button', { name: /^Launchpad/ }).click();
 
     await expect.poll(async () => subtitle.innerText()).not.toBe(before);
     // The seeded quick-pick chip becomes the active selection.
-    await expect(page.getByRole('button', { name: /^Launchpad$/ })).toHaveAttribute(
+    await expect(page.getByRole('button', { name: /^Launchpad/ })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
@@ -226,7 +234,7 @@ test.describe('Design Center', () => {
   // Every route mounts with NO console errors / page errors.
   // ===========================================================================
 
-  for (const path of ['/', '/moodboard', '/compare', '/favorites']) {
+  for (const path of ['/', '/gallery', '/favorites']) {
     test(`route ${path} loads with no console errors`, async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', (err) => errors.push(`pageerror: ${err.message}`));

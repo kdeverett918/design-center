@@ -100,7 +100,7 @@ export default function GalleryHero({ onBrowse }: GalleryHeroProps) {
               whileHover={reduce ? undefined : { y: -1 }}
               transition={{ duration: 0.25, ease: PREMIUM_EASE }}
             >
-              <Link to="/moodboard" className={buttonClasses('accent', 'md')}>
+              <Link to="/" className={buttonClasses('accent', 'md')}>
                 <Shuffle size={15} />
                 Mix your own
               </Link>

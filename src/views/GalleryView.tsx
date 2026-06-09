@@ -59,7 +59,7 @@ export default function GalleryView() {
   };
 
   const shareGallery = async () => {
-    const url = `${window.location.origin}/?theme=${activeThemeId}&c=${encodeConfig(config)}`;
+    const url = `${window.location.origin}/gallery?theme=${activeThemeId}&c=${encodeConfig(config)}`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {

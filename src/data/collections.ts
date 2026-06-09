@@ -15,13 +15,13 @@ export const collections: Collection[] = [
     id: 'editorial',
     name: 'Editorial',
     description: 'Magazine-grade type and asymmetry.',
-    themeIds: ['broadsheet', 'riso', 'maison', 'atelier', 'dispatch', 'claret', 'bisque'],
+    themeIds: ['quietsignal', 'broadsheet', 'riso', 'maison', 'atelier', 'dispatch', 'claret', 'bisque'],
   },
   {
     id: 'bold-modern',
     name: 'Bold & Modern',
     description: 'Confident, high-contrast, unmistakable.',
-    themeIds: ['brutalist', 'acidhouse', 'obsidian', 'keystone', 'vital', 'launchpad'],
+    themeIds: ['limelight', 'brutalist', 'acidhouse', 'obsidian', 'keystone', 'vital', 'launchpad'],
   },
   {
     id: 'retro-future',
@@ -39,7 +39,7 @@ export const collections: Collection[] = [
     id: 'calm-clinical',
     name: 'Calm & Clinical',
     description: 'Calm, accessible, trustworthy.',
-    themeIds: ['stillwater', 'quietude', 'haven', 'meadow', 'frost', 'tundra'],
+    themeIds: ['quietsignal', 'bluehour', 'stillwater', 'quietude', 'haven', 'meadow', 'frost', 'tundra'],
   },
   {
     id: 'warm-organic',
@@ -51,13 +51,13 @@ export const collections: Collection[] = [
     id: 'kid-friendly',
     name: 'Kid-Friendly',
     description: 'Bright, playful, full of fun.',
-    themeIds: ['sunnyside', 'bubblegum', 'crayon', 'joyride', 'sunbeam'],
+    themeIds: ['sherbetstudio', 'sunnyside', 'bubblegum', 'crayon', 'joyride', 'sunbeam'],
   },
   {
     id: 'showstopper',
     name: 'Showstopper',
     description: 'Dramatic gradients and big display type.',
-    themeIds: ['aurora', 'nebula', 'prism', 'chromewave', 'vaporwave', 'voltage'],
+    themeIds: ['limelight', 'aurora', 'nebula', 'prism', 'chromewave', 'vaporwave', 'voltage'],
   },
   {
     id: 'seasonal',

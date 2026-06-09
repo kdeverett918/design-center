@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CheckCircle2, FileDown, Loader2, Send } from 'lucide-react';
-import { buildBriefText } from './buildBrief';
-import type { BriefInput } from './buildBrief';
+import type { FormEvent } from 'react';
+import { CheckCircle2, Loader2, Mail } from 'lucide-react';
+import { buildShortlistText } from './buildShortlist';
+import type { ShortlistGroups } from './buildShortlist';
 import { sendBrief } from '../../lib/sendBrief';
 import { STUDIO_EMAIL } from '../../lib/studioContact';
 import { buttonClasses } from '../ui/Button';
@@ -13,36 +14,39 @@ type Status =
   | { kind: 'fallback' }
   | { kind: 'error'; message: string };
 
-// Lets the client send their finished selections straight to Tech SLP Studio.
-// Posts client-side via Web3Forms; falls back to a mailto: draft when no key is
-// configured or the network call is blocked.
-export default function SendBrief(props: BriefInput) {
-  const { brand } = props;
+interface SendShortlistProps {
+  groups: ShortlistGroups;
+  count: number;
+}
+
+export default function SendShortlist({ groups, count }: SendShortlistProps) {
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
   const submitting = status.kind === 'submitting';
+  const sender = clientName.trim() || clientEmail.trim() || 'Design Center visitor';
 
-  const openMailto = (briefText: string) => {
-    const subject = encodeURIComponent(`New design selections: ${brand}`);
-    const body = encodeURIComponent(`${message ? message + '\n\n' : ''}${briefText}`);
+  const openMailto = (shortlistText: string) => {
+    const subject = encodeURIComponent(`New design shortlist: ${sender}`);
+    const body = encodeURIComponent(`${message ? message + '\n\n' : ''}${shortlistText}`);
     window.location.href = `mailto:${STUDIO_EMAIL}?subject=${subject}&body=${body}`;
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
     setStatus({ kind: 'submitting' });
 
-    const briefText = buildBriefText(props);
+    const shortlistText = buildShortlistText({ groups, count });
     const result = await sendBrief({
-      brand,
+      brand: 'Shortlist',
       clientName,
       clientEmail,
       message,
-      briefText,
+      briefText: shortlistText,
+      subject: `New design shortlist - ${sender}`,
     });
 
     if (result.ok) {
@@ -50,7 +54,7 @@ export default function SendBrief(props: BriefInput) {
       return;
     }
     if (result.fallback) {
-      openMailto(briefText);
+      openMailto(shortlistText);
       setStatus({ kind: 'fallback' });
       return;
     }
@@ -59,18 +63,18 @@ export default function SendBrief(props: BriefInput) {
 
   return (
     <div className="rounded-3xl border border-shell-line bg-shell-panel p-5">
-      <h3 className="font-display text-sm font-semibold text-shell-ink">Send to Tech SLP Studio</h3>
+      <h3 className="font-display text-sm font-semibold text-shell-ink">Send shortlist to Kristine</h3>
       <p className="mt-1 text-[11px] leading-relaxed text-shell-mute">
-        Happy with your mix? Send your selections to Kristine and she’ll be in touch.
+        Share all {count} starred item{count === 1 ? '' : 's'} in one email.
       </p>
 
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <div>
-          <label htmlFor="sb-name" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+          <label htmlFor="sl-name" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
             Your name
           </label>
           <input
-            id="sb-name"
+            id="sl-name"
             value={clientName}
             onChange={(e) => setClientName(e.target.value)}
             autoComplete="name"
@@ -79,11 +83,11 @@ export default function SendBrief(props: BriefInput) {
         </div>
 
         <div>
-          <label htmlFor="sb-email" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+          <label htmlFor="sl-email" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
             Your email
           </label>
           <input
-            id="sb-email"
+            id="sl-email"
             type="email"
             required
             value={clientEmail}
@@ -94,15 +98,15 @@ export default function SendBrief(props: BriefInput) {
         </div>
 
         <div>
-          <label htmlFor="sb-message" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+          <label htmlFor="sl-message" className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
             Message <span className="font-normal normal-case text-shell-mute/70">(optional)</span>
           </label>
           <textarea
-            id="sb-message"
+            id="sl-message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={2}
-            placeholder="Anything else you’d like Kristine to know…"
+            placeholder="Project context, timing, or favorites you care about most..."
             className="w-full resize-none rounded-lg border border-shell-line bg-shell-base px-3 py-2 text-sm text-shell-ink outline-none placeholder:text-shell-mute focus:border-shell-glow/60"
           />
         </div>
@@ -114,30 +118,20 @@ export default function SendBrief(props: BriefInput) {
         >
           {submitting ? (
             <>
-              <Loader2 size={15} className="animate-spin" /> Sending…
+              <Loader2 size={15} className="animate-spin" /> Sending...
             </>
           ) : (
             <>
-              <Send size={15} /> Send my selections to Tech SLP Studio
+              <Mail size={15} /> Send shortlist
             </>
           )}
         </button>
       </form>
 
-      {/* Secondary action — keep a polished PDF copy of the selections. Reuses the
-          print-only brief portaled by BriefSummary (@media print shows only it). */}
-      <button
-        type="button"
-        onClick={() => window.print()}
-        className={`${buttonClasses('neutral', 'sm')} mt-2 w-full`}
-      >
-        <FileDown size={13} /> Download a PDF copy for your records
-      </button>
-
       <div aria-live="polite" className="mt-3 min-h-[1rem]">
         {status.kind === 'success' && (
           <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-            <CheckCircle2 size={14} /> Sent! Kristine will be in touch.
+            <CheckCircle2 size={14} /> Shortlist sent.
           </p>
         )}
         {status.kind === 'fallback' && (

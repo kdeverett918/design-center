@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Mobile viewport', () => {
   test.skip(({ isMobile }) => !isMobile, 'mobile-only responsive checks');
 
-  const ROUTES = ['/', '/moodboard', '/compare', '/favorites'];
+  const ROUTES = ['/', '/gallery', '/favorites'];
 
   // A page that overflows horizontally is the #1 mobile defect — assert the
   // document never scrolls sideways (1px tolerance for sub-pixel rounding).
@@ -33,17 +33,14 @@ test.describe('Mobile viewport', () => {
 
   test('the nav rail navigates between routes on mobile', async ({ page }) => {
     await page.goto('/');
+    await page.getByRole('link', { name: 'Gallery' }).click();
+    await expect(page).toHaveURL(/\/gallery$/);
+    await expect(page.getByRole('heading', { name: /customize your unique design/i })).toBeVisible();
+
     // Labels collapse to icons on mobile but aria-labels keep the links reachable.
     await page.getByRole('link', { name: 'Mood board' }).click();
-    await expect(page).toHaveURL(/\/moodboard$/);
-    await expect(page.getByRole('heading', { name: /mix your own/i })).toBeVisible();
-
-    await page.getByRole('link', { name: 'Compare' }).click();
-    await expect(page).toHaveURL(/\/compare$/);
-
-    await page.getByRole('link', { name: 'Gallery' }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { name: /customize your unique design/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /build the design direction/i })).toBeVisible();
   });
 
   test('the shortlist link is reachable and reads as a colored CTA', async ({ page }) => {
@@ -64,7 +61,7 @@ test.describe('Mobile viewport', () => {
   });
 
   test('gallery tabs work and a theme card updates the preview on mobile', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/gallery');
     // Tabs render and switch.
     const fontsTab = page.getByRole('button', { name: /^Fonts/ });
     await fontsTab.click();
@@ -89,8 +86,8 @@ test.describe('Mobile viewport', () => {
   });
 
   test('the mood board is usable on mobile (Send is reachable + color-coded)', async ({ page }) => {
-    await page.goto('/moodboard');
-    await expect(page.getByRole('heading', { name: /mix your own/i })).toBeVisible();
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: /build the design direction/i })).toBeVisible();
     await expectNoHorizontalScroll(page);
     // Primary client action: Send → success/emerald, visible + enabled.
     const send = page.getByRole('button', { name: /send my selections/i });
@@ -104,7 +101,7 @@ test.describe('Mobile viewport', () => {
     page.on('response', (r) => {
       if (r.url().includes('/theme-images/') && r.status() >= 400) failed.push(`${r.status()} ${r.url()}`);
     });
-    await page.goto('/?theme=sunnyside');
+    await page.goto('/gallery?theme=sunnyside');
     await page.waitForLoadState('networkidle');
     const painted = await page.evaluate(() =>
       [...document.querySelectorAll('*')].some((el) =>

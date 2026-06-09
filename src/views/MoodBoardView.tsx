@@ -1,7 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Check, ChevronDown, Link2, RotateCcw, Shuffle, Sparkles } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import {
+  Check,
+  ChevronDown,
+  LayoutGrid,
+  Link2,
+  Mail,
+  Palette as PaletteIcon,
+  RotateCcw,
+  Shuffle,
+  Sparkles,
+  Type,
+  Wand2,
+} from 'lucide-react';
 import { decodeBoard, encodeBoard } from './shareBoard';
 import type { PreviewConfig } from '../preview/previewConfig';
 import {
@@ -18,9 +30,9 @@ import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
 import { animationById, animationPresets } from '../data/animations';
 import { themeById } from '../data/themes';
-import type { AnimationCategory } from '../types';
+import type { AnimationCategory, Palette, Theme } from '../types';
 import { loadFonts } from '../theme/loadFonts';
-import Button from '../components/ui/Button';
+import Button, { buttonClasses } from '../components/ui/Button';
 import PreviewStage from '../components/preview/PreviewStage';
 import BriefSummary from '../components/client/BriefSummary';
 import SendBrief from '../components/client/SendBrief';
@@ -40,13 +52,13 @@ const ANIMATION_CATEGORIES: AnimationCategory[] = [
 // something great instead of a blank slate, then fine-tune below. Filtered against
 // the live `themes` list so a renamed/removed id can never break the row.
 const QUICK_PICK_THEME_IDS = [
+  'quietsignal',
+  'bluehour',
+  'limelight',
+  'sherbetstudio',
   'stillwater',
   'launchpad',
-  'velvet',
-  'joyride',
   'obsidian',
-  'broadsheet',
-  'aurora',
   'terracotta',
 ];
 const QUICK_PICK_THEMES = QUICK_PICK_THEME_IDS.map(themeById).filter(
@@ -55,8 +67,58 @@ const QUICK_PICK_THEMES = QUICK_PICK_THEME_IDS.map(themeById).filter(
 
 const STORAGE_KEY = 'dc:moodboard:v1';
 
+const FEATURED_PALETTE_IDS = [
+  'oatmilk',
+  'bluehour',
+  'blacklime',
+  'sherbet',
+  'meridian',
+  'sage',
+  'noir',
+  'aurora',
+  'lagoon',
+  'newsprint',
+];
+const FEATURED_PALETTES = FEATURED_PALETTE_IDS.map(paletteById).filter(
+  (p): p is Palette => Boolean(p),
+);
+
+const FEATURED_FONT_IDS = [
+  'folio',
+  'tidepool',
+  'rebar',
+  'gumdrop',
+  'clearwater',
+  'blueprint',
+  'broadsheet',
+  'maison',
+  'eucalyptus',
+  'spectacle',
+];
+const FEATURED_FONTS = FEATURED_FONT_IDS.map(fontPairingById).filter(
+  (f): f is NonNullable<ReturnType<typeof fontPairingById>> => Boolean(f),
+);
+
+const THEME_EFFECTS: Record<string, string[]> = {
+  quietsignal: ['fade-up', 'underline-grow'],
+  bluehour: ['fade-up', 'gentle-float'],
+  limelight: ['kinetic-type', 'cursor-spotlight', 'glitch-shift'],
+  sherbetstudio: ['bounce-in', 'pop-scale', 'confetti-burst'],
+  stillwater: ['fade-up'],
+  launchpad: ['stagger-reveal', 'hover-lift'],
+  obsidian: ['blur-in', 'image-zoom', 'cursor-dot'],
+  terracotta: ['scroll-reveal', 'gentle-float'],
+};
+
+const DEFAULT_THEME_ID = 'quietsignal';
+const DEFAULT_THEME = themeById(DEFAULT_THEME_ID);
+const DEFAULT_PALETTE_ID = DEFAULT_THEME?.paletteId ?? 'meridian';
+const DEFAULT_FONT_ID = DEFAULT_THEME?.fontPairingId ?? 'clearwater';
 // Shared canonical default so saved/shared/shuffled boards never drift apart.
-const DEFAULT_CONFIG: PreviewConfig = DEFAULT_PREVIEW_CONFIG;
+const DEFAULT_CONFIG: PreviewConfig = DEFAULT_THEME
+  ? configForTheme(DEFAULT_THEME)
+  : DEFAULT_PREVIEW_CONFIG;
+const DEFAULT_ANIMATIONS = THEME_EFFECTS[DEFAULT_THEME_ID] ?? [];
 
 interface SavedBoard {
   paletteId: string;
@@ -94,16 +156,20 @@ export default function MoodBoardView() {
   const [params] = useSearchParams();
   // A ?b= share link wins over the locally-saved board.
   const [initial] = useState(() => decodeBoard(params.get('b')) ?? loadSaved());
-  const [paletteId, setPaletteId] = useState(() => initial?.paletteId ?? 'meridian');
-  const [fontId, setFontId] = useState(() => initial?.fontId ?? 'clearwater');
+  const [paletteId, setPaletteId] = useState(() => initial?.paletteId ?? DEFAULT_PALETTE_ID);
+  const [fontId, setFontId] = useState(() => initial?.fontId ?? DEFAULT_FONT_ID);
   const [config, setConfig] = useState<PreviewConfig>(() => initial?.config ?? DEFAULT_CONFIG);
   const [brand, setBrand] = useState(() => initial?.brand ?? 'Your Practice');
   const [notes, setNotes] = useState(() => initial?.notes ?? '');
-  const [animationIds, setAnimationIds] = useState<string[]>(() => initial?.animationIds ?? []);
+  const [animationIds, setAnimationIds] = useState<string[]>(
+    () => initial?.animationIds ?? DEFAULT_ANIMATIONS,
+  );
   const [copied, setCopied] = useState(false);
   // The motion picker is the densest control, so it starts collapsed — but if a
   // restored share/saved board already has picks, open it so they're visible.
-  const [motionOpen, setMotionOpen] = useState(() => (initial?.animationIds?.length ?? 0) > 0);
+  const [motionOpen, setMotionOpen] = useState(
+    () => (initial?.animationIds?.length ?? DEFAULT_ANIMATIONS.length) > 0,
+  );
 
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
@@ -143,24 +209,26 @@ export default function MoodBoardView() {
     setAnimationIds(shuffled.slice(0, count).map((a) => a.id));
   };
 
-  // Seed the whole mix from a polished theme so people start from something great
-  // and then tweak — palette + font come from the theme, config from configForTheme.
-  // (Motion picks are left untouched so a hand-curated effect list survives a reseed.)
+  // Seed the whole mix from a polished theme so people start from something great.
   const seedFromTheme = (themeId: string) => {
     const theme = themeById(themeId);
     if (!theme) return;
     setPaletteId(theme.paletteId);
     setFontId(theme.fontPairingId);
     setConfig(configForTheme(theme));
+    const effects = THEME_EFFECTS[themeId] ?? [];
+    setAnimationIds(effects);
+    setMotionOpen(effects.length > 0);
   };
 
   const reset = () => {
-    setPaletteId('meridian');
-    setFontId('clearwater');
+    setPaletteId(DEFAULT_PALETTE_ID);
+    setFontId(DEFAULT_FONT_ID);
     setConfig(DEFAULT_CONFIG);
     setBrand('Your Practice');
     setNotes('');
-    setAnimationIds([]);
+    setAnimationIds(DEFAULT_ANIMATIONS);
+    setMotionOpen(DEFAULT_ANIMATIONS.length > 0);
   };
 
   // Highlight a quick-pick chip when the current palette + font match that theme.
@@ -177,7 +245,7 @@ export default function MoodBoardView() {
 
   const copyShareLink = async () => {
     const token = encodeBoard({ paletteId, fontId, config, brand, notes, animationIds });
-    const url = `${window.location.origin}/moodboard?b=${token}`;
+    const url = `${window.location.origin}/?b=${token}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -188,34 +256,56 @@ export default function MoodBoardView() {
   };
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 py-6 sm:px-8">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div className="max-w-2xl">
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-shell-ink sm:text-4xl">
-            Mix your own.
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-shell-mute sm:text-base">
-            Pick a palette and a font — your preview updates as you go. No design skills needed.
-          </p>
+    <div className="mx-auto max-w-[1500px] px-4 pb-10 pt-5 sm:px-8">
+      <section className="relative overflow-hidden border-b border-shell-line pb-6">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-28 -top-32 h-72 w-72 rounded-full bg-shell-glow/10 blur-[96px]"
+        />
+        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-3xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+              <Sparkles size={13} className="text-shell-glow" />
+              Tech SLP Studio Mood Board
+            </div>
+            <h1 className="font-display text-[2.55rem] font-semibold leading-[0.98] tracking-tight text-shell-ink sm:text-6xl xl:text-7xl">
+              Build the design direction.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-shell-mute sm:text-lg">
+              Start from a styled direction, tune the palette and type, then send a clean brief when
+              the preview feels right.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="hidden rounded-full border border-shell-line px-3 py-2 text-xs text-shell-mute sm:inline-flex">
+              Saved automatically
+            </span>
+            <Button tone="info" onClick={copyShareLink}>
+              {copied ? <Check size={15} /> : <Link2 size={15} />}
+              {copied ? 'Link copied' : 'Share link'}
+            </Button>
+            <Link to="/gallery" aria-label="Browse theme library" className={buttonClasses('neutral', 'md')}>
+              <LayoutGrid size={15} /> Browse gallery
+            </Link>
+            <Button tone="accent" onClick={shuffle}>
+              <Shuffle size={15} /> Surprise me
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="hidden text-xs text-shell-mute sm:inline">Saved automatically</span>
-          <Button tone="info" onClick={copyShareLink}>
-            {copied ? <Check size={15} /> : <Link2 size={15} />}
-            {copied ? 'Link copied' : 'Share link'}
-          </Button>
-          <Button tone="danger" onClick={reset}>
-            <RotateCcw size={15} /> Start over
-          </Button>
-          <Button tone="accent" onClick={shuffle}>
-            <Shuffle size={15} /> Surprise me
-          </Button>
-        </div>
-      </div>
 
-      <div className="flex flex-col gap-6 lg:flex-row">
-        {/* preview */}
-        <div className="order-1 min-w-0 flex-1">
+        <div className="relative mt-6 grid gap-2 sm:grid-cols-3">
+          <SignalPill icon={<PaletteIcon size={14} />} label="Palette" value={palette.name} />
+          <SignalPill icon={<Type size={14} />} label="Type" value={fonts.name} />
+          <SignalPill
+            icon={<Wand2 size={14} />}
+            label="Motion"
+            value={`${animationIds.length || 'No'} effect${animationIds.length === 1 ? '' : 's'}`}
+          />
+        </div>
+      </section>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px] xl:items-start">
+        <div className="min-w-0 xl:sticky xl:top-24">
           <PreviewStage
             palette={palette}
             fonts={fonts}
@@ -223,61 +313,42 @@ export default function MoodBoardView() {
             selectionKey={`${paletteId}:${fontId}`}
             config={config}
             onConfig={(patch) => setConfig((c) => ({ ...c, ...patch }))}
-            title="Custom mix"
+            title="Live direction"
             subtitle={`${palette.name} · ${fonts.name}`}
-            height={560}
+            height={620}
             effects={animationIds}
+            instantMount
           />
         </div>
 
-        {/* builder + brief */}
-        <div className="order-2 space-y-5 lg:w-[380px] xl:w-[420px]">
-          <div className="rounded-3xl border border-shell-line bg-shell-panel p-5">
-            <div className="mb-4 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] font-medium text-shell-mute">
-              <span><span className="text-shell-glow">1</span> · Pick colors</span>
-              <span aria-hidden className="text-shell-line">›</span>
-              <span><span className="text-shell-glow">2</span> · Pick type</span>
-              <span aria-hidden className="text-shell-line">›</span>
-              <span><span className="text-shell-glow">3</span> · Send</span>
+        <div className="space-y-5">
+          <div className="rounded-[28px] border border-shell-line bg-shell-panel p-4 shadow-[0_20px_70px_-55px_rgba(0,0,0,0.8)] sm:p-5">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="font-display text-base font-semibold text-shell-ink">Shape the brief</h2>
+                <p className="mt-0.5 text-xs leading-relaxed text-shell-mute">
+                  {activeThemeId ? QUICK_PICK_THEMES.find((t) => t.id === activeThemeId)?.tagline : 'Custom direction'}
+                </p>
+              </div>
+              <Button tone="danger" size="sm" onClick={reset} className="shrink-0 whitespace-nowrap">
+                <RotateCcw size={13} /> Start over
+              </Button>
             </div>
 
-            {/* Start from a theme — seed a great-looking mix in one click, then tweak
-                the à-la-carte pickers below. Horizontal scroll keeps it compact. */}
-            <div className="mb-4">
-              <div className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
-                <Sparkles size={12} className="text-violet-400" />
-                Start from a theme
+            <div className="mb-5">
+              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+                <Sparkles size={12} className="text-shell-glow" />
+                Styled starts
               </div>
-              <div className="-mx-1 flex gap-2 overflow-x-auto scrollbar-thin px-1 pb-1.5">
-                {QUICK_PICK_THEMES.map((t) => {
-                  const tp = paletteById(t.paletteId);
-                  const active = t.id === activeThemeId;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => seedFromTheme(t.id)}
-                      aria-pressed={active}
-                      title={t.tagline}
-                      className={`group flex shrink-0 items-center gap-2 rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                        active
-                          ? 'border-violet-500 bg-violet-500/15 text-shell-ink'
-                          : 'border-shell-line text-shell-mute hover:border-violet-400/50 hover:text-shell-ink'
-                      }`}
-                    >
-                      <span
-                        aria-hidden
-                        className="h-4 w-4 shrink-0 rounded-full ring-1 ring-black/10"
-                        style={{
-                          background: tp
-                            ? `linear-gradient(135deg, ${tp.colors.primary} 0 50%, ${tp.colors.accent} 50% 100%)`
-                            : undefined,
-                        }}
-                      />
-                      {t.name}
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                {QUICK_PICK_THEMES.map((theme) => (
+                  <ThemeSeedButton
+                    key={theme.id}
+                    theme={theme}
+                    active={theme.id === activeThemeId}
+                    onClick={() => seedFromTheme(theme.id)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -290,32 +361,41 @@ export default function MoodBoardView() {
               />
             </Field>
 
-            <Field label="Palette">
-              <div className="flex flex-wrap gap-1.5">
-                {palettes.map((p) => (
-                  <button
+            <Field label="Featured palettes">
+              <div className="grid grid-cols-5 gap-2">
+                {FEATURED_PALETTES.map((p) => (
+                  <PaletteButton
                     key={p.id}
-                    type="button"
-                    aria-pressed={p.id === paletteId}
-                    aria-label={p.name}
-                    title={p.name}
+                    palette={p}
+                    active={p.id === paletteId}
                     onClick={() => setPaletteId(p.id)}
-                    className={`h-8 w-8 rounded-lg ring-2 ring-offset-2 ring-offset-shell-panel transition-transform hover:scale-105 ${
-                      p.id === paletteId
-                        ? 'scale-105 ring-shell-glow'
-                        : 'ring-transparent hover:ring-shell-line'
-                    }`}
-                    style={{
-                      background: `linear-gradient(135deg, ${p.colors.primary} 0 50%, ${p.colors.accent} 50% 100%)`,
-                    }}
                   />
                 ))}
               </div>
+              <details className="group mt-2">
+                <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-shell-line px-3 py-2 text-xs font-semibold text-shell-mute transition-colors hover:text-shell-ink">
+                  Full palette library
+                  <ChevronDown
+                    size={14}
+                    className="transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                  />
+                </summary>
+                <div className="mt-2 grid max-h-44 grid-cols-8 gap-1.5 overflow-y-auto scrollbar-thin pr-1">
+                  {palettes.map((p) => (
+                    <PaletteButton
+                      key={p.id}
+                      palette={p}
+                      active={p.id === paletteId}
+                      onClick={() => setPaletteId(p.id)}
+                    />
+                  ))}
+                </div>
+              </details>
             </Field>
 
-            <Field label="Font pairing">
-              <div className="grid max-h-44 grid-cols-2 gap-1.5 overflow-y-auto scrollbar-thin pr-1">
-                {fontPairings.map((f) => (
+            <Field label="Featured type">
+              <div className="grid grid-cols-2 gap-1.5">
+                {FEATURED_FONTS.map((f) => (
                   <button
                     key={f.id}
                     type="button"
@@ -333,6 +413,34 @@ export default function MoodBoardView() {
                   </button>
                 ))}
               </div>
+              <details className="group mt-2">
+                <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-shell-line px-3 py-2 text-xs font-semibold text-shell-mute transition-colors hover:text-shell-ink">
+                  Full type library
+                  <ChevronDown
+                    size={14}
+                    className="transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                  />
+                </summary>
+                <div className="mt-2 grid max-h-44 grid-cols-2 gap-1.5 overflow-y-auto scrollbar-thin pr-1">
+                  {fontPairings.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      aria-pressed={f.id === fontId}
+                      onClick={() => setFontId(f.id)}
+                      className={`flex items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition-colors ${
+                        f.id === fontId
+                          ? 'border-shell-glow bg-shell-glow/15 font-semibold text-shell-ink'
+                          : 'border-shell-line text-shell-mute hover:border-shell-glow/40 hover:text-shell-ink'
+                      }`}
+                      style={{ fontFamily: `"${f.heading.family}", system-ui, sans-serif` }}
+                    >
+                      <span className="truncate">{f.name}</span>
+                      {f.id === fontId && <Check size={12} className="shrink-0 text-shell-glow" />}
+                    </button>
+                  ))}
+                </div>
+              </details>
             </Field>
 
             <div className="mb-4 last:mb-0">
@@ -409,6 +517,13 @@ export default function MoodBoardView() {
                 className="w-full resize-none rounded-lg border border-shell-line bg-shell-base px-3 py-2 text-sm text-shell-ink outline-none placeholder:text-shell-mute focus:border-shell-glow/60"
               />
             </Field>
+
+            <div className="mt-5 flex items-center gap-2 rounded-2xl border border-shell-line bg-shell-base/60 p-3">
+              <Mail size={15} className="shrink-0 text-shell-glow" />
+              <p className="min-w-0 text-xs leading-relaxed text-shell-mute">
+                The send form below includes the live palette, type, layout, motion, and notes.
+              </p>
+            </div>
           </div>
 
           <BriefSummary
@@ -431,6 +546,93 @@ export default function MoodBoardView() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SignalPill({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-shell-line bg-shell-panel/70 px-3 py-2.5">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-shell-glow/10 text-shell-glow">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-shell-mute">{label}</div>
+        <div className="truncate text-sm font-semibold text-shell-ink">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function ThemeSeedButton({
+  theme,
+  active,
+  onClick,
+}: {
+  theme: Theme;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const p = paletteById(theme.paletteId);
+  const f = fontPairingById(theme.fontPairingId);
+  if (!p || !f) return null;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`group grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border p-2.5 text-left transition-[border-color,background-color,transform] motion-safe:hover:-translate-y-0.5 ${
+        active
+          ? 'border-shell-glow bg-shell-glow/10 text-shell-ink'
+          : 'border-shell-line bg-shell-base/45 text-shell-mute hover:border-shell-glow/45 hover:text-shell-ink'
+      }`}
+    >
+      <span
+        aria-hidden
+        className="h-11 w-11 rounded-xl ring-1 ring-black/20"
+        style={{
+          background: `linear-gradient(135deg, ${p.colors.primary}, ${p.colors.secondary} 52%, ${p.colors.accent})`,
+        }}
+      />
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-semibold">{theme.name}</span>
+        <span className="mt-0.5 block truncate text-[11px] text-shell-mute">{p.name} · {f.name}</span>
+      </span>
+      {active && <Check size={14} className="text-shell-glow" />}
+    </button>
+  );
+}
+
+function PaletteButton({
+  palette,
+  active,
+  onClick,
+}: {
+  palette: Palette;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      aria-label={palette.name}
+      title={palette.name}
+      onClick={onClick}
+      className={`aspect-square min-h-9 rounded-xl ring-2 ring-offset-2 ring-offset-shell-panel transition-transform hover:scale-105 ${
+        active ? 'scale-105 ring-shell-glow' : 'ring-transparent hover:ring-shell-line'
+      }`}
+      style={{
+        background: `linear-gradient(135deg, ${palette.colors.primary} 0 45%, ${palette.colors.secondary} 45% 70%, ${palette.colors.accent} 70% 100%)`,
+      }}
+    />
   );
 }
 

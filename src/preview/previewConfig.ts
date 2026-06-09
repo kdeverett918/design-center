@@ -131,6 +131,10 @@ const THEME_DEFAULTS: Record<string, Partial<PreviewConfig>> = {
   sage: { hero: 'split', cardStyle: 'bordered' },
   driftwood: { hero: 'fullbleed', cardStyle: 'inset' },
   lagoon: { hero: 'fullbleed', cardStyle: 'glass' },
+  quietsignal: { hero: 'editorial', cardStyle: 'inset' },
+  limelight: { hero: 'brutal', cardStyle: 'outline-bold' },
+  bluehour: { hero: 'fullbleed', cardStyle: 'glass' },
+  sherbetstudio: { hero: 'overlap', cardStyle: 'sticker' },
 };
 
 const HERO_IDS = new Set<string>(HERO_VARIANTS.map((h) => h.id));

@@ -29,6 +29,8 @@ interface PreviewStageProps {
   effects?: string[];
   /** Optional AI-generated hero background (themed previews only). */
   heroImage?: string;
+  /** Skip first-paint and live-preview fades for routes that must feel instant. */
+  instantMount?: boolean;
 }
 
 export default function PreviewStage({
@@ -45,6 +47,7 @@ export default function PreviewStage({
   height = 520,
   effects,
   heroImage,
+  instantMount = false,
 }: PreviewStageProps) {
   const effectPresets = (effects ?? [])
     .map((id) => animationById(id))
@@ -107,14 +110,15 @@ export default function PreviewStage({
       selectionKey={selectionKey}
       replayNonce={replay}
       heroImage={heroImage}
+      instantUpdates={instantMount}
     />
   );
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={instantMount ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={instantMount ? { duration: 0 } : { duration: 0.3 }}
       className="overflow-hidden rounded-3xl border border-shell-line bg-shell-panel"
     >
       {/* selection bar */}
