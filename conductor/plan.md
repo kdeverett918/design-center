@@ -67,3 +67,13 @@ Legend: [ ] todo · [~] in progress · [x] done · [-] dropped (see audit.md dev
       (Best-match spotlight + match meters)
 - [x] Shell: theme ticker rail (hover-pause, reduced-motion static), drifting
       hero glows, designed 404, hover lift/glow on palette & font cards
+
+## Post-v2.0 — UI/UX readability & compactness pass (commit 523eac6)
+- [x] Dark-mode contrast: --shell-mute brightened (#9a9aa6 → #b1b0bd); smallest
+      caption sizes bumped
+- [x] Palette & type pickers → compact dropdown listboxes (featured groups,
+      Light/Dark badges, own-face font names, outside-click/Esc); panel now
+      fits ~1 viewport
+- [x] Active-pairing-only font loading; library faces fetch on menu open
+- [x] Fixed "m as motion" sed casualty in send-form copy
+- [x] Verified 1440px + 375px, dark + light; 117 unit / 68 e2e green
