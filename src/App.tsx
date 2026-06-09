@@ -1,6 +1,6 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { LazyMotion, domAnimation, m as motion, useReducedMotion } from 'framer-motion';
 import './App.css';
 import FavoritesProvider from './contexts/FavoritesProvider';
 import NavBar from './components/layout/NavBar';
@@ -37,11 +37,27 @@ function NotFound() {
   );
 }
 
+// Per-route document titles so tabs, history, and screen readers can tell the
+// views apart (the SPA otherwise keeps one title forever).
+const ROUTE_TITLES: Record<string, string> = {
+  '/': 'Design Center · Tech SLP Studio',
+  '/gallery': 'Theme Gallery · Design Center · Tech SLP Studio',
+  '/start': 'Find Your Style · Design Center · Tech SLP Studio',
+  '/favorites': 'Your Shortlist · Design Center · Tech SLP Studio',
+};
+
+function useRouteTitle(pathname: string) {
+  useEffect(() => {
+    document.title = ROUTE_TITLES[pathname] ?? 'Design Center · Tech SLP Studio';
+  }, [pathname]);
+}
+
 // Subtle per-route entrance so navigating feels deliberate, not a hard cut.
 // Keyed on pathname; reduced-motion users get a plain mount (no offset/fade).
 function RouteTransition() {
   const { pathname } = useLocation();
   const reduce = useReducedMotion();
+  useRouteTitle(pathname);
   const instantRoute = pathname === '/' || pathname === '/moodboard';
   return (
     <motion.div
@@ -66,7 +82,11 @@ function RouteTransition() {
 
 export default function App() {
   return (
-    <FavoritesProvider>
+    // LazyMotion + m (aliased to `motion` everywhere) keeps framer-motion's
+    // full feature bundle out of the initial chunk; domAnimation covers every
+    // feature in use (enter/exit, hover, in-view). `strict` guards regressions.
+    <LazyMotion features={domAnimation} strict>
+      <FavoritesProvider>
       <div className="min-h-screen">
         <a
           href="#main"
@@ -101,6 +121,7 @@ export default function App() {
           </p>
         </footer>
       </div>
-    </FavoritesProvider>
+      </FavoritesProvider>
+    </LazyMotion>
   );
 }

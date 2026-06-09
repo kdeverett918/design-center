@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import type { PreviewConfig } from '../../preview/previewConfig';
 import { motionSpec } from '../../preview/motion';
 import Hero from './Hero';

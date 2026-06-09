@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import {
   Check,
   ChevronDown,
@@ -176,10 +176,13 @@ export default function MoodBoardView() {
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
 
-  // Load all font pairings so the picker can render each name in its own face.
+  // Load only the featured pairings' fonts up front (the visible picker rows);
+  // the full library's 40+ stylesheets load on demand when its disclosure opens.
   useEffect(() => {
-    fontPairings.forEach(loadFonts);
-  }, []);
+    FEATURED_FONTS.forEach(loadFonts);
+    if (fontPairingById(fontId)) loadFonts(fontPairingById(fontId)!);
+  }, [fontId]);
+  const loadAllPickerFonts = () => fontPairings.forEach(loadFonts);
 
   // Auto-save the full brief so it survives refreshes / return visits.
   useEffect(() => {
@@ -428,7 +431,7 @@ export default function MoodBoardView() {
                   </button>
                 ))}
               </div>
-              <details className="group mt-2">
+              <details className="group mt-2" onToggle={loadAllPickerFonts}>
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-shell-line px-3 py-2 text-xs font-semibold text-shell-mute transition-colors hover:text-shell-ink">
                   Full type library
                   <ChevronDown
@@ -536,7 +539,7 @@ export default function MoodBoardView() {
             <div className="mt-5 flex items-center gap-2 rounded-2xl border border-shell-line bg-shell-base/60 p-3">
               <Mail size={15} className="shrink-0 text-shell-glow" />
               <p className="min-w-0 text-xs leading-relaxed text-shell-mute">
-                The send form below includes the live palette, type, layout, motion, and notes.
+                The send form below includes the live palette, type, layout, m as motion, and notes.
               </p>
             </div>
           </div>

@@ -3,7 +3,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import {
   AnimatePresence,
   animate,
-  motion,
+  m as motion,
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,

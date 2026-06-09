@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import { LayoutGrid, Palette as PaletteIcon, Search, SearchX, Sparkles, Type, Wand2, X } from 'lucide-react';
 import type { AnimationCategory, Industry, LayoutPreset, Mood } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import type { FontPairing, Palette } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';

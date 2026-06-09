@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Quote, Star } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
 
 interface SectionProps {
   brand?: string;

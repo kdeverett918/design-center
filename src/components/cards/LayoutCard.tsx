@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { Check, Plus } from 'lucide-react';
 import type { FontPairing, LayoutPreset, Palette } from '../../types';

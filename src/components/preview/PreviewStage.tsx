@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m as motion } from 'framer-motion';
 import { Check, Eye, Link2, Sparkles, X } from 'lucide-react';
 import type { FavoriteKind, FontPairing, Palette } from '../../types';
 import type { DeviceMode, PreviewConfig } from '../../preview/previewConfig';

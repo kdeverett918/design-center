@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Compass, RotateCcw, Sparkles, Wand2 } from 'lucide-react';
 import type { AnimationIntensity, Industry, Mood } from '../types';
 import { INDUSTRIES, MOODS } from '../data/taxonomy';

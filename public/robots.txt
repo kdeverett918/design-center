@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://design-center-6g08.onrender.com/sitemap.xml

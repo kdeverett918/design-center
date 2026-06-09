@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Check, ChevronDown, ChevronUp, Link2, Star, Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import Button, { buttonClasses } from '../components/ui/Button';
 import { useFavorites } from '../contexts/favoritesContext';
 import type { FavoriteKind } from '../types';

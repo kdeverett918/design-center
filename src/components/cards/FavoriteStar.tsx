@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import type { FavoriteKind } from '../../types';
 import { useFavorites } from '../../contexts/favoritesContext';
 

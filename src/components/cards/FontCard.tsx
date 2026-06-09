@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { m as motion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import type { FontPairing } from '../../types';
 import { loadFonts } from '../../theme/loadFonts';
+import { useInViewOnce } from '../../hooks/useInViewOnce';
 import { colorVars } from '../../theme/applyTheme';
 import { paletteById } from '../../data/palettes';
 import { themes } from '../../data/themes';
@@ -28,9 +29,13 @@ function representativePaletteId(fontId: string): string {
 // specimen leads at display size (where character shows); the body specimen is
 // clearly secondary and labeled.
 export default function FontCard({ pairing }: { pairing: FontPairing }) {
+  // Fonts fetch only when the card nears the viewport — a 43-pairing gallery
+  // must not fire 43 stylesheet requests on tab mount.
+  const rootRef = useRef<HTMLElement>(null);
+  const inView = useInViewOnce(rootRef);
   useEffect(() => {
-    loadFonts(pairing);
-  }, [pairing]);
+    if (inView) loadFonts(pairing);
+  }, [inView, pairing]);
 
   const palette = useMemo(
     () => paletteById(representativePaletteId(pairing.id))!,
@@ -42,6 +47,7 @@ export default function FontCard({ pairing }: { pairing: FontPairing }) {
 
   return (
     <motion.article
+      ref={rootRef}
       variants={{
         hidden: { opacity: 0, y: 16 },
         show: { opacity: 1, y: 0 },
