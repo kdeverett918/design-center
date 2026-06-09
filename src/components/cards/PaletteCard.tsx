@@ -47,6 +47,9 @@ export default function PaletteCard({ palette }: { palette: Palette }) {
         </div>
         <div className="font-heading text-base font-semibold text-ink">{palette.name}</div>
         <p className="mt-0.5 text-xs capitalize text-muted">{palette.moods.join(' · ')}</p>
+        {palette.blurb && (
+          <p className="mt-2 text-[13px] leading-relaxed text-ink">{palette.blurb}</p>
+        )}
 
         <div className="mt-4 flex items-center gap-2">
           <span className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-onPrimary">

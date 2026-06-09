@@ -186,3 +186,26 @@ describe('taxonomy match functions', () => {
     usedIndustries.forEach((i) => expect(INDUSTRIES).toContain(i));
   });
 });
+
+describe('client-facing copy completeness', () => {
+  it('every palette has a distinct blurb', () => {
+    const blurbs = palettes.map((p) => p.blurb ?? '');
+    blurbs.forEach((b, i) => expect(b.length, palettes[i]!.id).toBeGreaterThan(20));
+    expect(new Set(blurbs).size).toBe(blurbs.length);
+  });
+
+  it('every font pairing has a distinct specimen sentence (no pangrams)', () => {
+    const specimens = fontPairings.map((f) => f.specimen ?? '');
+    specimens.forEach((s, i) => {
+      expect(s.length, fontPairings[i]!.id).toBeGreaterThan(8);
+      expect(s.toLowerCase()).not.toContain('quick brown fox');
+    });
+    expect(new Set(specimens).size).toBe(specimens.length);
+  });
+
+  it('every theme has a distinct story', () => {
+    const stories = themes.map((t) => t.story ?? '');
+    stories.forEach((s, i) => expect(s.length, themes[i]!.id).toBeGreaterThan(30));
+    expect(new Set(stories).size).toBe(stories.length);
+  });
+});

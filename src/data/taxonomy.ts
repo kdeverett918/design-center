@@ -24,6 +24,8 @@ export const INDUSTRIES: Industry[] = [
   'creative',
   'ecommerce',
   'nonprofit',
+  'hospitality',
+  'fitness',
 ];
 
 const overlaps = <T>(a: readonly T[], b: readonly T[]) => a.some((x) => b.includes(x));

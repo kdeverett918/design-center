@@ -10,6 +10,7 @@ export const palettes: Palette[] = [
     name: 'Meridian',
     isDark: false,
     moods: ['trustworthy', 'calm'],
+    blurb: 'Steady clinic blue freshened with seafoam and a glow of amber — the look of a practice families trust on the first visit.',
     colors: {
       primary: '#2B6CB0',
       secondary: '#4FD1C5',
@@ -25,6 +26,7 @@ export const palettes: Palette[] = [
     name: 'Reef',
     isDark: false,
     moods: ['trustworthy', 'calm'],
+    blurb: 'Bright teal and aqua with a splash of sunshine, like a clean coastal morning. A natural fit for wellness-leaning practices.',
     colors: {
       primary: '#0D9488',
       secondary: '#5EEAD4',
@@ -40,6 +42,7 @@ export const palettes: Palette[] = [
     name: 'Halcyon',
     isDark: false,
     moods: ['calm', 'warm'],
+    blurb: 'Gentle lavender warmed by a peachy accent — soft-spoken and reassuring, made for clients who arrive a little nervous.',
     colors: {
       primary: '#7C77B9',
       secondary: '#B8B3E0',
@@ -55,6 +58,7 @@ export const palettes: Palette[] = [
     name: 'Verdant',
     isDark: false,
     moods: ['organic', 'calm'],
+    blurb: 'Quiet garden greens with a soft apricot lift. Feels like a deep breath; give it plenty of open space and it rewards you.',
     colors: {
       primary: '#6B8F71',
       secondary: '#A8C3A0',
@@ -70,6 +74,7 @@ export const palettes: Palette[] = [
     name: 'Understory',
     isDark: false,
     moods: ['organic', 'premium'],
+    blurb: 'Deep forest green over creamy stone — grounded, established, a touch upscale. Reads as trusted rather than trendy.',
     colors: {
       primary: '#3A5A40',
       secondary: '#588157',
@@ -85,6 +90,7 @@ export const palettes: Palette[] = [
     name: 'Vesper',
     isDark: false,
     moods: ['bold', 'premium'],
+    blurb: 'Rich violet with a teal spark — creative and confident without losing its polish. A way to stand apart from every blue clinic site in town.',
     colors: {
       primary: '#6B46C1',
       secondary: '#9F7AEA',
@@ -100,6 +106,7 @@ export const palettes: Palette[] = [
     name: 'Fathom',
     isDark: false,
     moods: ['premium', 'trustworthy'],
+    blurb: 'Deep ocean navy finished with brushed gold. Serious and established — the palette equivalent of a firm handshake.',
     colors: {
       primary: '#0F3D5C',
       secondary: '#1B6B8C',
@@ -115,6 +122,7 @@ export const palettes: Palette[] = [
     name: 'Embercoast',
     isDark: false,
     moods: ['warm', 'playful'],
+    blurb: 'Sun-warmed coral and blush cooled by turquoise — friendly, upbeat, and instantly approachable.',
     colors: {
       primary: '#FF6B6B',
       secondary: '#FFB4A2',
@@ -130,6 +138,7 @@ export const palettes: Palette[] = [
     name: 'Mauveine',
     isDark: false,
     moods: ['elegant', 'warm'],
+    blurb: 'Dusty rose and soft mauve over a deep plum undertone — romantic but composed, lovely for boutique or women-centered practices.',
     colors: {
       primary: '#B05B6E',
       secondary: '#D8A7B1',
@@ -145,6 +154,7 @@ export const palettes: Palette[] = [
     name: 'Solstice',
     isDark: false,
     moods: ['energetic', 'playful'],
+    blurb: 'Full-sun orange and golden yellow with a plum twist. High energy from the first scroll — best for brands that genuinely run loud.',
     colors: {
       primary: '#FF8500',
       secondary: '#FFB627',
@@ -160,6 +170,7 @@ export const palettes: Palette[] = [
     name: 'Graphite',
     isDark: false,
     moods: ['minimal', 'professional'],
+    blurb: 'Charcoal and slate kept honest by one clear blue. No decoration, no fuss — just a calm, capable, gets-it-done feeling.',
     colors: {
       primary: '#334155',
       secondary: '#64748B',
@@ -175,6 +186,7 @@ export const palettes: Palette[] = [
     name: 'Nocturne',
     isDark: true,
     moods: ['premium', 'bold'],
+    blurb: 'Midnight backdrop, periwinkle and violet light, a glint of gold. After-dark elegance for brands comfortable living in dark mode.',
     colors: {
       primary: '#7C9EFF',
       secondary: '#A78BFA',
@@ -190,6 +202,7 @@ export const palettes: Palette[] = [
     name: 'Sandstone',
     isDark: false,
     moods: ['warm', 'organic', 'premium'],
+    blurb: 'Terracotta and warm clay with a cool teal counterpoint — earthy, sunbaked, and quietly premium.',
     colors: {
       primary: '#C2410C',
       secondary: '#EA9E78',
@@ -205,6 +218,7 @@ export const palettes: Palette[] = [
     name: 'Nordic',
     isDark: false,
     moods: ['minimal', 'calm', 'professional'],
+    blurb: 'Cool fjord blue, crisp white air, and one ember of rust. Tidy and serene — happiest with simple pages and few distractions.',
     colors: {
       primary: '#3F6285',
       secondary: '#A7C4D9',
@@ -220,6 +234,7 @@ export const palettes: Palette[] = [
     name: 'Botanic',
     isDark: false,
     moods: ['organic', 'calm', 'premium'],
+    blurb: 'Deep botanical green, fresh mint, and a bronze touch — like a well-kept greenhouse, calm and understatedly upscale.',
     colors: {
       primary: '#2F6B4F',
       secondary: '#8FC0A9',
@@ -235,6 +250,7 @@ export const palettes: Palette[] = [
     name: 'Aubergine',
     isDark: false,
     moods: ['elegant', 'premium', 'bold'],
+    blurb: 'Plum and orchid deepened with antique gold. Moody florals for a practice that wants warmth with a dramatic streak.',
     colors: {
       primary: '#6D3B5E',
       secondary: '#A86C97',
@@ -250,6 +266,7 @@ export const palettes: Palette[] = [
     name: 'Cobalt',
     isDark: false,
     moods: ['trustworthy', 'bold', 'professional'],
+    blurb: 'One decisive blue doing most of the talking, grounded by warm bronze. Clear, confident, impossible to misread.',
     colors: {
       primary: '#1D4ED8',
       secondary: '#60A5FA',
@@ -265,6 +282,7 @@ export const palettes: Palette[] = [
     name: 'Marigold',
     isDark: false,
     moods: ['energetic', 'warm', 'playful'],
+    blurb: 'Golden amber sunshine with a jolt of cobalt — optimistic and energetic, like the friendliest person in the room.',
     colors: {
       primary: '#B45309',
       secondary: '#FBBF24',
@@ -280,6 +298,7 @@ export const palettes: Palette[] = [
     name: 'Ember',
     isDark: true,
     moods: ['bold', 'premium', 'energetic'],
+    blurb: 'Glowing rose and coral against near-black, finished in gold. Smoldering and cinematic — a dark look with real warmth.',
     colors: {
       primary: '#FB7185',
       secondary: '#FCA5A5',
@@ -295,6 +314,7 @@ export const palettes: Palette[] = [
     name: 'Carbon',
     isDark: true,
     moods: ['minimal', 'premium', 'professional'],
+    blurb: 'Sleek graphite dark with cool sky-blue and mint signals. Feels like polished software — ideal if your brand leans modern and technical.',
     colors: {
       primary: '#38BDF8',
       secondary: '#818CF8',
@@ -310,6 +330,7 @@ export const palettes: Palette[] = [
     name: 'Porcelain',
     isDark: false,
     moods: ['minimal', 'elegant', 'calm'],
+    blurb: 'Whisper-soft greys and warm ivory with a single brass accent. Barely-there color that lets your words and photos carry the room.',
     colors: {
       primary: '#5B6470',
       secondary: '#AEB6C2',
@@ -325,6 +346,7 @@ export const palettes: Palette[] = [
     name: 'Ultraviolet',
     isDark: false,
     moods: ['bold', 'energetic', 'premium'],
+    blurb: 'Saturated violet sliding into magenta — vivid, expressive, a little electric. Made for brands that would rather be remembered than safe.',
     colors: {
       primary: '#6D28D9',
       secondary: '#A855F7',
@@ -340,6 +362,7 @@ export const palettes: Palette[] = [
     name: 'Oxblood',
     isDark: false,
     moods: ['premium', 'elegant', 'bold'],
+    blurb: 'Deep heritage red with a pine-green counterweight — old-library richness and a steady, established air.',
     colors: {
       primary: '#9B2226',
       secondary: '#C75D5D',
@@ -355,6 +378,7 @@ export const palettes: Palette[] = [
     name: 'Matcha',
     isDark: false,
     moods: ['organic', 'calm', 'warm'],
+    blurb: 'Leafy green whisked with cream and a toasted-orange accent. Wholesome and unhurried, like a good morning routine.',
     colors: {
       primary: '#52792F',
       secondary: '#A3BE6A',
@@ -370,6 +394,7 @@ export const palettes: Palette[] = [
     name: 'Glacier',
     isDark: true,
     moods: ['calm', 'minimal', 'trustworthy'],
+    blurb: 'Icy blues glowing out of a deep navy night — cool, still, clear-headed. A dark look that soothes rather than smolders.',
     colors: {
       primary: '#56C7E8',
       secondary: '#7FB3D5',
@@ -385,6 +410,7 @@ export const palettes: Palette[] = [
     name: 'Dune',
     isDark: false,
     moods: ['warm', 'organic', 'minimal'],
+    blurb: 'Caramel, sand, and one stripe of oasis teal. Warm desert minimalism that feels handmade and sunlit.',
     colors: {
       primary: '#965A2E',
       secondary: '#D8B384',
@@ -400,6 +426,7 @@ export const palettes: Palette[] = [
     name: 'Newsprint',
     isDark: false,
     moods: ['elegant', 'bold', 'premium'],
+    blurb: 'Ink black on aged cream with a single red flare — the authority of a front page. Let the headlines do the work.',
     colors: {
       primary: '#1A1714',
       secondary: '#8A8175',
@@ -415,6 +442,7 @@ export const palettes: Palette[] = [
     name: 'Risograph',
     isDark: false,
     moods: ['playful', 'bold', 'energetic'],
+    blurb: 'Cobalt blue and shocking pink on warm paper, like a freshly printed zine — scrappy, joyful, full of personality.',
     colors: {
       primary: '#2350D9',
       secondary: '#FF48B0',
@@ -430,6 +458,7 @@ export const palettes: Palette[] = [
     name: 'Concrete',
     isDark: false,
     moods: ['bold', 'minimal'],
+    blurb: 'Black, white, and one electric blue. Stripped back on purpose — the boldest thing here is the restraint.',
     colors: {
       primary: '#000000',
       secondary: '#5C5C5C',
@@ -445,6 +474,7 @@ export const palettes: Palette[] = [
     name: 'Acid',
     isDark: false,
     moods: ['bold', 'energetic'],
+    blurb: 'Chartreuse that hums, jolted by hot pink. Zero chill by design — keep the layout simple and let the color shout.',
     colors: {
       primary: '#B6FF00',
       secondary: '#9ADB00',
@@ -460,6 +490,7 @@ export const palettes: Palette[] = [
     name: 'Chrome',
     isDark: true,
     moods: ['bold', 'energetic', 'premium'],
+    blurb: 'Neon magenta and cyan glowing off midnight indigo — arcade-bright and unapologetically futuristic.',
     colors: {
       primary: '#FF1FA0',
       secondary: '#22E0FF',
@@ -475,6 +506,7 @@ export const palettes: Palette[] = [
     name: 'Vapor',
     isDark: true,
     moods: ['bold', 'playful', 'energetic'],
+    blurb: 'Hot pink and aqua haze over deep violet — a dreamy retro-future glow for brands with a playful late-night streak.',
     colors: {
       primary: '#FF4FD8',
       secondary: '#23E8E0',
@@ -490,6 +522,7 @@ export const palettes: Palette[] = [
     name: 'Noir',
     isDark: true,
     moods: ['elegant', 'premium', 'minimal'],
+    blurb: 'Gold on near-black and almost nothing else. Quiet luxury at its quietest — the less you add, the richer it reads.',
     colors: {
       primary: '#C9A24B',
       secondary: '#8A8170',
@@ -505,6 +538,7 @@ export const palettes: Palette[] = [
     name: 'Couture',
     isDark: false,
     moods: ['elegant', 'premium', 'bold'],
+    blurb: 'Wine red and antique gold on warm cream — fashion-house polish with old-world manners.',
     colors: {
       primary: '#6E1A22',
       secondary: '#B08D57',
@@ -520,6 +554,7 @@ export const palettes: Palette[] = [
     name: 'Sunnyside',
     isDark: false,
     moods: ['playful', 'warm', 'energetic'],
+    blurb: 'Tangerine and butter-yellow with a teal wink — pure morning cheer, a natural for kid-focused and family practices.',
     colors: {
       primary: '#FF7A1A',
       secondary: '#FFC93C',
@@ -535,6 +570,7 @@ export const palettes: Palette[] = [
     name: 'Bubblegum',
     isDark: false,
     moods: ['playful', 'energetic', 'warm'],
+    blurb: 'Candy pink with a grape-soda accent — sweet, bouncy, and proudly fun. Best where playfulness is the whole point.',
     colors: {
       primary: '#E83E8C',
       secondary: '#FF8FC7',
@@ -550,6 +586,7 @@ export const palettes: Palette[] = [
     name: 'Crayon',
     isDark: false,
     moods: ['playful', 'energetic', 'warm'],
+    blurb: 'True blue, sunshine yellow, and cherry red — the crayon box, freshly opened. Friendly for kids without talking down to parents.',
     colors: {
       primary: '#2D6CDF',
       secondary: '#FFC845',
@@ -565,6 +602,7 @@ export const palettes: Palette[] = [
     name: 'Aurora',
     isDark: false,
     moods: ['bold', 'premium', 'elegant'],
+    blurb: 'Violet, sky cyan, and pink moving together like stage lights on white. Big-moment color for a brand that loves an entrance.',
     colors: {
       primary: '#7C3AED',
       secondary: '#22D3EE',
@@ -580,6 +618,7 @@ export const palettes: Palette[] = [
     name: 'Nebula',
     isDark: true,
     moods: ['bold', 'premium', 'elegant'],
+    blurb: 'Soft violet and cyan drifting across deep-space dark, with a pink pulse. Dramatic and dreamy — built for immersive, after-hours pages.',
     colors: {
       primary: '#A78BFA',
       secondary: '#22D3EE',
@@ -595,6 +634,7 @@ export const palettes: Palette[] = [
     name: 'Prism',
     isDark: false,
     moods: ['bold', 'premium', 'elegant'],
+    blurb: 'Clean white lit by sky blue, amber, and pink — colorful, but crisp and grown-up about it.',
     colors: {
       primary: '#0EA5E9',
       secondary: '#F59E0B',
@@ -610,6 +650,7 @@ export const palettes: Palette[] = [
     name: 'Harvest',
     isDark: false,
     moods: ['warm', 'organic', 'elegant'],
+    blurb: 'Rust, amber, and olive like late-October light — generous, golden, and gathered around the table.',
     colors: {
       primary: '#B5471E',
       secondary: '#E08A2E',
@@ -625,6 +666,7 @@ export const palettes: Palette[] = [
     name: 'Evergreen',
     isDark: false,
     moods: ['warm', 'organic', 'elegant'],
+    blurb: 'Pine green with a berry-red ribbon — festive warmth that still reads polished the rest of the year.',
     colors: {
       primary: '#1F6B47',
       secondary: '#3E9D6F',
@@ -640,6 +682,7 @@ export const palettes: Palette[] = [
     name: 'Bloom',
     isDark: false,
     moods: ['warm', 'organic', 'elegant'],
+    blurb: 'Raspberry and petal pink freshened with leaf green — spring in palette form, tender but never precious.',
     colors: {
       primary: '#B8407F',
       secondary: '#F0A6C6',
@@ -655,6 +698,7 @@ export const palettes: Palette[] = [
     name: 'Sage',
     isDark: false,
     moods: ['calm', 'organic', 'minimal'],
+    blurb: 'Muted sage and soft cream with a caramel touch. Unfussy, grounded calm — the palette equivalent of a slow exhale.',
     colors: {
       primary: '#5E7C63',
       secondary: '#A9C4A2',
@@ -670,6 +714,7 @@ export const palettes: Palette[] = [
     name: 'Driftwood',
     isDark: false,
     moods: ['calm', 'organic', 'minimal'],
+    blurb: 'Weathered taupe and sand with a seaglass accent — beach-house quiet, soothing for wellness and spa-leaning brands.',
     colors: {
       primary: '#7A6A55',
       secondary: '#C2B49A',
@@ -685,6 +730,7 @@ export const palettes: Palette[] = [
     name: 'Lagoon',
     isDark: true,
     moods: ['calm', 'organic', 'minimal'],
+    blurb: 'Still teal water glowing in the dark — tranquil, deep, meditative. A rare dark theme that lowers the heart rate.',
     colors: {
       primary: '#5BD1C9',
       secondary: '#7FB3D5',
@@ -700,6 +746,7 @@ export const palettes: Palette[] = [
     name: 'Oatmilk',
     isDark: false,
     moods: ['calm', 'warm', 'elegant'],
+    blurb: 'Toasty brown, oat cream, and a drizzle of honey — cozy and warm-hearted, like the good café on the corner.',
     colors: {
       primary: '#5B4A38',
       secondary: '#D7C7A8',
@@ -715,6 +762,7 @@ export const palettes: Palette[] = [
     name: 'Blacklime',
     isDark: true,
     moods: ['bold', 'premium', 'energetic'],
+    blurb: 'Electric lime cutting through near-black, with a coral spark. Sharp, modern, and impossible to scroll past.',
     colors: {
       primary: '#C7F43B',
       secondary: '#78DCCA',
@@ -730,6 +778,7 @@ export const palettes: Palette[] = [
     name: 'Blue Hour',
     isDark: true,
     moods: ['calm', 'trustworthy', 'premium'],
+    blurb: 'That deep-blue moment just after sunset, warmed by one candle-gold accent — calm, premium, and easy on tired eyes.',
     colors: {
       primary: '#7DB7E8',
       secondary: '#66D3C6',
@@ -745,6 +794,7 @@ export const palettes: Palette[] = [
     name: 'Sherbet',
     isDark: false,
     moods: ['playful', 'warm', 'energetic'],
+    blurb: 'Strawberry pink, mango gold, and a scoop of cool teal — sweet summer energy that stays light on its feet.',
     colors: {
       primary: '#FF6E8A',
       secondary: '#FFC857',

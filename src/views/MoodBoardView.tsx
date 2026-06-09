@@ -278,6 +278,16 @@ export default function MoodBoardView() {
               Start from a styled direction, tune the palette and type live, then send a clean
               brief the moment the preview feels right.
             </p>
+            <p className="mt-3 text-sm text-shell-mute">
+              Not sure where to start?{' '}
+              <Link
+                to="/start"
+                className="font-semibold text-shell-glow underline decoration-shell-glow/40 underline-offset-2 hover:decoration-shell-glow"
+              >
+                Take the 60-second style quiz
+              </Link>
+              .
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="hidden rounded-full border border-shell-line px-3 py-2 text-xs text-shell-mute sm:inline-flex">

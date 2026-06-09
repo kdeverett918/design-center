@@ -10,6 +10,7 @@ import MoodBoardView from './views/MoodBoardView';
 // Code-split the views so the initial bundle stays lean.
 const GalleryView = lazy(() => import('./views/GalleryView'));
 const FavoritesView = lazy(() => import('./views/FavoritesView'));
+const QuizView = lazy(() => import('./views/QuizView'));
 
 function ViewFallback() {
   return (
@@ -55,6 +56,7 @@ function RouteTransition() {
         <Route path="/" element={<MoodBoardView />} />
         <Route path="/moodboard" element={<Navigate to="/" replace />} />
         <Route path="/gallery" element={<GalleryView />} />
+        <Route path="/start" element={<QuizView />} />
         <Route path="/favorites" element={<FavoritesView />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

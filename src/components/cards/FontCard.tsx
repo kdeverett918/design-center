@@ -62,12 +62,13 @@ export default function FontCard({ pairing }: { pairing: FontPairing }) {
           <span>{pairing.name}</span>
         </div>
 
-        {/* Heading specimen — large, where the typeface's character is obvious. */}
+        {/* Heading specimen — large, where the typeface's character is obvious.
+            Each pairing carries its own evocative sentence (never a pangram). */}
         <p
           className="mt-3 text-[34px] font-semibold leading-[1.05] tracking-tight text-ink"
           style={{ fontFamily: headingFont }}
         >
-          Care that listens.
+          {pairing.specimen ?? 'Care that listens.'}
         </p>
         <p
           className="mt-2 text-xl leading-snug text-primary"
@@ -81,8 +82,8 @@ export default function FontCard({ pairing }: { pairing: FontPairing }) {
           className="mt-4 border-t tk-line pt-4 text-[13px] leading-relaxed text-muted"
           style={{ fontFamily: bodyFont }}
         >
-          The quick brown fox jumps over the lazy dog — evidence-based,
-          compassionate support from a team that treats you like a person.
+          Body text carries the everyday weight: appointments, answers, and the
+          fine print — set so it reads effortlessly at any size.
         </p>
       </div>
 

@@ -72,6 +72,11 @@ export default function ThemeCard({ theme, active, onSelect }: ThemeCardProps) {
               </span>
             </div>
             <p className="mt-0.5 truncate text-xs text-shell-mute">{theme.tagline}</p>
+            {theme.story && (
+              <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-shell-mute/90">
+                {theme.story}
+              </p>
+            )}
           </div>
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-shell-base text-shell-mute transition-colors group-hover:text-shell-glow">
             <ArrowUpRight size={15} />

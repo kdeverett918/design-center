@@ -31,7 +31,9 @@ export type Industry =
   | 'professional'
   | 'education'
   | 'ecommerce'
-  | 'nonprofit';
+  | 'nonprofit'
+  | 'hospitality'
+  | 'fitness';
 
 export type AnimationIntensity = 'subtle' | 'standard' | 'expressive';
 
@@ -55,6 +57,8 @@ export interface Palette {
   isDark: boolean;
   moods: Mood[];
   colors: PaletteColors;
+  /** 1–2 sentence client-facing personality blurb ("who this feels like"). */
+  blurb?: string;
 }
 
 // ----- Font pairings --------------------------------------------------------
@@ -72,6 +76,12 @@ export interface FontPairing {
   goodFor: Industry[];
   heading: FontFace;
   body: FontFace;
+  /**
+   * Unique display-size specimen sentence rendered on the font card — written
+   * in the pairing's own voice ("Front page energy, every page."). Never a
+   * generic pangram.
+   */
+  specimen?: string;
 }
 
 // ----- Animations -----------------------------------------------------------
@@ -130,6 +140,11 @@ export interface Theme {
    * live re-theming is never broken by a fixed raster.
    */
   heroImage?: string;
+  /**
+   * Short "who this is for" narrative in plain client language — what kind of
+   * practice it suits and what visitors will feel.
+   */
+  story?: string;
 }
 
 // ----- Client selections (Phase 3+, typed now so seams stay clean) ----------
