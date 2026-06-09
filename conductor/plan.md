@@ -50,8 +50,8 @@ Legend: [ ] todo · [~] in progress · [x] done · [-] dropped (see audit.md dev
 - [x] Font loading: featured-only on home; full picker on disclosure; FontCard in-view loading
 - [x] Clipboard failure feedback (share buttons)
 - [x] render.yaml: index/theme-image cache policy + security headers
-- [~] e2e: quiz, filters, favorites v2, titles (suite running)
-- [ ] Tag v2.0, push, verify Render deploy
+- [x] e2e: quiz, filters, favorites v2, titles (61 passed / 9 viewport-skipped)
+- [x] Tag v2.0, push, Render deploy live & smoke-checked (555d4db)
 
 ## Notes
 - Main bundle 772 KB min / 222 KB gz: this is the home mood-board experience
