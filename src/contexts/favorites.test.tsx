@@ -106,3 +106,88 @@ describe('useFavorites within FavoritesProvider', () => {
     expect(() => render(<Probe />)).toThrow(/within <FavoritesProvider>/);
   });
 });
+
+describe('favorites v2 — order, notes, migration, import', () => {
+  function ProbeV2() {
+    const { ids, note, setNote, move, addMany, toggle, count } = useFavorites();
+    return (
+      <div>
+        <span data-testid="count">{count}</span>
+        <span data-testid="palette-order">{ids('palette').join(',')}</span>
+        <span data-testid="reef-note">{note('palette', 'reef')}</span>
+        <button onClick={() => toggle('palette', 'reef')}>add-reef</button>
+        <button onClick={() => toggle('palette', 'meridian')}>add-meridian</button>
+        <button onClick={() => setNote('palette', 'reef', 'warmer please')}>note-reef</button>
+        <button onClick={() => move('palette', 'meridian', -1)}>meridian-up</button>
+        <button onClick={() => addMany(['theme:obsidian', 'palette:reef'], { 'theme:obsidian': 'shared note' })}>
+          import
+        </button>
+      </div>
+    );
+  }
+
+  it('preserves insertion order and reorders within a kind', async () => {
+    localStorage.clear();
+    const user = userEvent.setup();
+    render(
+      <FavoritesProvider>
+        <ProbeV2 />
+      </FavoritesProvider>,
+    );
+    await user.click(screen.getByText('add-reef'));
+    await user.click(screen.getByText('add-meridian'));
+    expect(screen.getByTestId('palette-order').textContent).toBe('reef,meridian');
+
+    await user.click(screen.getByText('meridian-up'));
+    expect(screen.getByTestId('palette-order').textContent).toBe('meridian,reef');
+    // Moving past the top is a no-op.
+    await user.click(screen.getByText('meridian-up'));
+    expect(screen.getByTestId('palette-order').textContent).toBe('meridian,reef');
+  });
+
+  it('stores notes per favorite and persists them', async () => {
+    localStorage.clear();
+    const user = userEvent.setup();
+    const { unmount } = render(
+      <FavoritesProvider>
+        <ProbeV2 />
+      </FavoritesProvider>,
+    );
+    await user.click(screen.getByText('add-reef'));
+    await user.click(screen.getByText('note-reef'));
+    expect(screen.getByTestId('reef-note').textContent).toBe('warmer please');
+    unmount();
+
+    render(
+      <FavoritesProvider>
+        <ProbeV2 />
+      </FavoritesProvider>,
+    );
+    expect(screen.getByTestId('reef-note').textContent).toBe('warmer please');
+  });
+
+  it('migrates a v1 shortlist on first load', () => {
+    localStorage.clear();
+    localStorage.setItem('dc:favorites:v1', JSON.stringify(['palette:reef', 'theme:obsidian']));
+    render(
+      <FavoritesProvider>
+        <ProbeV2 />
+      </FavoritesProvider>,
+    );
+    expect(screen.getByTestId('count').textContent).toBe('2');
+    expect(screen.getByTestId('palette-order').textContent).toBe('reef');
+  });
+
+  it('addMany merges shared items without duplicating', async () => {
+    localStorage.clear();
+    const user = userEvent.setup();
+    render(
+      <FavoritesProvider>
+        <ProbeV2 />
+      </FavoritesProvider>,
+    );
+    await user.click(screen.getByText('add-reef'));
+    await user.click(screen.getByText('import'));
+    expect(screen.getByTestId('count').textContent).toBe('2'); // reef kept once + obsidian
+  });
+});

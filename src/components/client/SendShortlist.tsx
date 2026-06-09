@@ -17,9 +17,11 @@ type Status =
 interface SendShortlistProps {
   groups: ShortlistGroups;
   count: number;
+  /** Per-favorite client notes keyed by 'kind:id' — included in the email. */
+  notes?: Record<string, string>;
 }
 
-export default function SendShortlist({ groups, count }: SendShortlistProps) {
+export default function SendShortlist({ groups, count, notes }: SendShortlistProps) {
   const [clientName, setClientName] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -39,7 +41,7 @@ export default function SendShortlist({ groups, count }: SendShortlistProps) {
     if (submitting) return;
     setStatus({ kind: 'submitting' });
 
-    const shortlistText = buildShortlistText({ groups, count });
+    const shortlistText = buildShortlistText({ groups, count, notes });
     const result = await sendBrief({
       brand: 'Shortlist',
       clientName,

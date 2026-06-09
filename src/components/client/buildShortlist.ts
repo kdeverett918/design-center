@@ -19,6 +19,8 @@ export interface ShortlistGroups {
 export interface ShortlistInput {
   groups: ShortlistGroups;
   count: number;
+  /** Per-favorite client notes keyed by 'kind:id'. */
+  notes?: Record<string, string>;
 }
 
 function addSection(lines: string[], title: string, count: number, items: string[]): void {
@@ -26,9 +28,15 @@ function addSection(lines: string[], title: string, count: number, items: string
   lines.push('', `${title} (${count})`, ...items);
 }
 
-export function buildShortlistText({ groups, count }: ShortlistInput): string {
+export function buildShortlistText({ groups, count, notes }: ShortlistInput): string {
   const itemLabel = count === 1 ? 'saved item' : 'saved items';
   const lines = ['DESIGN SHORTLIST', `${count} ${itemLabel}`];
+  // The client's own words travel with each item — the most valuable line in
+  // the whole email.
+  const noteLine = (kind: string, id: string): string[] => {
+    const n = notes?.[`${kind}:${id}`];
+    return n ? [`  Client note: ${n}`] : [];
+  };
 
   addSection(
     lines,
@@ -42,6 +50,7 @@ export function buildShortlistText({ groups, count }: ShortlistInput): string {
         `  Palette: ${palette}`,
         `  Fonts: ${fonts}`,
         `  Motion: ${theme.animationIntensity}`,
+        ...noteLine('theme', theme.id),
       ];
     }),
   );
@@ -50,10 +59,10 @@ export function buildShortlistText({ groups, count }: ShortlistInput): string {
     lines,
     'Palettes',
     groups.palettes.length,
-    groups.palettes.map(
-      (palette) =>
-        `- ${palette.name}${palette.isDark ? ' (dark)' : ''}: primary ${palette.colors.primary}, accent ${palette.colors.accent}, background ${palette.colors.background}`,
-    ),
+    groups.palettes.flatMap((palette) => [
+      `- ${palette.name}${palette.isDark ? ' (dark)' : ''}: primary ${palette.colors.primary}, accent ${palette.colors.accent}, background ${palette.colors.background}`,
+      ...noteLine('palette', palette.id),
+    ]),
   );
 
   addSection(
@@ -63,6 +72,7 @@ export function buildShortlistText({ groups, count }: ShortlistInput): string {
     groups.fonts.flatMap((fonts) => [
       `- ${fonts.name}: ${fonts.heading.family} heading + ${fonts.body.family} body`,
       `  ${fonts.personality}`,
+      ...noteLine('font', fonts.id),
     ]),
   );
 
@@ -70,17 +80,20 @@ export function buildShortlistText({ groups, count }: ShortlistInput): string {
     lines,
     'Layouts',
     groups.layouts.length,
-    groups.layouts.map((layout) => `- ${layout.name} (${layout.type}): ${layout.description}`),
+    groups.layouts.flatMap((layout) => [
+      `- ${layout.name} (${layout.type}): ${layout.description}`,
+      ...noteLine('layout', layout.id),
+    ]),
   );
 
   addSection(
     lines,
     'Animations',
     groups.animations.length,
-    groups.animations.map(
-      (animation) =>
-        `- ${animation.name} (${animation.category}, ${animation.intensity}): ${animation.effect}`,
-    ),
+    groups.animations.flatMap((animation) => [
+      `- ${animation.name} (${animation.category}, ${animation.intensity}): ${animation.effect}`,
+      ...noteLine('animation', animation.id),
+    ]),
   );
 
   return lines.join('\n');
