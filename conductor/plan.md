@@ -59,3 +59,11 @@ Legend: [ ] todo · [~] in progress · [x] done · [-] dropped (see audit.md dev
   place for gallery/favorites/quiz. LazyMotion guards future motion bloat.
 - Live contrast warnings in the mixer: N/A — palettes are fixed, pre-validated
   AA in unit tests; no composable failing combination exists.
+
+## Post-v2.0 — Creative flair pass (commit 11de0a2, deployed)
+- [x] Quiz: live narrowing rail + front-runner preview, typeface-dressed vibe
+      chips, palette-token light/dark mocks, looping motion demos, density
+      anatomy mocks, ghost numerals, expo-ease staggers, asymmetric results
+      (Best-match spotlight + match meters)
+- [x] Shell: theme ticker rail (hover-pause, reduced-motion static), drifting
+      hero glows, designed 404, hover lift/glow on palette & font cards
