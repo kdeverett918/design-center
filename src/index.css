@@ -20,7 +20,7 @@
   --color-on-primary: #ffffff;
   --color-on-accent: #10131a;
   --font-heading: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
 
   /* Studio shell chrome — switchable light/dark. Dark is the default showroom. */
   --shell-base: #0b0b0f;

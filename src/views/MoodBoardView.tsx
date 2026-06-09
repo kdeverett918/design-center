@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Check,
   ChevronDown,
@@ -11,6 +12,7 @@ import {
   RotateCcw,
   Shuffle,
   Sparkles,
+  Star,
   Type,
   Wand2,
 } from 'lucide-react';
@@ -269,11 +271,12 @@ export default function MoodBoardView() {
               Tech SLP Studio Mood Board
             </div>
             <h1 className="font-display text-[2.55rem] font-semibold leading-[0.98] tracking-tight text-shell-ink sm:text-6xl xl:text-7xl">
-              Build the design direction.
+              Stop describing your dream website.{' '}
+              <span className="text-shell-glow">Point at it.</span>
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-relaxed text-shell-mute sm:text-lg">
-              Start from a styled direction, tune the palette and type, then send a clean brief when
-              the preview feels right.
+              Start from a styled direction, tune the palette and type live, then send a clean
+              brief the moment the preview feels right.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -303,6 +306,8 @@ export default function MoodBoardView() {
           />
         </div>
       </section>
+
+      <HowItWorks />
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px] xl:items-start">
         <div className="min-w-0 xl:sticky xl:top-24">
@@ -546,6 +551,64 @@ export default function MoodBoardView() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Four-step orientation strip so first-time visitors instantly get the flow.
+// Scroll-revealed with a gentle stagger; plain mount for reduced-motion users.
+const HOW_IT_WORKS_STEPS = [
+  {
+    icon: <Sparkles size={16} />,
+    title: 'Start from a style',
+    body: 'Seed the board from a designer-built direction — never a blank page.',
+  },
+  {
+    icon: <PaletteIcon size={16} />,
+    title: 'Make it yours',
+    body: 'Tune palette, type, layout, and motion and watch the preview restyle live.',
+  },
+  {
+    icon: <Star size={16} />,
+    title: 'Star what you love',
+    body: 'Shortlist themes, palettes, and effects from the gallery as you browse.',
+  },
+  {
+    icon: <Mail size={16} />,
+    title: 'Send the brief',
+    body: 'One click emails Kristine your exact picks — colors, type, and notes included.',
+  },
+];
+
+function HowItWorks() {
+  const reduce = useReducedMotion();
+  return (
+    <section aria-label="How it works" className="border-b border-shell-line py-5">
+      <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {HOW_IT_WORKS_STEPS.map((step, i) => (
+          <motion.li
+            key={step.title}
+            initial={reduce ? false : { opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.45, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="flex items-start gap-3 rounded-2xl border border-shell-line bg-shell-panel/50 p-3.5"
+          >
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-shell-glow/10 text-shell-glow">
+              {step.icon}
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-display text-[11px] font-semibold text-shell-glow">
+                  0{i + 1}
+                </span>
+                <h3 className="text-sm font-semibold text-shell-ink">{step.title}</h3>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-shell-mute">{step.body}</p>
+            </div>
+          </motion.li>
+        ))}
+      </ol>
+    </section>
   );
 }
 

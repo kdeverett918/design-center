@@ -8,7 +8,7 @@ test.describe('Design Center', () => {
   test('home loads the mood board landing page', async ({ page }) => {
     await page.goto('/');
     await expect(
-      page.getByRole('heading', { name: /build the design direction/i }),
+      page.getByRole('heading', { name: /stop describing your dream website/i }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: /surprise me/i })).toBeVisible();
   });
@@ -86,7 +86,7 @@ test.describe('Design Center', () => {
 
   test('mood board "Surprise me" changes the selection', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /build the design direction/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /stop describing your dream website/i })).toBeVisible();
 
     const subtitle = moodboardSubtitle(page);
     const before = await subtitle.innerText();

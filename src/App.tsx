@@ -66,15 +66,37 @@ export default function App() {
   return (
     <FavoritesProvider>
       <div className="min-h-screen">
+        <a
+          href="#main"
+          className="sr-only z-50 rounded-full bg-shell-glow px-4 py-2 text-sm font-semibold text-shell-base focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        >
+          Skip to content
+        </a>
         <NavBar />
         <ErrorBoundary>
           <Suspense fallback={<ViewFallback />}>
-            <RouteTransition />
+            <main id="main">
+              <RouteTransition />
+            </main>
           </Suspense>
         </ErrorBoundary>
 
-        <footer className="border-t border-shell-line px-5 py-6 text-center text-xs text-shell-mute sm:px-8">
-          Tech SLP Studio · Design Center. Build a direction, shortlist ideas, and send a brief.
+        <footer className="border-t border-shell-line px-5 py-8 text-center sm:px-8">
+          <p className="text-xs text-shell-mute">
+            Tech SLP Studio · Design Center. Build a direction, shortlist ideas, and send a brief.
+          </p>
+          <p className="mt-2 text-xs text-shell-mute">
+            Every theme here is built and maintained by the studio — want a site like the ones
+            you&rsquo;re previewing?{' '}
+            <a
+              href="https://thetechslp.com"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-shell-glow underline decoration-shell-glow/40 underline-offset-2 hover:decoration-shell-glow"
+            >
+              Visit thetechslp.com
+            </a>
+          </p>
         </footer>
       </div>
     </FavoritesProvider>

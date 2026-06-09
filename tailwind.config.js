@@ -28,9 +28,10 @@ export default {
       fontFamily: {
         heading: 'var(--font-heading)',
         body: 'var(--font-body)',
-        // The studio's own brand face — Space Grotesk display + Inter UI.
+        // The studio's own brand face — Space Grotesk display + Instrument Sans UI
+        // (quiet but characterful; deliberately not Inter/Roboto).
         display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
-        ui: ['Inter', 'system-ui', 'sans-serif'],
+        ui: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',

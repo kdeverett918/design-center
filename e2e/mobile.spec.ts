@@ -40,7 +40,7 @@ test.describe('Mobile viewport', () => {
     // Labels collapse to icons on mobile but aria-labels keep the links reachable.
     await page.getByRole('link', { name: 'Mood board' }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { name: /build the design direction/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /stop describing your dream website/i })).toBeVisible();
   });
 
   test('the shortlist link is reachable and reads as a colored CTA', async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe('Mobile viewport', () => {
 
   test('the mood board is usable on mobile (Send is reachable + color-coded)', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /build the design direction/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /stop describing your dream website/i })).toBeVisible();
     await expectNoHorizontalScroll(page);
     // Primary client action: Send → success/emerald, visible + enabled.
     const send = page.getByRole('button', { name: /send my selections/i });
