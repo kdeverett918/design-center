@@ -120,6 +120,29 @@ test.describe('Creative shell elements', () => {
   });
 });
 
+test.describe('Mood board dropdown pickers', () => {
+  test('palette dropdown re-themes the board', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: /^color palette/i }).click();
+    await page.getByRole('option', { name: /^noir/i }).click();
+    // The menu closes on pick and the live board reflects the new palette.
+    await expect(page.getByRole('option', { name: /^noir/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /color palette: noir/i })).toBeVisible();
+    await expect(page.getByText(/palette · noir/i)).toBeVisible();
+  });
+
+  test('type dropdown closes on Escape without changing the pick', async ({ page }) => {
+    await page.goto('/');
+    const trigger = page.getByRole('button', { name: /^type pairing/i });
+    const before = await trigger.getAttribute('aria-label');
+    await trigger.click();
+    await expect(page.getByRole('listbox', { name: /type pairing/i })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('listbox', { name: /type pairing/i })).toHaveCount(0);
+    await expect(trigger).toHaveAttribute('aria-label', before!);
+  });
+});
+
 test.describe('v2 chrome & SEO', () => {
   test('per-route titles update', async ({ page }) => {
     await page.goto('/gallery');

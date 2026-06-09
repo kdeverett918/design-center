@@ -27,7 +27,9 @@
   --shell-panel: #15151c;
   --shell-line: #26262f;
   --shell-ink: #f5f5f4;
-  --shell-mute: #9a9aa6;
+  /* Brighter than a classic muted gray — small caption text must stay readable
+     on the near-black shell (was #9a9aa6, which read as haze at 11px). */
+  --shell-mute: #b1b0bd;
   --shell-glow: #c9b8ff;
   --shell-noise: 0.04;
 }

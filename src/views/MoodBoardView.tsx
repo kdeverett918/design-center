@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { m as motion, useReducedMotion } from 'framer-motion';
@@ -177,13 +177,12 @@ export default function MoodBoardView() {
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
 
-  // Load only the featured pairings' fonts up front (the visible picker rows);
-  // the full library's 40+ stylesheets load on demand when its disclosure opens.
+  // Only the active pairing's fonts load up front — the dropdown menu loads the
+  // rest of the library the first time it opens.
   useEffect(() => {
-    FEATURED_FONTS.forEach(loadFonts);
-    if (fontPairingById(fontId)) loadFonts(fontPairingById(fontId)!);
+    const pairing = fontPairingById(fontId);
+    if (pairing) loadFonts(pairing);
   }, [fontId]);
-  const loadAllPickerFonts = () => fontPairings.forEach(loadFonts);
 
   // Auto-save the full brief so it survives refreshes / return visits.
   useEffect(() => {
@@ -263,7 +262,7 @@ export default function MoodBoardView() {
 
   return (
     <div className="mx-auto max-w-[1500px] px-4 pb-10 pt-5 sm:px-8">
-      <section className="relative overflow-hidden border-b border-shell-line pb-6">
+      <section className="relative overflow-hidden border-b border-shell-line pb-5">
         {/* gallery lighting: two glows that slowly wander (frozen for reduced motion) */}
         <div
           aria-hidden="true"
@@ -315,7 +314,7 @@ export default function MoodBoardView() {
           </div>
         </div>
 
-        <div className="relative mt-6 grid gap-2 sm:grid-cols-3">
+        <div className="relative mt-4 grid gap-2 sm:grid-cols-3">
           <SignalPill icon={<PaletteIcon size={14} />} label="Palette" value={palette.name} />
           <SignalPill icon={<Type size={14} />} label="Type" value={fonts.name} />
           <SignalPill
@@ -330,7 +329,7 @@ export default function MoodBoardView() {
 
       <HowItWorks />
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px] xl:items-start">
+      <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_440px] xl:items-start">
         <div className="min-w-0 xl:sticky xl:top-24">
           <PreviewStage
             palette={palette}
@@ -366,7 +365,7 @@ export default function MoodBoardView() {
                 <Sparkles size={12} className="text-shell-glow" />
                 Styled starts
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {QUICK_PICK_THEMES.map((theme) => (
                   <ThemeSeedButton
                     key={theme.id}
@@ -387,86 +386,12 @@ export default function MoodBoardView() {
               />
             </Field>
 
-            <Field label="Featured palettes">
-              <div className="grid grid-cols-5 gap-2">
-                {FEATURED_PALETTES.map((p) => (
-                  <PaletteButton
-                    key={p.id}
-                    palette={p}
-                    active={p.id === paletteId}
-                    onClick={() => setPaletteId(p.id)}
-                  />
-                ))}
-              </div>
-              <details className="group mt-2">
-                <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-shell-line px-3 py-2 text-xs font-semibold text-shell-mute transition-colors hover:text-shell-ink">
-                  Full palette library
-                  <ChevronDown
-                    size={14}
-                    className="transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                  />
-                </summary>
-                <div className="mt-2 grid max-h-44 grid-cols-8 gap-1.5 overflow-y-auto scrollbar-thin pr-1">
-                  {palettes.map((p) => (
-                    <PaletteButton
-                      key={p.id}
-                      palette={p}
-                      active={p.id === paletteId}
-                      onClick={() => setPaletteId(p.id)}
-                    />
-                  ))}
-                </div>
-              </details>
+            <Field label="Color palette">
+              <PalettePicker value={paletteId} onChange={setPaletteId} />
             </Field>
 
-            <Field label="Featured type">
-              <div className="grid grid-cols-2 gap-1.5">
-                {FEATURED_FONTS.map((f) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    aria-pressed={f.id === fontId}
-                    onClick={() => setFontId(f.id)}
-                    className={`flex items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition-colors ${
-                      f.id === fontId
-                        ? 'border-shell-glow bg-shell-glow/15 font-semibold text-shell-ink'
-                        : 'border-shell-line text-shell-mute hover:border-shell-glow/40 hover:text-shell-ink'
-                    }`}
-                    style={{ fontFamily: `"${f.heading.family}", system-ui, sans-serif` }}
-                  >
-                    <span className="truncate">{f.name}</span>
-                    {f.id === fontId && <Check size={12} className="shrink-0 text-shell-glow" />}
-                  </button>
-                ))}
-              </div>
-              <details className="group mt-2" onToggle={loadAllPickerFonts}>
-                <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-shell-line px-3 py-2 text-xs font-semibold text-shell-mute transition-colors hover:text-shell-ink">
-                  Full type library
-                  <ChevronDown
-                    size={14}
-                    className="transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                  />
-                </summary>
-                <div className="mt-2 grid max-h-44 grid-cols-2 gap-1.5 overflow-y-auto scrollbar-thin pr-1">
-                  {fontPairings.map((f) => (
-                    <button
-                      key={f.id}
-                      type="button"
-                      aria-pressed={f.id === fontId}
-                      onClick={() => setFontId(f.id)}
-                      className={`flex items-center justify-between gap-1.5 rounded-lg border px-2.5 py-1.5 text-left text-xs transition-colors ${
-                        f.id === fontId
-                          ? 'border-shell-glow bg-shell-glow/15 font-semibold text-shell-ink'
-                          : 'border-shell-line text-shell-mute hover:border-shell-glow/40 hover:text-shell-ink'
-                      }`}
-                      style={{ fontFamily: `"${f.heading.family}", system-ui, sans-serif` }}
-                    >
-                      <span className="truncate">{f.name}</span>
-                      {f.id === fontId && <Check size={12} className="shrink-0 text-shell-glow" />}
-                    </button>
-                  ))}
-                </div>
-              </details>
+            <Field label="Type pairing">
+              <FontPicker value={fontId} onChange={setFontId} />
             </Field>
 
             <div className="mb-4 last:mb-0">
@@ -502,7 +427,7 @@ export default function MoodBoardView() {
                     if (!items.length) return null;
                     return (
                       <div key={category}>
-                        <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-shell-mute/80">
+                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
                           {category}
                         </div>
                         <div className="flex flex-wrap gap-1.5">
@@ -547,7 +472,7 @@ export default function MoodBoardView() {
             <div className="mt-5 flex items-center gap-2 rounded-2xl border border-shell-line bg-shell-base/60 p-3">
               <Mail size={15} className="shrink-0 text-shell-glow" />
               <p className="min-w-0 text-xs leading-relaxed text-shell-mute">
-                The send form below includes the live palette, type, layout, m as motion, and notes.
+                The send form below includes the live palette, type, layout, motion, and notes.
               </p>
             </div>
           </div>
@@ -603,7 +528,7 @@ const HOW_IT_WORKS_STEPS = [
 function HowItWorks() {
   const reduce = useReducedMotion();
   return (
-    <section aria-label="How it works" className="border-b border-shell-line py-5">
+    <section aria-label="How it works" className="border-b border-shell-line py-4">
       <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {HOW_IT_WORKS_STEPS.map((step, i) => (
           <motion.li
@@ -648,7 +573,7 @@ function SignalPill({
         {icon}
       </span>
       <div className="min-w-0">
-        <div className="text-[10px] font-semibold uppercase tracking-wide text-shell-mute">{label}</div>
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-shell-mute">{label}</div>
         <div className="truncate text-sm font-semibold text-shell-ink">{value}</div>
       </div>
     </div>
@@ -694,29 +619,206 @@ function ThemeSeedButton({
   );
 }
 
-function PaletteButton({
-  palette,
-  active,
-  onClick,
-}: {
-  palette: Palette;
-  active: boolean;
-  onClick: () => void;
-}) {
+// ---------------------------------------------------------------------------
+// Compact dropdown pickers — the palette/type libraries live behind one clean
+// control each instead of sprawling swatch grids, so the panel stays short.
+// ---------------------------------------------------------------------------
+
+// Shared popover behavior: closes on outside pointer or Escape.
+function useDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: Event) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('touchstart', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('touchstart', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+  return { open, setOpen, ref };
+}
+
+function PaletteSwatch({ palette, className }: { palette: Palette; className?: string }) {
   return (
-    <button
-      type="button"
-      aria-pressed={active}
-      aria-label={palette.name}
-      title={palette.name}
-      onClick={onClick}
-      className={`aspect-square min-h-9 rounded-xl ring-2 ring-offset-2 ring-offset-shell-panel transition-transform hover:scale-105 ${
-        active ? 'scale-105 ring-shell-glow' : 'ring-transparent hover:ring-shell-line'
-      }`}
+    <span
+      aria-hidden="true"
+      className={`shrink-0 rounded-lg ring-1 ring-black/20 ${className ?? 'h-6 w-6'}`}
       style={{
         background: `linear-gradient(135deg, ${palette.colors.primary} 0 45%, ${palette.colors.secondary} 45% 70%, ${palette.colors.accent} 70% 100%)`,
       }}
     />
+  );
+}
+
+function DropdownPanel({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div
+      role="listbox"
+      aria-label={label}
+      className="absolute inset-x-0 z-30 mt-2 overflow-hidden rounded-2xl border border-shell-line bg-shell-panel shadow-[0_24px_60px_-28px_rgba(0,0,0,0.75)]"
+    >
+      <div className="max-h-72 overflow-y-auto scrollbar-thin p-1.5">{children}</div>
+    </div>
+  );
+}
+
+function GroupLabel({ children }: { children: ReactNode }) {
+  return (
+    <div className="px-2.5 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+      {children}
+    </div>
+  );
+}
+
+function PalettePicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  const { open, setOpen, ref } = useDropdown();
+  const current = paletteById(value);
+  const featuredIds = useMemo(() => new Set(FEATURED_PALETTES.map((p) => p.id)), []);
+  const rest = useMemo(() => palettes.filter((p) => !featuredIds.has(p.id)), [featuredIds]);
+  if (!current) return null;
+
+  const pick = (id: string) => {
+    onChange(id);
+    setOpen(false);
+  };
+  const row = (p: Palette) => (
+    <button
+      key={p.id}
+      type="button"
+      role="option"
+      aria-selected={p.id === value}
+      onClick={() => pick(p.id)}
+      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
+        p.id === value
+          ? 'bg-shell-glow/10 font-semibold text-shell-ink'
+          : 'text-shell-ink/85 hover:bg-shell-base hover:text-shell-ink'
+      }`}
+    >
+      <PaletteSwatch palette={p} className="h-5 w-5" />
+      <span className="min-w-0 flex-1 truncate">{p.name}</span>
+      <span className="text-[11px] text-shell-mute">{p.isDark ? 'Dark' : 'Light'}</span>
+      {p.id === value && <Check size={13} className="shrink-0 text-shell-glow" />}
+    </button>
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Color palette: ${current.name}`}
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2.5 rounded-xl border border-shell-line bg-shell-base px-3 py-2.5 text-left transition-colors hover:border-shell-glow/50"
+      >
+        <PaletteSwatch palette={current} />
+        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-shell-ink">
+          {current.name}
+        </span>
+        <span className="text-[11px] text-shell-mute">{current.isDark ? 'Dark' : 'Light'}</span>
+        <ChevronDown
+          size={15}
+          className={`shrink-0 text-shell-mute transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <DropdownPanel label="Color palette">
+          <GroupLabel>Featured</GroupLabel>
+          {FEATURED_PALETTES.map(row)}
+          <GroupLabel>Everything else</GroupLabel>
+          {rest.map(row)}
+        </DropdownPanel>
+      )}
+    </div>
+  );
+}
+
+function FontPicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  const { open, setOpen, ref } = useDropdown();
+  const current = fontPairingById(value);
+  const featuredIds = useMemo(() => new Set(FEATURED_FONTS.map((f) => f.id)), []);
+  const rest = useMemo(() => fontPairings.filter((f) => !featuredIds.has(f.id)), [featuredIds]);
+
+  // The menu shows every name in its own face — fetch the library's fonts the
+  // first time it opens (display=swap keeps the names readable while loading).
+  useEffect(() => {
+    if (open) fontPairings.forEach(loadFonts);
+  }, [open]);
+  if (!current) return null;
+
+  const pick = (id: string) => {
+    onChange(id);
+    setOpen(false);
+  };
+  const row = (f: (typeof fontPairings)[number]) => (
+    <button
+      key={f.id}
+      type="button"
+      role="option"
+      aria-selected={f.id === value}
+      onClick={() => pick(f.id)}
+      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition-colors ${
+        f.id === value
+          ? 'bg-shell-glow/10 text-shell-ink'
+          : 'text-shell-ink/85 hover:bg-shell-base hover:text-shell-ink'
+      }`}
+    >
+      <span
+        className="min-w-0 flex-1 truncate text-[15px]"
+        style={{ fontFamily: `"${f.heading.family}", system-ui, sans-serif` }}
+      >
+        {f.name}
+      </span>
+      <span className="hidden truncate text-[11px] text-shell-mute sm:block">
+        {f.heading.family}
+      </span>
+      {f.id === value && <Check size={13} className="shrink-0 text-shell-glow" />}
+    </button>
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Type pairing: ${current.name}`}
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center gap-2.5 rounded-xl border border-shell-line bg-shell-base px-3 py-2.5 text-left transition-colors hover:border-shell-glow/50"
+      >
+        <span
+          className="min-w-0 flex-1 truncate text-[15px] font-semibold text-shell-ink"
+          style={{ fontFamily: `"${current.heading.family}", system-ui, sans-serif` }}
+        >
+          {current.name}
+        </span>
+        <span className="hidden text-[11px] text-shell-mute sm:block">
+          {current.heading.family} + {current.body.family}
+        </span>
+        <ChevronDown
+          size={15}
+          className={`shrink-0 text-shell-mute transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <DropdownPanel label="Type pairing">
+          <GroupLabel>Featured</GroupLabel>
+          {FEATURED_FONTS.map(row)}
+          <GroupLabel>Everything else</GroupLabel>
+          {rest.map(row)}
+        </DropdownPanel>
+      )}
+    </div>
   );
 }
 
@@ -729,7 +831,7 @@ function Field({
   htmlFor?: string;
   children: ReactNode;
 }) {
-  const cls = 'mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-shell-mute';
+  const cls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-shell-mute';
   return (
     <div className="mb-4 last:mb-0">
       {htmlFor ? (
