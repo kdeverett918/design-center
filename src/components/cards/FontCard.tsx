@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { m as motion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import type { FontPairing } from '../../types';
 import { loadFonts } from '../../theme/loadFonts';
@@ -29,6 +29,7 @@ function representativePaletteId(fontId: string): string {
 // specimen leads at display size (where character shows); the body specimen is
 // clearly secondary and labeled.
 export default function FontCard({ pairing }: { pairing: FontPairing }) {
+  const reduced = useReducedMotion();
   // Fonts fetch only when the card nears the viewport — a 43-pairing gallery
   // must not fire 43 stylesheet requests on tab mount.
   const rootRef = useRef<HTMLElement>(null);
@@ -52,7 +53,9 @@ export default function FontCard({ pairing }: { pairing: FontPairing }) {
         hidden: { opacity: 0, y: 16 },
         show: { opacity: 1, y: 0 },
       }}
-      className="group relative overflow-hidden rounded-3xl border border-shell-line bg-shell-panel"
+      whileHover={reduced ? undefined : { y: -4 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+      className="group relative overflow-hidden rounded-3xl border border-shell-line bg-shell-panel transition-colors hover:border-shell-glow/40"
     >
       <div className="absolute right-4 top-4 z-10">
         <FavoriteStar kind="font" id={pairing.id} label={pairing.name} tone="onLight" />

@@ -22,16 +22,43 @@ function ViewFallback() {
 
 function NotFound() {
   return (
-    <div className="grid min-h-[60vh] place-items-center px-6 text-center">
-      <div>
-        <h2 className="font-display text-3xl font-semibold text-shell-ink">Page not found</h2>
-        <p className="mt-2 text-sm text-shell-mute">That route does not exist in the Design Center.</p>
-        <Link
-          to="/"
-          className="mt-5 inline-block rounded-full bg-shell-glow px-5 py-2 text-sm font-semibold text-shell-base"
-        >
-          Back to the mood board
-        </Link>
+    <div className="relative grid min-h-[60vh] place-items-center overflow-hidden px-6 text-center">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none font-display text-[11rem] font-semibold leading-none text-shell-ink/[0.045] sm:text-[18rem]"
+      >
+        404
+      </div>
+      <div className="relative">
+        {/* a swatch row with one missing — the joke does the wayfinding */}
+        <div aria-hidden="true" className="mx-auto mb-6 flex items-end justify-center gap-2">
+          <span className="h-9 w-9 -rotate-6 rounded-xl bg-shell-glow/80 ring-1 ring-black/20" />
+          <span className="h-9 w-9 rotate-3 rounded-xl bg-amber-400/70 ring-1 ring-black/20" />
+          <span className="grid h-9 w-9 rotate-12 place-items-center rounded-xl border-2 border-dashed border-shell-line text-base text-shell-mute">
+            ?
+          </span>
+          <span className="h-9 w-9 -rotate-3 rounded-xl bg-rose-400/70 ring-1 ring-black/20" />
+        </div>
+        <h2 className="font-display text-3xl font-semibold text-shell-ink sm:text-4xl">
+          That swatch isn&rsquo;t in the library.
+        </h2>
+        <p className="mt-2 text-sm text-shell-mute">
+          The page you wanted doesn&rsquo;t exist — but 46 good-looking ones do.
+        </p>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <Link
+            to="/"
+            className="inline-block rounded-full bg-shell-glow px-5 py-2 text-sm font-semibold text-shell-base"
+          >
+            Back to the mood board
+          </Link>
+          <Link
+            to="/gallery"
+            className="inline-block rounded-full border border-shell-line px-5 py-2 text-sm font-semibold text-shell-mute transition-colors hover:text-shell-ink"
+          >
+            Browse the gallery
+          </Link>
+        </div>
       </div>
     </div>
   );

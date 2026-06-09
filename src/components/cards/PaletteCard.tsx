@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { m as motion } from 'framer-motion';
+import { m as motion, useReducedMotion } from 'framer-motion';
 import type { CSSProperties } from 'react';
 import type { Palette, PaletteColors } from '../../types';
 import { colorVars } from '../../theme/applyTheme';
@@ -15,6 +15,7 @@ const ROLES: { key: keyof PaletteColors; label: string }[] = [
 ];
 
 export default function PaletteCard({ palette }: { palette: Palette }) {
+  const reduced = useReducedMotion();
   const [hovered, setHovered] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -34,7 +35,9 @@ export default function PaletteCard({ palette }: { palette: Palette }) {
         hidden: { opacity: 0, y: 16 },
         show: { opacity: 1, y: 0 },
       }}
-      className="group overflow-hidden rounded-3xl border border-shell-line bg-shell-panel"
+      whileHover={reduced ? undefined : { y: -4 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+      className="group overflow-hidden rounded-3xl border border-shell-line bg-shell-panel transition-colors hover:border-shell-glow/40"
     >
       {/* Live specimen rendered in the palette's own colors. */}
       <div

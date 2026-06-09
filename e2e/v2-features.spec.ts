@@ -103,6 +103,23 @@ test.describe('Favorites v2', () => {
   });
 });
 
+test.describe('Creative shell elements', () => {
+  test('home ticker rail links every theme into the gallery', async ({ page }) => {
+    await page.goto('/');
+    const rail = page.getByLabel(/all 46 themes/i);
+    await expect(rail).toBeVisible();
+    await expect(rail.getByRole('link', { name: /stillwater/i })).toBeVisible();
+  });
+
+  test('quiz shows the live narrowing rail on desktop', async ({ page, isMobile }) => {
+    test.skip(Boolean(isMobile), 'rail is intentionally hidden below lg');
+    await page.goto('/start');
+    await expect(page.getByText(/still in the running/i)).toBeVisible();
+    await page.getByRole('button', { name: /healthcare & therapy/i }).click();
+    await expect(page.getByText(/currently leading/i)).toBeVisible();
+  });
+});
+
 test.describe('v2 chrome & SEO', () => {
   test('per-route titles update', async ({ page }) => {
     await page.goto('/gallery');

@@ -35,6 +35,7 @@ import { themeById } from '../data/themes';
 import type { AnimationCategory, Palette, Theme } from '../types';
 import { loadFonts } from '../theme/loadFonts';
 import Button, { buttonClasses } from '../components/ui/Button';
+import ThemeTicker from '../components/layout/ThemeTicker';
 import PreviewStage from '../components/preview/PreviewStage';
 import BriefSummary from '../components/client/BriefSummary';
 import SendBrief from '../components/client/SendBrief';
@@ -263,9 +264,14 @@ export default function MoodBoardView() {
   return (
     <div className="mx-auto max-w-[1500px] px-4 pb-10 pt-5 sm:px-8">
       <section className="relative overflow-hidden border-b border-shell-line pb-6">
+        {/* gallery lighting: two glows that slowly wander (frozen for reduced motion) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-28 -top-32 h-72 w-72 rounded-full bg-shell-glow/10 blur-[96px]"
+          className="pointer-events-none absolute -right-28 -top-32 h-72 w-72 rounded-full bg-shell-glow/10 blur-[96px] motion-safe:animate-glow-drift"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-24 top-24 h-56 w-56 rounded-full bg-shell-glow/[0.06] blur-[80px] motion-safe:animate-glow-drift [animation-delay:-7s]"
         />
         <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
@@ -319,6 +325,8 @@ export default function MoodBoardView() {
           />
         </div>
       </section>
+
+      <ThemeTicker />
 
       <HowItWorks />
 

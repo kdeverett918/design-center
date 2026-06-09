@@ -40,6 +40,8 @@ export default {
       },
       transitionTimingFunction: {
         premium: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        // Macro reveals (hero, step transitions) — fast start, long elegant tail.
+        expo: 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
         'fade-up': {
@@ -82,6 +84,17 @@ export default {
           '0%,100%': { opacity: '1' },
           '50%': { opacity: '0.45' },
         },
+        // Infinite horizontal rail (content duplicated once → -50% loops seamlessly).
+        ticker: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        // Hero glow slowly wanders — the room feels lit, not printed.
+        'glow-drift': {
+          '0%,100%': { transform: 'translate(0, 0) scale(1)' },
+          '33%': { transform: 'translate(-60px, 40px) scale(1.15)' },
+          '66%': { transform: 'translate(40px, -30px) scale(0.95)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards',
@@ -94,6 +107,8 @@ export default {
         'logo-glow': 'logo-glow 4.5s ease-in-out infinite',
         'logo-flow': 'logo-flow 3s linear infinite',
         'logo-twinkle': 'logo-twinkle 3.5s ease-in-out infinite',
+        ticker: 'ticker 70s linear infinite',
+        'glow-drift': 'glow-drift 14s ease-in-out infinite',
       },
     },
   },
