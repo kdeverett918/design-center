@@ -51,7 +51,9 @@ test.describe('Design Center', () => {
     );
 
     // Pick a different theme card (Obsidian is the dark one — guaranteed change).
-    await page.getByRole('button', { name: /obsidian/i }).first().click();
+    // Full card label — a loose /obsidian/i would grab the hero flywheel's
+    // moving "Spin the wheel to Obsidian" dot and never stabilize.
+    await page.getByRole('button', { name: /preview the obsidian theme/i }).click();
 
     await expect
       .poll(async () =>

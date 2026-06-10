@@ -327,7 +327,7 @@ export default function MoodBoardView() {
             </div>
             <h1 className="font-display text-[2.15rem] font-semibold leading-[0.98] tracking-tight text-shell-ink sm:text-6xl xl:text-7xl">
               Stop describing your dream website.{' '}
-              <span className="text-shell-glow">Point at it.</span>
+              <span className="italic text-shell-glow">Point at it.</span>
             </h1>
             <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-shell-mute sm:mt-4 sm:text-lg">
               Start from a styled direction, tune the palette and type live, then send a clean

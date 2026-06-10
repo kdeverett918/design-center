@@ -74,7 +74,9 @@ test.describe('Mobile viewport', () => {
     const before = await previewScope.evaluate((el) =>
       getComputedStyle(el).getPropertyValue('--color-bg').trim(),
     );
-    await page.getByRole('button', { name: /obsidian/i }).first().click();
+    // The card's full label — a loose /obsidian/i would hit the hero flywheel's
+    // (perpetually moving) "Spin the wheel to Obsidian" dot first.
+    await page.getByRole('button', { name: /preview the obsidian theme/i }).click();
     await expect
       .poll(async () =>
         page

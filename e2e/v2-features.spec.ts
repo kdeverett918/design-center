@@ -166,6 +166,22 @@ test.describe('Effects animate the live preview', () => {
   });
 });
 
+test.describe('Gallery flywheel', () => {
+  test('swatches orbit a live hub; hovering pauses; clicking pins the theme', async ({ page }) => {
+    await page.goto('/gallery');
+    const wheel = page.locator('.group.relative.aspect-square').first();
+    await expect(wheel).toBeVisible();
+    // Hovering the wheel pauses the orbit so the swatch becomes clickable.
+    await wheel.hover();
+    await page.getByRole('button', { name: /spin the wheel to velvet/i }).click();
+    // The hub caption updates and deep-links into the full theme preview.
+    await expect(page.getByRole('link', { name: /open this look/i })).toHaveAttribute(
+      'href',
+      '/gallery?theme=velvet',
+    );
+  });
+});
+
 test.describe('Per-design color mode', () => {
   test('preview scheme toggle flips the design without touching the shell', async ({ page }) => {
     await page.goto('/');
