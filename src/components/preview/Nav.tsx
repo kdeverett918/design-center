@@ -1,9 +1,13 @@
 import { Activity } from 'lucide-react';
+import { useFx } from '../../preview/effectsRuntime';
+import FxCta from './effects/FxCta';
 
 // Token-only navigation, three variants. Used both as a layout thumbnail and as
 // the live SamplePage nav. (nav-sidebar is a dashboard pattern — shown as a
 // thumbnail but the marketing SamplePage uses a top bar.)
 export default function Nav({ variant, brand }: { variant: string; brand: string }) {
+  const fx = useFx();
+  const linkCls = fx.link.underline ? 'fx-underline' : '';
   const Logo = (
     <div className="flex items-center gap-2">
       <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary">
@@ -45,13 +49,15 @@ export default function Nav({ variant, brand }: { variant: string; brand: string
     return (
       <div className="grid grid-cols-3 items-center border-b tk-line bg-bg px-8 py-5">
         <div className="flex gap-5 text-sm text-muted">
-          <span>Services</span>
-          <span>About</span>
+          <span className={linkCls}>Services</span>
+          <span className={linkCls}>About</span>
         </div>
         <div className="flex justify-center">{Logo}</div>
-        <div className="flex justify-end gap-5 text-sm text-muted">
-          <span>Resources</span>
-          <span className="rounded-full bg-primary px-4 py-1.5 font-medium text-onPrimary">Book</span>
+        <div className="flex items-center justify-end gap-5 text-sm text-muted">
+          <span className={linkCls}>Resources</span>
+          <FxCta>
+            <span className="rounded-full bg-primary px-4 py-1.5 font-medium text-onPrimary">Book</span>
+          </FxCta>
         </div>
       </div>
     );
@@ -63,9 +69,13 @@ export default function Nav({ variant, brand }: { variant: string; brand: string
       {Logo}
       <div className="hidden items-center gap-6 text-sm text-muted sm:flex">
         {links.map((l) => (
-          <span key={l}>{l}</span>
+          <span key={l} className={linkCls}>
+            {l}
+          </span>
         ))}
-        <span className="rounded-full bg-primary px-4 py-1.5 font-medium text-onPrimary">Book a visit</span>
+        <FxCta>
+          <span className="rounded-full bg-primary px-4 py-1.5 font-medium text-onPrimary">Book a visit</span>
+        </FxCta>
       </div>
     </div>
   );

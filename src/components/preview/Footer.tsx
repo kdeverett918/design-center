@@ -1,7 +1,10 @@
 import { ArrowRight } from 'lucide-react';
+import { useFx } from '../../preview/effectsRuntime';
 
 // Token-only footer, three variants. Shared by the layout thumbnail + SamplePage.
 export default function Footer({ variant, brand }: { variant: string; brand: string }) {
+  const fx = useFx();
+  const linkCls = fx.link.underline ? 'fx-underline' : '';
   if (variant === 'footer-cta-band') {
     return (
       <div className="bg-bg">
@@ -12,9 +15,9 @@ export default function Footer({ variant, brand }: { variant: string; brand: str
           </span>
         </div>
         <div className="flex justify-center gap-5 px-8 pb-6 text-xs text-muted">
-          <span>Privacy</span>
-          <span>Terms</span>
-          <span>Contact</span>
+          <span className={linkCls}>Privacy</span>
+          <span className={linkCls}>Terms</span>
+          <span className={linkCls}>Contact</span>
         </div>
       </div>
     );
@@ -44,10 +47,10 @@ export default function Footer({ variant, brand }: { variant: string; brand: str
     <div className="flex flex-col items-center gap-3 border-t tk-line bg-surface px-8 py-8">
       <span className="font-heading text-base font-semibold text-ink">{brand}</span>
       <div className="flex gap-5 text-xs text-muted">
-        <span>Privacy</span>
-        <span>Terms</span>
-        <span>Contact</span>
-        <span className="text-primary">Book a visit</span>
+        <span className={linkCls}>Privacy</span>
+        <span className={linkCls}>Terms</span>
+        <span className={linkCls}>Contact</span>
+        <span className={`text-primary ${linkCls}`}>Book a visit</span>
       </div>
     </div>
   );

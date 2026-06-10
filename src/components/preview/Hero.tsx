@@ -1,7 +1,12 @@
+import { useRef } from 'react';
 import { ArrowRight, Play } from 'lucide-react';
 import { m as motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import type { HeroVariant } from '../../preview/previewConfig';
+import { useFx } from '../../preview/effectsRuntime';
+import FxHeadline from './effects/FxHeadline';
+import FxCta from './effects/FxCta';
+import { useParallax } from './effects/useParallax';
 
 interface HeroProps {
   brand: string;
@@ -25,9 +30,11 @@ const SUB =
 function CtaRow() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
-        Get started <ArrowRight size={16} />
-      </span>
+      <FxCta>
+        <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
+          Get started <ArrowRight size={16} />
+        </span>
+      </FxCta>
       <span className="inline-flex items-center gap-2 rounded-xl border tk-line-strong px-5 py-3 text-sm font-medium text-ink">
         <Play size={13} /> Meet the team
       </span>
@@ -36,36 +43,50 @@ function CtaRow() {
 }
 
 function Eyebrow() {
+  const fx = useFx();
   return (
-    <span className="inline-block rounded-full tk-tint-secondary px-3 py-1 text-xs font-medium text-ink">
+    <motion.span
+      className={`inline-block rounded-full tk-tint-secondary px-3 py-1 text-xs font-medium text-ink ${
+        fx.image.float ? 'motion-safe:animate-float' : ''
+      }`}
+      whileHover={fx.card.stickerSpin ? { rotate: 360, scale: 1.1 } : undefined}
+      transition={{ type: 'spring', stiffness: 200, damping: 14 }}
+    >
       Now accepting new clients
-    </span>
+    </motion.span>
   );
 }
 
 // Token-only hero, five compositions. Each is one motion item so it reveals as a
 // unit; SamplePage owns the stagger across sections.
 export default function Hero({ brand, variant, item, expressive, heroImage }: HeroProps) {
+  const fx = useFx();
+  // Parallax anchor: attached to image-led sections; inert elsewhere.
+  const sectionRef = useRef<HTMLElement>(null);
+  const parY = useParallax(sectionRef, fx.parallax);
+  const mediaCls = fx.image.zoom ? ' fx-img-zoom' : '';
+  const floatCls = fx.image.float ? ' motion-safe:animate-float' : '';
+  const drift = expressive || fx.image.drift;
+
   if (variant === 'split') {
     return (
       <motion.section variants={item} className="grid items-center gap-8 px-8 py-16 sm:grid-cols-2">
         <div>
           <Eyebrow />
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl">
-            {HEADLINE}
-          </h1>
+          <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl">{HEADLINE}</FxHeadline>
           <p className="mt-5 max-w-md text-base leading-relaxed text-muted">{SUB}</p>
           <div className="mt-7">
             <CtaRow />
           </div>
         </div>
-        <div
-          className={`relative aspect-[4/3] overflow-hidden rounded-3xl tk-shadow ${heroImage ? '' : 'tk-mesh'}`}
+        <motion.div
+          className={`relative aspect-[4/3] overflow-hidden rounded-3xl tk-shadow${floatCls} ${heroImage ? '' : 'tk-mesh'}`}
+          style={{ y: parY }}
         >
           {heroImage && (
             <>
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
                 style={{ backgroundImage: `url(${heroImage})` }}
               />
               {/* light scrim so the centered brand label stays legible */}
@@ -77,7 +98,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
               {brand}
             </span>
           </div>
-        </div>
+        </motion.div>
       </motion.section>
     );
   }
@@ -87,9 +108,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
       <motion.section variants={item} className="px-8 py-20 text-center">
         <div className="mx-auto max-w-2xl">
           <Eyebrow />
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-[3.25rem]">
-            {HEADLINE}
-          </h1>
+          <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-[3.25rem]">{HEADLINE}</FxHeadline>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted">{SUB}</p>
           <div className="mt-7 flex justify-center">
             <CtaRow />
@@ -99,7 +118,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         {heroImage && (
           <div className="relative mx-auto mt-12 aspect-[16/9] max-w-3xl overflow-hidden rounded-3xl border tk-line-strong tk-shadow">
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
               style={{ backgroundImage: `url(${heroImage})` }}
             />
             {/* light scrim so the brand label keeps AA */}
@@ -115,13 +134,13 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
 
   if (variant === 'fullbleed') {
     return (
-      <motion.section variants={item} className="relative overflow-hidden px-8 py-24">
+      <motion.section ref={sectionRef} variants={item} className="relative overflow-hidden px-8 py-24">
         <div className="absolute inset-0 bg-primary" />
         {heroImage ? (
           <>
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${heroImage})` }}
+            <motion.div
+              className={`absolute -inset-y-10 inset-x-0 bg-cover bg-center${mediaCls}`}
+              style={{ backgroundImage: `url(${heroImage})`, y: parY }}
             />
             {/* strong token scrim — keeps onPrimary text at AA over any image */}
             <div className="absolute inset-0 bg-primary/80 mix-blend-multiply" />
@@ -130,20 +149,20 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
             <div className="absolute inset-0 opacity-40 tk-mesh" />
           </>
         ) : (
-          <div className="absolute inset-0 opacity-90 tk-mesh" />
+          <motion.div className="absolute -inset-y-10 inset-x-0 opacity-90 tk-mesh" style={{ y: parY }} />
         )}
         <div className="relative max-w-xl">
           <span className="inline-block rounded-full bg-bg/20 px-3 py-1 text-xs font-medium text-onPrimary backdrop-blur">
             Now accepting new clients
           </span>
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-onPrimary sm:text-5xl">
-            {HEADLINE}
-          </h1>
+          <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-onPrimary sm:text-5xl">{HEADLINE}</FxHeadline>
           <p className="mt-5 max-w-md text-base leading-relaxed text-onPrimary/85">{SUB}</p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <span className="inline-flex items-center gap-2 rounded-xl bg-bg px-5 py-3 text-sm font-semibold text-primary">
-              Get started <ArrowRight size={16} />
-            </span>
+            <FxCta>
+              <span className="inline-flex items-center gap-2 rounded-xl bg-bg px-5 py-3 text-sm font-semibold text-primary">
+                Get started <ArrowRight size={16} />
+              </span>
+            </FxCta>
             <span className="rounded-xl border border-bg/40 px-5 py-3 text-sm font-medium text-onPrimary">
               Meet the team
             </span>
@@ -157,7 +176,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
     return (
       <motion.section variants={item} className="relative overflow-hidden px-8 py-20">
         <div
-          className={`absolute inset-0 tk-mesh ${expressive ? 'animate-gradient-drift' : ''}`}
+          className={`absolute inset-0 tk-mesh ${drift ? 'animate-gradient-drift' : ''}`}
           style={{ opacity: 0.22 }}
         />
         <div className="pointer-events-none absolute -right-20 -top-16 h-72 w-72 rounded-full tk-tint-primary blur-3xl" />
@@ -165,18 +184,16 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <div className="relative grid items-center gap-8 sm:grid-cols-[1.2fr_0.8fr]">
           <div className="max-w-2xl">
             <Eyebrow />
-            <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">
-              {HEADLINE}
-            </h1>
+            <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">{HEADLINE}</FxHeadline>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">{SUB}</p>
             <div className="mt-7">
               <CtaRow />
             </div>
           </div>
           {heroImage && (
-            <div className="relative hidden aspect-[4/5] overflow-hidden rounded-3xl tk-shadow sm:block">
+            <div className={`relative hidden aspect-[4/5] overflow-hidden rounded-3xl tk-shadow sm:block${floatCls}`}>
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
                 style={{ backgroundImage: `url(${heroImage})` }}
               />
               {/* faint primary scrim ties the panel to the palette */}
@@ -195,14 +212,12 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           <span>Care &amp; Practice</span>
           <span>Est. 2024</span>
         </div>
-        <h1 className="mt-8 font-heading text-5xl font-semibold leading-[0.95] tracking-tight text-ink sm:text-[4.5rem]">
-          {HEADLINE}
-        </h1>
+        <FxHeadline className="mt-8 font-heading text-5xl font-semibold leading-[0.95] tracking-tight text-ink sm:text-[4.5rem]">{HEADLINE}</FxHeadline>
         {/* wide editorial photo band beneath the headline */}
         {heroImage && (
           <div className="relative mt-8 aspect-[21/9] w-full overflow-hidden rounded-2xl tk-shadow">
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
               style={{ backgroundImage: `url(${heroImage})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
@@ -227,9 +242,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
       <motion.section variants={item} className="px-8 py-16 text-center">
         <div className="mx-auto max-w-2xl">
           <Eyebrow />
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-[3rem]">
-            {HEADLINE}
-          </h1>
+          <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-[3rem]">{HEADLINE}</FxHeadline>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted">{SUB}</p>
           <div className="mt-7 flex justify-center">
             <CtaRow />
@@ -246,7 +259,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
             // real screenshot inside the browser chrome
             <div className="relative aspect-[16/9] w-full overflow-hidden">
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
                 style={{ backgroundImage: `url(${heroImage})` }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
@@ -273,20 +286,18 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <div className="relative grid items-center gap-6 sm:grid-cols-[1.1fr_0.9fr]">
           <div className="relative z-10">
             <Eyebrow />
-            <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.02] tracking-tight text-ink sm:text-6xl">
-              {HEADLINE}
-            </h1>
+            <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.02] tracking-tight text-ink sm:text-6xl">{HEADLINE}</FxHeadline>
             <p className="mt-5 max-w-md text-base leading-relaxed text-muted">{SUB}</p>
             <div className="mt-7">
               <CtaRow />
             </div>
           </div>
           {/* offset panel that tucks behind the headline */}
-          <div className="relative aspect-square overflow-hidden rounded-3xl bg-primary tk-shadow sm:-ml-16">
+          <div className={`relative aspect-square overflow-hidden rounded-3xl bg-primary tk-shadow sm:-ml-16${floatCls}`}>
             {heroImage ? (
               <>
                 <div
-                  className="absolute inset-0 bg-cover bg-center"
+                  className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
                   style={{ backgroundImage: `url(${heroImage})` }}
                 />
                 {/* primary scrim keeps the corner brand label legible */}
@@ -328,9 +339,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         </div>
         <div className="px-8 py-16">
           <Eyebrow />
-          <h1 className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">
-            {HEADLINE}
-          </h1>
+          <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.04] tracking-tight text-ink sm:text-[3.25rem]">{HEADLINE}</FxHeadline>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-muted">{SUB}</p>
           <div className="mt-7 flex items-center gap-6">
             <CtaRow />
@@ -339,7 +348,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           {heroImage && (
             <div className="relative mt-9 aspect-[16/7] w-full overflow-hidden rounded-2xl tk-shadow">
               <div
-                className="absolute inset-0 bg-cover bg-center"
+                className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
                 style={{ backgroundImage: `url(${heroImage})` }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-primary/55 via-primary/15 to-transparent" />
@@ -371,15 +380,13 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <span className="block text-[11px] font-medium uppercase tracking-[0.32em] text-muted">
           The Quarterly &mdash; Issue No. 04
         </span>
-        <h1 className="mt-6 max-w-4xl font-heading text-6xl font-semibold leading-[0.9] tracking-tight text-ink sm:text-[5.5rem]">
-          {HEADLINE}
-        </h1>
+        <FxHeadline className="mt-6 max-w-4xl font-heading text-6xl font-semibold leading-[0.9] tracking-tight text-ink sm:text-[5.5rem]">{HEADLINE}</FxHeadline>
         <div className="mt-8 h-px w-full tk-line-strong border-t" />
         {/* full-width poster image band */}
         {heroImage && (
           <div className="relative mt-7 aspect-[21/8] w-full overflow-hidden tk-shadow">
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
               style={{ backgroundImage: `url(${heroImage})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
@@ -388,9 +395,11 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <div className="mt-7 grid gap-8 sm:grid-cols-[1fr_2fr]">
           <p className="max-w-xs text-sm leading-relaxed text-muted">{SUB}</p>
           <div className="flex items-start">
-            <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
-              Read the issue <ArrowRight size={16} />
-            </span>
+            <FxCta>
+              <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
+                Read the issue <ArrowRight size={16} />
+              </span>
+            </FxCta>
           </div>
         </div>
       </motion.section>
@@ -403,9 +412,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <span className="inline-block rounded-none bg-ink px-2 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-bg">
           No nonsense
         </span>
-        <h1 className="mt-6 font-heading text-6xl font-bold uppercase leading-[0.82] tracking-tight text-ink sm:text-8xl">
-          {HEADLINE}
-        </h1>
+        <FxHeadline className="mt-6 font-heading text-6xl font-bold uppercase leading-[0.82] tracking-tight text-ink sm:text-8xl">{HEADLINE}</FxHeadline>
         <div className="mt-8 border-y-2 border-ink py-5">
           <p className="max-w-xl text-base font-medium leading-snug text-ink">{SUB}</p>
         </div>
@@ -413,7 +420,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         {heroImage && (
           <div className="relative mt-8 aspect-[21/9] w-full overflow-hidden border-2 border-ink">
             <div
-              className="absolute inset-0 bg-cover bg-center grayscale"
+              className={`absolute inset-0 bg-cover bg-center grayscale${mediaCls}`}
               style={{ backgroundImage: `url(${heroImage})` }}
             />
             {/* hard primary scrim keeps the brand stamp at AA */}
@@ -424,9 +431,11 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           </div>
         )}
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <span className="inline-flex items-center gap-2 rounded-none bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-onPrimary shadow-[6px_6px_0_0_var(--color-ink)]">
-            Get started <ArrowRight size={16} />
-          </span>
+          <FxCta>
+            <span className="inline-flex items-center gap-2 rounded-none bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-onPrimary shadow-[6px_6px_0_0_var(--color-ink)]">
+              Get started <ArrowRight size={16} />
+            </span>
+          </FxCta>
           <span className="inline-flex items-center gap-2 rounded-none border-2 border-ink px-6 py-3 text-sm font-bold uppercase tracking-wide text-ink">
             <Play size={13} /> Watch
           </span>
@@ -441,7 +450,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         {heroImage && (
           <>
             <div
-              className="absolute inset-0 bg-cover bg-center"
+              className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
               style={{ backgroundImage: `url(${heroImage})` }}
             />
             {/* dark-leaning scrim keeps the light onPrimary text at AA */}
@@ -450,7 +459,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           </>
         )}
         <div
-          className={`absolute inset-0 tk-mesh ${expressive ? 'animate-gradient-drift' : ''} ${heroImage ? 'opacity-50' : ''}`}
+          className={`absolute inset-0 tk-mesh ${drift ? 'animate-gradient-drift' : ''} ${heroImage ? 'opacity-50' : ''}`}
         />
         <div className="pointer-events-none absolute -left-16 top-8 h-64 w-64 rounded-full tk-tint-accent blur-3xl" />
         <div className="pointer-events-none absolute -right-16 bottom-4 h-64 w-64 rounded-full tk-tint-secondary blur-3xl" />
@@ -458,14 +467,14 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           <span className="inline-block rounded-full bg-bg/20 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-onPrimary backdrop-blur">
             Now loading the future
           </span>
-          <h1 className="mt-6 font-heading text-5xl font-bold leading-[0.95] tracking-tight text-onPrimary drop-shadow-[0_2px_12px_rgba(0,0,0,0.25)] sm:text-7xl">
-            {HEADLINE}
-          </h1>
+          <FxHeadline className="mt-6 font-heading text-5xl font-bold leading-[0.95] tracking-tight text-onPrimary drop-shadow-[0_2px_12px_rgba(0,0,0,0.25)] sm:text-7xl">{HEADLINE}</FxHeadline>
           <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-onPrimary/90">{SUB}</p>
           <div className="mt-8 flex justify-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-bg px-7 py-3.5 text-sm font-semibold text-primary tk-shadow">
-              Get started <ArrowRight size={16} />
-            </span>
+            <FxCta>
+              <span className="inline-flex items-center gap-2 rounded-full bg-bg px-7 py-3.5 text-sm font-semibold text-primary tk-shadow">
+                Get started <ArrowRight size={16} />
+              </span>
+            </FxCta>
           </div>
         </div>
       </motion.section>
@@ -476,20 +485,20 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
   return (
     <motion.section variants={item} className="px-8 py-20">
       <Eyebrow />
-      <h1 className="mt-6 font-heading text-5xl font-semibold leading-[0.98] tracking-tight text-ink sm:text-7xl">
-        {HEADLINE}
-      </h1>
+      <FxHeadline className="mt-6 font-heading text-5xl font-semibold leading-[0.98] tracking-tight text-ink sm:text-7xl">{HEADLINE}</FxHeadline>
       <div className="mt-8 flex max-w-3xl items-end justify-between gap-8 border-t tk-line pt-6">
         <p className="max-w-md text-base leading-relaxed text-muted">{SUB}</p>
-        <span className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary sm:inline-flex">
-          Get started <ArrowRight size={16} />
-        </span>
+        <FxCta>
+          <span className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary sm:inline-flex">
+            Get started <ArrowRight size={16} />
+          </span>
+        </FxCta>
       </div>
       {/* thin full-width image band — accent only, type stays dominant */}
       {heroImage && (
         <div className="relative mt-10 aspect-[32/9] w-full overflow-hidden rounded-2xl tk-shadow">
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className={`absolute inset-0 bg-cover bg-center${mediaCls}`}
             style={{ backgroundImage: `url(${heroImage})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/45 via-transparent to-transparent" />

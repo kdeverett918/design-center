@@ -6,6 +6,8 @@ import type { PreviewConfig } from '../../preview/previewConfig';
 import { themeVars } from '../../theme/applyTheme';
 import { loadFonts } from '../../theme/loadFonts';
 import { resolvePalette } from '../../theme/variant';
+import { EffectsProvider, anyCursor, useResolvedEffects } from '../../preview/effectsRuntime';
+import CursorLayer from './effects/CursorLayer';
 import SamplePage from './SamplePage';
 
 interface PreviewFrameProps {
@@ -21,6 +23,8 @@ interface PreviewFrameProps {
   heroImage?: string;
   /** Render keyed preview changes synchronously instead of cross-fading. */
   instantUpdates?: boolean;
+  /** Selected animation preset ids — applied live inside the page. */
+  effects?: string[];
 }
 
 // Owns the CSS-var scope for the live preview and cross-fades whenever the
@@ -36,10 +40,13 @@ export default function PreviewFrame({
   replayNonce = 0,
   heroImage,
   instantUpdates = false,
+  effects,
 }: PreviewFrameProps) {
   useEffect(() => {
     loadFonts(fonts);
   }, [fonts]);
+
+  const fx = useResolvedEffects(effects);
 
   // The client's scheme choice resolves to the designed palette or its
   // derived light/dark counterpart — everything downstream just reads tokens.
@@ -54,27 +61,37 @@ export default function PreviewFrame({
     config.sections.join('+'),
     config.motion,
     config.scheme,
+    (effects ?? []).join(','),
     replayNonce,
   ].join(':');
 
+  // Selecting page-fade makes even "instant" boards cross-fade their changes.
+  const crossFade = !instantUpdates || fx.pageFade;
+  const page = (
+    <EffectsProvider value={fx}>
+      <div className="relative">
+        {anyCursor(fx) && <CursorLayer />}
+        <SamplePage brand={brand} config={config} heroImage={heroImage} />
+      </div>
+    </EffectsProvider>
+  );
+
   return (
     <div data-dark={effective.isDark ? 'true' : 'false'} style={vars as CSSProperties}>
-      {instantUpdates ? (
-        <div key={key}>
-          <SamplePage brand={brand} config={config} heroImage={heroImage} />
-        </div>
-      ) : (
+      {crossFade ? (
         <AnimatePresence mode="wait">
           <motion.div
             key={key}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.28, ease: 'easeInOut' }}
+            transition={{ duration: fx.pageFade ? 0.32 : 0.28, ease: 'easeInOut' }}
           >
-            <SamplePage brand={brand} config={config} heroImage={heroImage} />
+            {page}
           </motion.div>
         </AnimatePresence>
+      ) : (
+        <div key={key}>{page}</div>
       )}
     </div>
   );

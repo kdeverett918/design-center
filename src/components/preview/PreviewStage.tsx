@@ -111,6 +111,7 @@ export default function PreviewStage({
       replayNonce={replay}
       heroImage={heroImage}
       instantUpdates={instantMount}
+      effects={effects}
     />
   );
 

@@ -112,6 +112,23 @@ test.describe('Creative shell elements', () => {
 
 });
 
+test.describe('Effects animate the live preview', () => {
+  test('selected effects manifest inside the page (marquee band + headline intact)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    // Default board has the motion panel open; toggle the ticker band on.
+    await page.getByRole('button', { name: 'Marquee Ticker' }).click();
+    const band = page.locator('main').getByLabel(/speech therapy, telehealth/i);
+    await expect(band).toBeVisible();
+    // Entrance effects must never eat the headline text.
+    await page.getByRole('button', { name: 'Typewriter' }).click();
+    await expect(
+      page.locator('main').getByText(/care that listens, built around you/i).first(),
+    ).toBeVisible();
+  });
+});
+
 test.describe('Per-design color mode', () => {
   test('preview scheme toggle flips the design without touching the shell', async ({ page }) => {
     await page.goto('/');

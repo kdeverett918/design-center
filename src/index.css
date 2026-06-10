@@ -136,6 +136,152 @@
       0 1px 2px color-mix(in srgb, var(--color-ink) 8%, transparent),
       0 12px 30px -12px color-mix(in srgb, var(--color-ink) 22%, transparent);
   }
+  /* =========================================================================
+     fx-* — selected animation effects applied INSIDE the live preview page.
+     Token-aware (palette vars), all neutralized by the global reduced-motion
+     kill switch above.
+     ======================================================================== */
+  .fx-lift {
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .fx-lift:hover {
+    transform: translateY(-5px);
+  }
+  .fx-underline {
+    position: relative;
+    cursor: pointer;
+  }
+  .fx-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 2px;
+    width: 100%;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .fx-underline:hover::after {
+    transform: scaleX(1);
+  }
+  .fx-img-zoom {
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .fx-img-zoom:hover {
+    transform: scale(1.06);
+  }
+  .fx-cta-pulse {
+    animation: fx-pulse 2s ease-in-out infinite;
+  }
+  @keyframes fx-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 45%, transparent);
+    }
+    50% {
+      box-shadow: 0 0 0 10px color-mix(in srgb, var(--color-primary) 0%, transparent);
+    }
+  }
+  .fx-shine {
+    position: relative;
+  }
+  .fx-shine::after {
+    content: '';
+    position: absolute;
+    inset: -20% auto -20% -40%;
+    width: 35%;
+    transform: skewX(-20deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    animation: fx-shine 2.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes fx-shine {
+    0% {
+      left: -45%;
+    }
+    60%,
+    100% {
+      left: 115%;
+    }
+  }
+  .fx-wobble:hover {
+    animation: fx-wobble 0.5s ease-in-out;
+  }
+  @keyframes fx-wobble {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(2deg);
+    }
+    75% {
+      transform: rotate(-1deg);
+    }
+  }
+  /* Continuous brightness sheen — works on ink AND onPrimary headlines. */
+  .fx-shimmer {
+    animation: fx-shimmer 3s ease-in-out infinite;
+  }
+  @keyframes fx-shimmer {
+    0%,
+    100% {
+      filter: brightness(1);
+    }
+    50% {
+      filter: brightness(1.4);
+    }
+  }
+  /* RGB-split glitch copies, revealed on hover (needs data-text on the el). */
+  .fx-glitch {
+    position: relative;
+  }
+  .fx-glitch::before,
+  .fx-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .fx-glitch:hover::before {
+    color: #23d5ff;
+    opacity: 0.8;
+    animation: fx-glitch-a 0.35s steps(2) infinite;
+  }
+  .fx-glitch:hover::after {
+    color: #ff3b6b;
+    opacity: 0.8;
+    animation: fx-glitch-b 0.35s steps(2) infinite;
+  }
+  @keyframes fx-glitch-a {
+    0%,
+    100% {
+      transform: translate(-3px, -2px);
+      clip-path: inset(0 0 55% 0);
+    }
+    50% {
+      transform: translate(3px, 1px);
+      clip-path: inset(40% 0 10% 0);
+    }
+  }
+  @keyframes fx-glitch-b {
+    0%,
+    100% {
+      transform: translate(3px, 2px);
+      clip-path: inset(50% 0 0 0);
+    }
+    50% {
+      transform: translate(-3px, -1px);
+      clip-path: inset(10% 0 45% 0);
+    }
+  }
+
   /* Gradient-drift hero background built from the scoped palette. */
   .tk-mesh {
     background-image: linear-gradient(

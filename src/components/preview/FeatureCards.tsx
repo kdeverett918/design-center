@@ -2,6 +2,8 @@ import { HeartPulse, MessageSquareText, ShieldCheck } from 'lucide-react';
 import { m as motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import type { CardStyle } from '../../preview/previewConfig';
+import { useFx } from '../../preview/effectsRuntime';
+import FxCard, { FxIconBadge } from './effects/FxCard';
 
 const FEATURES = [
   { icon: HeartPulse, title: 'Personalized care plans', body: 'Every plan is built around the person — goals, pace, and real life.' },
@@ -36,16 +38,22 @@ interface FeatureCardsProps {
 }
 
 export default function FeatureCards({ cardStyle, item }: FeatureCardsProps) {
+  const fx = useFx();
   return (
     <motion.section variants={item} className="grid gap-4 px-8 pb-14 sm:grid-cols-3">
       {FEATURES.map(({ icon: Icon, title, body }) => (
-        <div key={title} className={cardClasses(cardStyle)}>
-          <span className="grid h-10 w-10 place-items-center rounded-xl tk-tint-primary">
+        <FxCard
+          key={title}
+          className={cardClasses(cardStyle)}
+          // stagger-reveal makes each card its own cascading item
+          variants={fx.staggerBoost ? item : undefined}
+        >
+          <FxIconBadge className="grid h-10 w-10 place-items-center rounded-xl tk-tint-primary">
             <Icon size={18} className="text-primary" />
-          </span>
+          </FxIconBadge>
           <h3 className="mt-4 font-heading text-lg font-semibold text-ink">{title}</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
-        </div>
+        </FxCard>
       ))}
     </motion.section>
   );
