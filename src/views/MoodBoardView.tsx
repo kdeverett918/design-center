@@ -772,26 +772,77 @@ function useDropdown() {
   return { open, setOpen, ref };
 }
 
+// Mini strip: page background + the three role colors in order — a truer
+// "what you'll get" preview than a diagonal gradient blob.
 function PaletteSwatch({ palette, className }: { palette: Palette; className?: string }) {
+  const { background, primary, secondary, accent } = palette.colors;
   return (
     <span
       aria-hidden="true"
-      className={`shrink-0 rounded-lg ring-1 ring-black/20 ${className ?? 'h-6 w-6'}`}
+      className={`shrink-0 rounded-md ring-1 ring-black/20 ${className ?? 'h-5 w-12'}`}
       style={{
-        background: `linear-gradient(135deg, ${palette.colors.primary} 0 45%, ${palette.colors.secondary} 45% 70%, ${palette.colors.accent} 70% 100%)`,
+        background: `linear-gradient(90deg, ${background} 0 25%, ${primary} 25% 50%, ${secondary} 50% 75%, ${accent} 75% 100%)`,
       }}
     />
   );
 }
 
-function DropdownPanel({ label, children }: { label: string; children: ReactNode }) {
+function DropdownPanel({
+  label,
+  search,
+  children,
+}: {
+  label: string;
+  search?: ReactNode;
+  children: ReactNode;
+}) {
   return (
-    <div
-      role="listbox"
-      aria-label={label}
-      className="absolute inset-x-0 z-30 mt-2 overflow-hidden rounded-2xl border border-shell-line bg-shell-panel shadow-[0_24px_60px_-28px_rgba(0,0,0,0.75)]"
-    >
-      <div className="max-h-72 overflow-y-auto scrollbar-thin p-1.5">{children}</div>
+    <div className="absolute inset-x-0 z-30 mt-2 overflow-hidden rounded-2xl border border-shell-line bg-shell-panel shadow-[0_24px_60px_-28px_rgba(0,0,0,0.75)]">
+      {search}
+      <div role="listbox" aria-label={label} className="max-h-72 overflow-y-auto scrollbar-thin p-1.5">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Type-to-filter row at the top of a picker menu. Enter picks the first match.
+// Focus is only grabbed on fine-pointer devices — on phones an auto-focused
+// input pops the keyboard over the very list the client is trying to read.
+function MenuSearch({
+  value,
+  onChange,
+  onPickFirst,
+  placeholder,
+  label,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onPickFirst: () => void;
+  placeholder: string;
+  label: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (window.matchMedia('(pointer: fine)').matches) inputRef.current?.focus();
+  }, []);
+  return (
+    <div className="border-b border-shell-line p-1.5">
+      <input
+        ref={inputRef}
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            onPickFirst();
+          }
+        }}
+        placeholder={placeholder}
+        aria-label={label}
+        className="w-full rounded-lg border border-transparent bg-shell-base px-2.5 py-1.5 text-sm text-shell-ink placeholder:text-shell-mute focus:border-shell-glow/50 focus:outline-none"
+      />
     </div>
   );
 }
@@ -806,17 +857,42 @@ function GroupLabel({ children }: { children: ReactNode }) {
 
 function PalettePicker({ value, onChange }: { value: string; onChange: (id: string) => void }) {
   const { open, setOpen, ref } = useDropdown();
+  const [query, setQuery] = useState('');
   const current = paletteById(value);
   const featuredIds = useMemo(() => new Set(FEATURED_PALETTES.map((p) => p.id)), []);
   const rest = useMemo(() => palettes.filter((p) => !featuredIds.has(p.id)), [featuredIds]);
+  // EVERY palette gets a stable number — featured ranks 01–10, then the library
+  // in order. The number is a shorthand clients can quote back ("we liked 23").
+  const numberOf = useMemo(() => {
+    const m = new Map<string, number>();
+    [...FEATURED_PALETTES, ...rest].forEach((p, i) => m.set(p.id, i + 1));
+    return m;
+  }, [rest]);
+
+  // Bring the current pick into view each time the menu opens (the search
+  // field resets in the trigger handler — setState in effects is banned).
+  useEffect(() => {
+    if (!open) return;
+    requestAnimationFrame(() => {
+      ref.current
+        ?.querySelector('[role="option"][aria-selected="true"]')
+        ?.scrollIntoView({ block: 'nearest' });
+    });
+  }, [open, ref]);
   if (!current) return null;
+
+  const q = query.trim().toLowerCase();
+  const matches = (p: Palette) =>
+    !q || p.name.toLowerCase().includes(q) || p.moods.some((m) => m.includes(q));
+  const shownFeatured = FEATURED_PALETTES.filter(matches);
+  const shownRest = rest.filter(matches);
 
   const pick = (id: string) => {
     onChange(id);
     setOpen(false);
   };
-  // Featured rows carry their rank number (01–10); library rows keep the mode badge.
-  const row = (p: Palette, featuredIndex?: number) => (
+  const num = (id: string) => String(numberOf.get(id) ?? 0).padStart(2, '0');
+  const row = (p: Palette) => (
     <button
       key={p.id}
       type="button"
@@ -829,12 +905,10 @@ function PalettePicker({ value, onChange }: { value: string; onChange: (id: stri
           : 'text-shell-ink/85 hover:bg-shell-base hover:text-shell-ink'
       }`}
     >
-      {featuredIndex !== undefined && (
-        <span className="w-5 shrink-0 font-display text-[11px] font-semibold tabular-nums text-shell-glow">
-          {String(featuredIndex + 1).padStart(2, '0')}
-        </span>
-      )}
-      <PaletteSwatch palette={p} className="h-5 w-5" />
+      <span className="w-5 shrink-0 font-display text-[11px] font-semibold tabular-nums text-shell-glow">
+        {num(p.id)}
+      </span>
+      <PaletteSwatch palette={p} />
       <span className="min-w-0 flex-1 truncate">{p.name}</span>
       <span className="text-[11px] text-shell-mute">{p.isDark ? 'Dark' : 'Light'}</span>
       {p.id === value && <Check size={13} className="shrink-0 text-shell-glow" />}
@@ -848,10 +922,16 @@ function PalettePicker({ value, onChange }: { value: string; onChange: (id: stri
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Color palette: ${current.name}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setQuery('');
+          setOpen((o) => !o);
+        }}
         className="flex w-full items-center gap-2.5 rounded-xl border border-shell-line bg-shell-base px-3 py-2.5 text-left transition-colors hover:border-shell-glow/50"
       >
-        <PaletteSwatch palette={current} />
+        <span className="shrink-0 font-display text-[11px] font-semibold tabular-nums text-shell-glow">
+          {num(current.id)}
+        </span>
+        <PaletteSwatch palette={current} className="h-6 w-14" />
         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-shell-ink">
           {current.name}
         </span>
@@ -862,11 +942,28 @@ function PalettePicker({ value, onChange }: { value: string; onChange: (id: stri
         />
       </button>
       {open && (
-        <DropdownPanel label="Color palette">
-          <GroupLabel>Featured</GroupLabel>
-          {FEATURED_PALETTES.map((p, i) => row(p, i))}
-          <GroupLabel>Everything else</GroupLabel>
-          {rest.map((p) => row(p))}
+        <DropdownPanel
+          label="Color palette"
+          search={
+            <MenuSearch
+              value={query}
+              onChange={setQuery}
+              onPickFirst={() => {
+                const first = shownFeatured[0] ?? shownRest[0];
+                if (first) pick(first.id);
+              }}
+              placeholder={`Search ${palettes.length} palettes — try "warm" or "bold"`}
+              label="Search palettes"
+            />
+          }
+        >
+          {shownFeatured.length > 0 && <GroupLabel>Featured</GroupLabel>}
+          {shownFeatured.map(row)}
+          {shownRest.length > 0 && <GroupLabel>Everything else</GroupLabel>}
+          {shownRest.map(row)}
+          {shownFeatured.length === 0 && shownRest.length === 0 && (
+            <p className="px-2.5 py-3 text-sm text-shell-mute">Nothing matches “{query}”.</p>
+          )}
         </DropdownPanel>
       )}
     </div>
@@ -879,12 +976,30 @@ function FontPicker({ value, onChange }: { value: string; onChange: (id: string)
   const featuredIds = useMemo(() => new Set(FEATURED_FONTS.map((f) => f.id)), []);
   const rest = useMemo(() => fontPairings.filter((f) => !featuredIds.has(f.id)), [featuredIds]);
 
+  const [query, setQuery] = useState('');
+
   // The menu shows every name in its own face — fetch the library's fonts the
   // first time it opens (display=swap keeps the names readable while loading).
+  // Also bring the current pairing into view; search resets in the trigger.
   useEffect(() => {
-    if (open) fontPairings.forEach(loadFonts);
-  }, [open]);
+    if (!open) return;
+    fontPairings.forEach(loadFonts);
+    requestAnimationFrame(() => {
+      ref.current
+        ?.querySelector('[role="option"][aria-selected="true"]')
+        ?.scrollIntoView({ block: 'nearest' });
+    });
+  }, [open, ref]);
   if (!current) return null;
+
+  const q = query.trim().toLowerCase();
+  const matches = (f: (typeof fontPairings)[number]) =>
+    !q ||
+    f.name.toLowerCase().includes(q) ||
+    f.heading.family.toLowerCase().includes(q) ||
+    f.body.family.toLowerCase().includes(q);
+  const shownFeatured = FEATURED_FONTS.filter(matches);
+  const shownRest = rest.filter(matches);
 
   const pick = (id: string) => {
     onChange(id);
@@ -923,7 +1038,10 @@ function FontPicker({ value, onChange }: { value: string; onChange: (id: string)
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Type pairing: ${current.name}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setQuery('');
+          setOpen((o) => !o);
+        }}
         className="flex w-full items-center gap-2.5 rounded-xl border border-shell-line bg-shell-base px-3 py-2.5 text-left transition-colors hover:border-shell-glow/50"
       >
         <span
@@ -941,11 +1059,28 @@ function FontPicker({ value, onChange }: { value: string; onChange: (id: string)
         />
       </button>
       {open && (
-        <DropdownPanel label="Type pairing">
-          <GroupLabel>Featured</GroupLabel>
-          {FEATURED_FONTS.map(row)}
-          <GroupLabel>Everything else</GroupLabel>
-          {rest.map(row)}
+        <DropdownPanel
+          label="Type pairing"
+          search={
+            <MenuSearch
+              value={query}
+              onChange={setQuery}
+              onPickFirst={() => {
+                const first = shownFeatured[0] ?? shownRest[0];
+                if (first) pick(first.id);
+              }}
+              placeholder={`Search ${fontPairings.length} pairings by name or typeface`}
+              label="Search type pairings"
+            />
+          }
+        >
+          {shownFeatured.length > 0 && <GroupLabel>Featured</GroupLabel>}
+          {shownFeatured.map(row)}
+          {shownRest.length > 0 && <GroupLabel>Everything else</GroupLabel>}
+          {shownRest.map(row)}
+          {shownFeatured.length === 0 && shownRest.length === 0 && (
+            <p className="px-2.5 py-3 text-sm text-shell-mute">Nothing matches “{query}”.</p>
+          )}
         </DropdownPanel>
       )}
     </div>

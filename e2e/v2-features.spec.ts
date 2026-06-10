@@ -162,6 +162,27 @@ test.describe('Mood board dropdown pickers', () => {
     await expect(page.getByText(/palette · noir/i)).toBeVisible();
   });
 
+  test('every palette row is numbered and search filters the menu', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: /^color palette/i }).click();
+    const options = page.getByRole('option');
+    const count = await options.count();
+    expect(count).toBe(50);
+    // Continuous numbering: featured 01–10, then the library through 50 —
+    // every accessible name starts with its two-digit number.
+    for (const i of [0, 9, 10, count - 1]) {
+      await expect(options.nth(i)).toHaveAccessibleName(
+        new RegExp(`^${String(i + 1).padStart(2, '0')} `),
+      );
+    }
+    // Type-to-filter narrows by name or mood and Enter picks the first match.
+    await page.getByRole('searchbox', { name: /search palettes/i }).fill('noir');
+    await expect(options.first()).toHaveAccessibleName(/noir/i);
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('listbox', { name: /color palette/i })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /color palette: noir/i })).toBeVisible();
+  });
+
   test('type dropdown closes on Escape without changing the pick', async ({ page }) => {
     await page.goto('/');
     const trigger = page.getByRole('button', { name: /^type pairing/i });
