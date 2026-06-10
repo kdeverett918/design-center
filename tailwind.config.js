@@ -107,7 +107,8 @@ export default {
         'logo-glow': 'logo-glow 4.5s ease-in-out infinite',
         'logo-flow': 'logo-flow 3s linear infinite',
         'logo-twinkle': 'logo-twinkle 3.5s ease-in-out infinite',
-        ticker: 'ticker 70s linear infinite',
+        // Slow drift — fast enough to feel alive, slow enough to actually read.
+        ticker: 'ticker 160s linear infinite',
         'glow-drift': 'glow-drift 14s ease-in-out infinite',
       },
     },

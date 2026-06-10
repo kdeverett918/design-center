@@ -17,6 +17,8 @@ import {
   Wand2,
 } from 'lucide-react';
 import { decodeBoard, encodeBoard } from './shareBoard';
+import { INDUSTRIES, INDUSTRY_LABELS, MOODS } from '../data/taxonomy';
+import { recommendThemes } from '../lib/quiz';
 import type { PreviewConfig } from '../preview/previewConfig';
 import {
   CARD_STYLES,
@@ -31,8 +33,8 @@ import {
 import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
 import { animationById, animationPresets } from '../data/animations';
-import { themeById } from '../data/themes';
-import type { AnimationCategory, Palette, Theme } from '../types';
+import { themeById, themes } from '../data/themes';
+import type { AnimationCategory, AnimationIntensity, Industry, Mood, Palette, Theme } from '../types';
 import { loadFonts } from '../theme/loadFonts';
 import Button, { buttonClasses } from '../components/ui/Button';
 import ThemeTicker from '../components/layout/ThemeTicker';
@@ -111,6 +113,14 @@ const THEME_EFFECTS: Record<string, string[]> = {
   launchpad: ['stagger-reveal', 'hover-lift'],
   obsidian: ['blur-in', 'image-zoom', 'cursor-dot'],
   terracotta: ['scroll-reveal', 'gentle-float'],
+};
+
+// Themes outside the curated quick-picks have no hand-tuned effect set — seed
+// them with a sensible default for their motion intensity instead.
+const INTENSITY_EFFECTS: Record<AnimationIntensity, string[]> = {
+  subtle: ['fade-up'],
+  standard: ['fade-up', 'hover-lift'],
+  expressive: ['stagger-reveal', 'hover-lift', 'gradient-drift'],
 };
 
 const DEFAULT_THEME_ID = 'quietsignal';
@@ -221,7 +231,7 @@ export default function MoodBoardView() {
     setPaletteId(theme.paletteId);
     setFontId(theme.fontPairingId);
     setConfig(configForTheme(theme));
-    const effects = THEME_EFFECTS[themeId] ?? [];
+    const effects = THEME_EFFECTS[themeId] ?? INTENSITY_EFFECTS[theme.animationIntensity];
     setAnimationIds(effects);
     setMotionOpen(effects.length > 0);
   };
@@ -236,13 +246,42 @@ export default function MoodBoardView() {
     setMotionOpen(DEFAULT_ANIMATIONS.length > 0);
   };
 
-  // Highlight a quick-pick chip when the current palette + font match that theme.
+  // Highlight a seed tile when the current palette + font match that theme.
   const activeThemeId = useMemo(
     () =>
-      QUICK_PICK_THEMES.find((t) => t.paletteId === paletteId && t.fontPairingId === fontId)?.id ??
-      null,
+      themes.find((t) => t.paletteId === paletteId && t.fontPairingId === fontId)?.id ?? null,
     [paletteId, fontId],
   );
+
+  // "Find your direction" organizer — the guided-quiz concept, folded inline.
+  // Picking an industry and/or up to three vibe words re-ranks the seed tiles
+  // using the same scoring the old quiz used; clearing returns to the curated set.
+  const [guideIndustry, setGuideIndustry] = useState<Industry | null>(null);
+  const [guideVibes, setGuideVibes] = useState<Mood[]>([]);
+  const guideActive = guideIndustry !== null || guideVibes.length > 0;
+  const guidedPicks = useMemo(() => {
+    if (!guideActive) return null;
+    return recommendThemes(
+      {
+        industry: guideIndustry,
+        vibes: guideVibes,
+        scheme: 'either',
+        energy: 'standard',
+        density: 'between',
+      },
+      themes,
+      6,
+    );
+  }, [guideActive, guideIndustry, guideVibes]);
+  const toggleGuideVibe = (vibe: Mood) => {
+    setGuideVibes((vs) =>
+      vs.includes(vibe) ? vs.filter((v) => v !== vibe) : vs.length >= 3 ? vs : [...vs, vibe],
+    );
+  };
+  const clearGuide = () => {
+    setGuideIndustry(null);
+    setGuideVibes([]);
+  };
 
   const toggleAnimation = (id: string) => {
     setAnimationIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
@@ -288,12 +327,12 @@ export default function MoodBoardView() {
             </p>
             <p className="mt-3 text-sm text-shell-mute">
               Not sure where to start?{' '}
-              <Link
-                to="/start"
+              <a
+                href="#find-direction"
                 className="font-semibold text-shell-glow underline decoration-shell-glow/40 underline-offset-2 hover:decoration-shell-glow"
               >
-                Take the 60-second style quiz
-              </Link>
+                Tell us the vibe and we&rsquo;ll rank the directions
+              </a>
               .
             </p>
           </div>
@@ -352,7 +391,7 @@ export default function MoodBoardView() {
               <div>
                 <h2 className="font-display text-base font-semibold text-shell-ink">Shape the brief</h2>
                 <p className="mt-0.5 text-xs leading-relaxed text-shell-mute">
-                  {activeThemeId ? QUICK_PICK_THEMES.find((t) => t.id === activeThemeId)?.tagline : 'Custom direction'}
+                  {activeThemeId ? themeById(activeThemeId)?.tagline : 'Custom direction'}
                 </p>
               </div>
               <Button tone="danger" size="sm" onClick={reset} className="shrink-0 whitespace-nowrap">
@@ -360,16 +399,63 @@ export default function MoodBoardView() {
               </Button>
             </div>
 
-            <div className="mb-5">
-              <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
-                <Sparkles size={12} className="text-shell-glow" />
-                Styled starts
+            <div id="find-direction" className="mb-5 scroll-mt-24">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
+                  <Sparkles size={12} className="text-shell-glow" />
+                  Find your direction
+                </div>
+                {guideActive && (
+                  <button
+                    type="button"
+                    onClick={clearGuide}
+                    className="text-[11px] font-semibold text-shell-mute transition-colors hover:text-shell-ink"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
+
+              {/* the quiz, folded in: tap your world + up to 3 vibe words */}
+              <div className="mb-2.5 flex flex-wrap gap-1">
+                {INDUSTRIES.map((i) => (
+                  <GuideChip
+                    key={i}
+                    label={INDUSTRY_LABELS[i]}
+                    active={guideIndustry === i}
+                    onClick={() => setGuideIndustry((cur) => (cur === i ? null : i))}
+                  />
+                ))}
+              </div>
+              <div className="mb-3 flex flex-wrap gap-1">
+                {MOODS.map((mood) => (
+                  <GuideChip
+                    key={mood}
+                    label={mood}
+                    active={guideVibes.includes(mood)}
+                    onClick={() => toggleGuideVibe(mood)}
+                    capitalize
+                  />
+                ))}
+              </div>
+
+              {guidedPicks && (
+                <p className="mb-2 text-[11px] text-shell-mute" aria-live="polite">
+                  Ranked for you — best match first.
+                </p>
+              )}
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {QUICK_PICK_THEMES.map((theme) => (
+                {(guidedPicks
+                  ? guidedPicks.map(({ theme, reasons }) => ({
+                      theme,
+                      subtitle: reasons.length ? reasons[0] : undefined,
+                    }))
+                  : QUICK_PICK_THEMES.map((theme) => ({ theme, subtitle: undefined }))
+                ).map(({ theme, subtitle }) => (
                   <ThemeSeedButton
                     key={theme.id}
                     theme={theme}
+                    subtitle={subtitle}
                     active={theme.id === activeThemeId}
                     onClick={() => seedFromTheme(theme.id)}
                   />
@@ -580,14 +666,46 @@ function SignalPill({
   );
 }
 
+function GuideChip({
+  label,
+  active,
+  onClick,
+  capitalize = false,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  capitalize?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full border px-2 py-1 text-[11px] font-semibold transition-colors ${
+        capitalize ? 'capitalize' : ''
+      } ${
+        active
+          ? 'border-transparent bg-shell-glow text-shell-base shadow-sm shadow-shell-glow/30'
+          : 'border-shell-line bg-shell-base/45 text-shell-mute hover:border-shell-glow/50 hover:text-shell-ink'
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
 function ThemeSeedButton({
   theme,
   active,
   onClick,
+  subtitle,
 }: {
   theme: Theme;
   active: boolean;
   onClick: () => void;
+  /** Optional override for the palette·font line — used for "why this" reasons. */
+  subtitle?: string;
 }) {
   const p = paletteById(theme.paletteId);
   const f = fontPairingById(theme.fontPairingId);
@@ -612,7 +730,9 @@ function ThemeSeedButton({
       />
       <span className="min-w-0">
         <span className="block truncate text-sm font-semibold">{theme.name}</span>
-        <span className="mt-0.5 block truncate text-[11px] text-shell-mute">{p.name} · {f.name}</span>
+        <span className="mt-0.5 block truncate text-[11px] text-shell-mute">
+          {subtitle ?? `${p.name} · ${f.name}`}
+        </span>
       </span>
       {active && <Check size={14} className="text-shell-glow" />}
     </button>
@@ -691,7 +811,8 @@ function PalettePicker({ value, onChange }: { value: string; onChange: (id: stri
     onChange(id);
     setOpen(false);
   };
-  const row = (p: Palette) => (
+  // Featured rows carry their rank number (01–10); library rows keep the mode badge.
+  const row = (p: Palette, featuredIndex?: number) => (
     <button
       key={p.id}
       type="button"
@@ -704,6 +825,11 @@ function PalettePicker({ value, onChange }: { value: string; onChange: (id: stri
           : 'text-shell-ink/85 hover:bg-shell-base hover:text-shell-ink'
       }`}
     >
+      {featuredIndex !== undefined && (
+        <span className="w-5 shrink-0 font-display text-[11px] font-semibold tabular-nums text-shell-glow">
+          {String(featuredIndex + 1).padStart(2, '0')}
+        </span>
+      )}
       <PaletteSwatch palette={p} className="h-5 w-5" />
       <span className="min-w-0 flex-1 truncate">{p.name}</span>
       <span className="text-[11px] text-shell-mute">{p.isDark ? 'Dark' : 'Light'}</span>
@@ -734,9 +860,9 @@ function PalettePicker({ value, onChange }: { value: string; onChange: (id: stri
       {open && (
         <DropdownPanel label="Color palette">
           <GroupLabel>Featured</GroupLabel>
-          {FEATURED_PALETTES.map(row)}
+          {FEATURED_PALETTES.map((p, i) => row(p, i))}
           <GroupLabel>Everything else</GroupLabel>
-          {rest.map(row)}
+          {rest.map((p) => row(p))}
         </DropdownPanel>
       )}
     </div>

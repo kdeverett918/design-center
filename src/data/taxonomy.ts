@@ -28,6 +28,20 @@ export const INDUSTRIES: Industry[] = [
   'fitness',
 ];
 
+// Client-facing labels over the raw industry slugs (used by filters/organizers).
+export const INDUSTRY_LABELS: Record<Industry, string> = {
+  healthcare: 'Healthcare & therapy',
+  wellness: 'Wellness',
+  education: 'Education & kids',
+  professional: 'Professional services',
+  saas: 'Tech & SaaS',
+  creative: 'Creative & portfolio',
+  ecommerce: 'Shop & e-commerce',
+  nonprofit: 'Nonprofit',
+  hospitality: 'Food & hospitality',
+  fitness: 'Fitness & movement',
+};
+
 const overlaps = <T>(a: readonly T[], b: readonly T[]) => a.some((x) => b.includes(x));
 
 // Predicates: an empty selection means "no constraint".

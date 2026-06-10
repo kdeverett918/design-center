@@ -10,7 +10,6 @@ import MoodBoardView from './views/MoodBoardView';
 // Code-split the views so the initial bundle stays lean.
 const GalleryView = lazy(() => import('./views/GalleryView'));
 const FavoritesView = lazy(() => import('./views/FavoritesView'));
-const QuizView = lazy(() => import('./views/QuizView'));
 
 function ViewFallback() {
   return (
@@ -69,7 +68,6 @@ function NotFound() {
 const ROUTE_TITLES: Record<string, string> = {
   '/': 'Design Center · Tech SLP Studio',
   '/gallery': 'Theme Gallery · Design Center · Tech SLP Studio',
-  '/start': 'Find Your Style · Design Center · Tech SLP Studio',
   '/favorites': 'Your Shortlist · Design Center · Tech SLP Studio',
 };
 
@@ -99,7 +97,8 @@ function RouteTransition() {
         <Route path="/" element={<MoodBoardView />} />
         <Route path="/moodboard" element={<Navigate to="/" replace />} />
         <Route path="/gallery" element={<GalleryView />} />
-        <Route path="/start" element={<QuizView />} />
+        {/* The guided quiz now lives inside the mood board ("Find your direction"). */}
+        <Route path="/start" element={<Navigate to="/" replace />} />
         <Route path="/favorites" element={<FavoritesView />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

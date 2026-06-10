@@ -1,39 +1,38 @@
 import { expect, test } from '@playwright/test';
 
-// v2.0 feature coverage: guided quiz, gallery search/filters, favorites notes,
-// shortlist share links, and the new landing/SEO chrome.
-test.describe('Guided quiz', () => {
-  test('full happy path: 5 answers → 3 recommendations with reasoning', async ({ page }) => {
-    await page.goto('/start');
-    await expect(page.getByRole('heading', { name: /five questions/i })).toBeVisible();
+// v2.x feature coverage: find-your-direction organizer, gallery search/filters,
+// favorites notes, shortlist share links, and the landing/SEO chrome.
+test.describe('Find your direction (mood board organizer)', () => {
+  test('industry + vibe chips re-rank the seed tiles with reasons', async ({ page }) => {
+    await page.goto('/');
+    // Curated default set shows Quiet Signal first.
+    await expect(page.getByRole('button', { name: /quiet signal/i })).toBeVisible();
 
-    // Q1 industry (auto-advances)
-    await page.getByRole('button', { name: /healthcare & therapy/i }).click();
-    // Q2 vibes (multi-select + Next)
-    await page.getByRole('button', { name: /^calm$/i }).click();
-    await page.getByRole('button', { name: /^trustworthy$/i }).click();
-    await page.getByRole('button', { name: /^next$/i }).click();
-    // Q3 scheme, Q4 energy, Q5 density (auto-advance)
-    await page.getByRole('button', { name: /bright & airy/i }).click();
-    await page.getByRole('button', { name: /calm & steady/i }).click();
-    await page.getByRole('button', { name: /minimal & clean/i }).click();
-
-    await expect(page.getByRole('heading', { name: /your shortlist, decided/i })).toBeVisible();
-    await expect(page.getByText(/picked because/i).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /start from this/i })).toHaveCount(3);
-  });
-
-  test('"Start from this" seeds the mood board', async ({ page }) => {
-    await page.goto('/start');
     await page.getByRole('button', { name: /education & kids/i }).click();
     await page.getByRole('button', { name: /^playful$/i }).click();
-    await page.getByRole('button', { name: /^next$/i }).click();
-    await page.getByRole('button', { name: /surprise me/i }).click();
-    // Option cards' accessible names include their hint text — match loosely.
-    await page.getByRole('button', { name: /energetic/i }).click();
-    await page.getByRole('button', { name: /decorative & expressive/i }).click();
-    await page.getByRole('link', { name: /start from this/i }).first().click();
-    await expect(page).toHaveURL(/\/\?b=/);
+    await expect(page.getByText(/ranked for you/i)).toBeVisible();
+    // A playful education theme surfaces in the ranked tiles.
+    await expect(page.getByRole('button', { name: /sunnyside/i })).toBeVisible();
+
+    // Clear returns to the curated set.
+    await page.getByRole('button', { name: /^clear$/i }).click();
+    await expect(page.getByText(/ranked for you/i)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /quiet signal/i })).toBeVisible();
+  });
+
+  test('a ranked tile seeds the whole board', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: /food & hospitality/i }).click();
+    const tile = page.getByRole('button', { name: /terracotta/i }).first();
+    await tile.click();
+    await expect(tile).toHaveAttribute('aria-pressed', 'true');
+    // The live board reflects the seeded theme's palette.
+    await expect(page.getByText(/palette · sandstone/i)).toBeVisible();
+  });
+
+  test('/start permanently redirects home', async ({ page }) => {
+    await page.goto('/start');
+    await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole('heading', { name: /stop describing your dream website/i }),
     ).toBeVisible();
@@ -111,22 +110,16 @@ test.describe('Creative shell elements', () => {
     await expect(rail.getByRole('link', { name: /stillwater/i })).toBeVisible();
   });
 
-  test('quiz shows the live narrowing rail on desktop', async ({ page, isMobile }) => {
-    test.skip(Boolean(isMobile), 'rail is intentionally hidden below lg');
-    await page.goto('/start');
-    await expect(page.getByText(/still in the running/i)).toBeVisible();
-    await page.getByRole('button', { name: /healthcare & therapy/i }).click();
-    await expect(page.getByText(/currently leading/i)).toBeVisible();
-  });
 });
 
 test.describe('Mood board dropdown pickers', () => {
   test('palette dropdown re-themes the board', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /^color palette/i }).click();
-    await page.getByRole('option', { name: /^noir/i }).click();
+    // Featured rows are numbered, so the accessible name is e.g. "07 Noir Dark".
+    await page.getByRole('option', { name: /noir/i }).click();
     // The menu closes on pick and the live board reflects the new palette.
-    await expect(page.getByRole('option', { name: /^noir/i })).toHaveCount(0);
+    await expect(page.getByRole('option', { name: /noir/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /color palette: noir/i })).toBeVisible();
     await expect(page.getByText(/palette · noir/i)).toBeVisible();
   });
@@ -147,8 +140,8 @@ test.describe('v2 chrome & SEO', () => {
   test('per-route titles update', async ({ page }) => {
     await page.goto('/gallery');
     await expect(page).toHaveTitle(/theme gallery/i);
-    await page.goto('/start');
-    await expect(page).toHaveTitle(/find your style/i);
+    await page.goto('/favorites');
+    await expect(page).toHaveTitle(/your shortlist/i);
   });
 
   test('footer carries the studio CTA', async ({ page }) => {
