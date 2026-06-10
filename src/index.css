@@ -385,9 +385,10 @@
     border-radius: 999px;
   }
   /* Light shell: the white-tinted thumb is invisible on the pale background. */
-  /* The aurora hero art is composed for the dark shell — the light shell keeps
-     its soft wandering glows instead. */
-  :root[data-mode='light'] .hero-aurora {
+  /* Mode-matched hero art: each shell mode shows only its own photograph
+     (display:none on a background-image div also skips the download). */
+  :root[data-mode='light'] .hero-art-dark,
+  :root:not([data-mode='light']) .hero-art-light {
     display: none;
   }
 

@@ -292,14 +292,18 @@ export default function MoodBoardView() {
   return (
     <div className="mx-auto max-w-[1500px] px-4 pb-10 pt-5 sm:px-8">
       <section className="relative overflow-hidden border-b border-shell-line pb-5">
-        {/* Aurora hero art (dark shell only — light shell keeps the soft glows).
-            AI silk-light ribbons, 28KB webp; scrims keep the headline AA. */}
-        <div aria-hidden="true" className="hero-aurora pointer-events-none absolute inset-0">
-          <img
-            src="/shell/hero-aurora.webp"
-            alt=""
-            fetchPriority="high"
-            className="h-full w-full object-cover object-right"
+        {/* Sculpted-paper hero art, one per shell mode: charcoal ribbon with a
+            warm edge light (dark) / ivory folds in soft daylight (light).
+            Backgrounds, not <img> — the hidden mode's file never downloads.
+            The shell-base scrims re-tint themselves when the mode flips. */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            className="hero-art-dark absolute inset-0 bg-cover bg-right"
+            style={{ backgroundImage: 'url(/shell/hero-dark.webp)' }}
+          />
+          <div
+            className="hero-art-light absolute inset-0 bg-cover bg-right"
+            style={{ backgroundImage: 'url(/shell/hero-light.webp)' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-shell-base via-shell-base/70 to-shell-base/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-shell-base via-transparent to-transparent" />
