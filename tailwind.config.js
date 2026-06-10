@@ -28,9 +28,10 @@ export default {
       fontFamily: {
         heading: 'var(--font-heading)',
         body: 'var(--font-body)',
-        // The studio's own brand face — Space Grotesk display + Instrument Sans UI
-        // (quiet but characterful; deliberately not Inter/Roboto).
-        display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        // The studio's own brand face — Fraunces editorial serif display (with
+        // true weights + italics) over Instrument Sans UI. Serif/sans tension,
+        // deliberately not Inter/Roboto/Space-Grotesk-default.
+        display: ['"Fraunces"', 'Georgia', 'serif'],
         ui: ['"Instrument Sans"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {

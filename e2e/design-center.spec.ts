@@ -51,7 +51,9 @@ test.describe('Design Center', () => {
     );
 
     // Pick a different theme card (Obsidian is the dark one — guaranteed change).
-    await page.getByRole('button', { name: /obsidian/i }).first().click();
+    // Full card label — a loose /obsidian/i would grab the hero flywheel's
+    // moving "Spin the wheel to Obsidian" dot and never stabilize.
+    await page.getByRole('button', { name: /preview the obsidian theme/i }).click();
 
     await expect
       .poll(async () =>
@@ -109,7 +111,9 @@ test.describe('Design Center', () => {
 
   test('gallery renders a hero thumbnail for every theme (46)', async ({ page }) => {
     await page.goto('/gallery');
-    const thumbs = page.locator('img[src^="/theme-images/"]');
+    // Scope to the theme cards — the hero mood montage paints its own
+    // /theme-images/ frames and must not inflate the per-theme count.
+    const thumbs = page.locator('button[aria-label^="Preview the"] img[src^="/theme-images/"]');
     await expect(thumbs.first()).toBeVisible();
     // "All" collection is the default, so every catalogued theme is on screen.
     await expect.poll(async () => thumbs.count()).toBe(46);
