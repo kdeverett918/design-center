@@ -30,7 +30,7 @@ describe('data integrity — counts', () => {
     expect(palettes).toHaveLength(50);
     expect(fontPairings).toHaveLength(43);
     expect(themes).toHaveLength(46);
-    expect(animationPresets).toHaveLength(39);
+    expect(animationPresets).toHaveLength(43);
   });
 });
 

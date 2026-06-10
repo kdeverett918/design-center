@@ -67,7 +67,16 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
   // Parallax anchor: attached to image-led sections; inert elsewhere.
   const sectionRef = useRef<HTMLElement>(null);
   const parY = useParallax(sectionRef, fx.parallax);
-  const mediaCls = fx.image.zoom ? ' fx-img-zoom' : '';
+  // camera moves own the media transform when selected (resolver guarantees
+  // zoom/float are off then, so the classes never fight over `transform`)
+  const camCls = fx.image.camZoom
+    ? ' fx-cam-zoom'
+    : fx.image.camPush
+      ? ' fx-cam-push'
+      : fx.image.camPan
+        ? ' fx-cam-pan'
+        : '';
+  const mediaCls = (fx.image.zoom ? ' fx-img-zoom' : '') + camCls;
   const floatCls = fx.image.float ? ' motion-safe:animate-float' : '';
   const drift = expressive || fx.image.drift;
 

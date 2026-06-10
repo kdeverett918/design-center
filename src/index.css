@@ -172,6 +172,49 @@
   .fx-img-zoom:hover {
     transform: scale(1.06);
   }
+  /* Camera grammar — media moves like a rig, not a slide. Slow, ease-in-out,
+     alternate loops; wrappers are overflow-hidden so the over-scan never shows.
+     One class per element (the resolver enforces a single camera owner). */
+  .fx-cam-push {
+    animation: fx-cam-push 14s cubic-bezier(0.42, 0, 0.58, 1) infinite alternate;
+  }
+  @keyframes fx-cam-push {
+    from {
+      transform: scale(1.02);
+    }
+    to {
+      transform: scale(1.14);
+    }
+  }
+  .fx-cam-pan {
+    animation: fx-cam-pan 18s cubic-bezier(0.33, 0, 0.67, 1) infinite alternate;
+  }
+  @keyframes fx-cam-pan {
+    from {
+      transform: scale(1.12) translateX(-2.6%);
+    }
+    to {
+      transform: scale(1.12) translateX(2.6%);
+    }
+  }
+  .fx-cam-zoom {
+    animation: fx-cam-zoom 16s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+  }
+  @keyframes fx-cam-zoom {
+    0%,
+    100% {
+      transform: scale(1.02);
+    }
+    45% {
+      transform: scale(1.18); /* overshoot… */
+    }
+    62% {
+      transform: scale(1.13); /* …then settle, like an operator finding the frame */
+    }
+    78% {
+      transform: scale(1.14);
+    }
+  }
   .fx-cta-pulse {
     animation: fx-pulse 2s ease-in-out infinite;
   }

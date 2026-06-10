@@ -127,6 +127,20 @@ test.describe('Effects animate the live preview', () => {
       page.locator('main').getByText(/care that listens, built around you/i).first(),
     ).toBeVisible();
   });
+
+  test('camera moves and the gradient trace reach the page', async ({ page }) => {
+    await page.goto('/');
+    // Camera push takes the media transform inside the live preview.
+    await page.getByRole('button', { name: 'Camera Push' }).click();
+    await expect(page.locator('main .fx-cam-push').first()).toBeVisible();
+    // Gradient trace draws a token-gradient stroke under the headline.
+    await page.getByRole('button', { name: 'Gradient Trace' }).click();
+    await expect(page.locator('main svg path[stroke^="url("]').first()).toBeVisible();
+    // Camera-zoom outranks push: the class swaps when both are selected.
+    await page.getByRole('button', { name: 'Camera Zoom' }).click();
+    await expect(page.locator('main .fx-cam-zoom').first()).toBeVisible();
+    await expect(page.locator('main .fx-cam-push')).toHaveCount(0);
+  });
 });
 
 test.describe('Per-design color mode', () => {

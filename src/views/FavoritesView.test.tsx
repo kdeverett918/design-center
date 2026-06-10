@@ -73,8 +73,11 @@ describe('FavoritesView', () => {
     await user.click(screen.getByRole('button', { name: /send shortlist/i }));
 
     expect(await screen.findByText(/shortlist sent/i)).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    // The success state also fetches the decorative Lottie JSON — only the
+    // Web3Forms submission matters here.
+    const sendCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes('web3forms'));
+    expect(sendCalls).toHaveLength(1);
+    const [, init] = sendCalls[0] as [string, RequestInit];
     const body = JSON.parse(init.body as string) as { subject: string; message: string };
     expect(body.subject).toContain('New design shortlist');
     expect(body.message).toContain('DESIGN SHORTLIST');

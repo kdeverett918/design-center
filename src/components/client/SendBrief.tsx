@@ -5,6 +5,7 @@ import type { BriefInput } from './buildBrief';
 import { sendBrief } from '../../lib/sendBrief';
 import { STUDIO_EMAIL } from '../../lib/studioContact';
 import { buttonClasses } from '../ui/Button';
+import LottieFlourish from '../ui/LottieFlourish';
 
 type Status =
   | { kind: 'idle' }
@@ -136,9 +137,15 @@ export default function SendBrief(props: BriefInput) {
 
       <div aria-live="polite" className="mt-3 min-h-[1rem]">
         {status.kind === 'success' && (
-          <p className="flex items-center gap-1.5 text-xs font-medium text-emerald-400">
-            <CheckCircle2 size={14} /> Sent! Kristine will be in touch.
-          </p>
+          <div>
+            <LottieFlourish
+              src="/lottie/gradient-reveal.json"
+              className="mx-auto -mb-1 h-16 w-full max-w-[260px]"
+            />
+            <p className="flex items-center justify-center gap-1.5 text-xs font-medium text-emerald-400">
+              <CheckCircle2 size={14} /> Sent! Kristine will be in touch.
+            </p>
+          </div>
         )}
         {status.kind === 'fallback' && (
           <p className="text-xs leading-relaxed text-shell-mute">

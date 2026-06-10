@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
+import type { ReactElement } from 'react';
 import { animate, m as motion, useMotionValue, useMotionValueEvent } from 'framer-motion';
 import { useFx } from '../../../preview/effectsRuntime';
 
@@ -21,15 +22,25 @@ export default function FxHeadline({
   const glitch = fx.headline.glitch ? ' fx-glitch' : '';
   const cls = className + shimmer + glitch;
   const dataText = fx.headline.glitch ? text : undefined;
+  // The gradient-trace underline rides along with whichever entrance won.
+  const withTrace = (head: ReactElement) =>
+    fx.headline.trace ? (
+      <>
+        {head}
+        <TraceUnderline />
+      </>
+    ) : (
+      head
+    );
 
   if (fx.headlineFx === 'typewriter') {
-    return <TypeOnce className={cls} text={text} dataText={dataText} />;
+    return withTrace(<TypeOnce className={cls} text={text} dataText={dataText} />);
   }
   if (fx.headlineFx === 'text-scramble') {
-    return <ScrambleOnce className={cls} text={text} dataText={dataText} />;
+    return withTrace(<ScrambleOnce className={cls} text={text} dataText={dataText} />);
   }
   if (fx.headlineFx === 'kinetic-type') {
-    return (
+    return withTrace(
       <h1 className={cls} data-text={dataText}>
         {text.split(' ').map((word, i) => (
           <motion.span
@@ -43,11 +54,11 @@ export default function FxHeadline({
             {i < text.split(' ').length - 1 ? ' ' : ''}
           </motion.span>
         ))}
-      </h1>
+      </h1>,
     );
   }
   if (fx.headlineFx === 'reveal-mask') {
-    return (
+    return withTrace(
       <motion.h1
         className={cls}
         data-text={dataText}
@@ -56,11 +67,11 @@ export default function FxHeadline({
         transition={{ duration: 0.9, ease: EXPO }}
       >
         {text}
-      </motion.h1>
+      </motion.h1>,
     );
   }
   if (fx.headlineFx === 'poster-reveal') {
-    return (
+    return withTrace(
       <span className="block overflow-hidden">
         <motion.h1
           className={cls}
@@ -71,13 +82,46 @@ export default function FxHeadline({
         >
           {text}
         </motion.h1>
-      </span>
+      </span>,
     );
   }
-  return (
+  return withTrace(
     <h1 className={cls} data-text={dataText}>
       {text}
-    </h1>
+    </h1>,
+  );
+}
+
+// Apple-keynote-style flourish: a stroked path draws itself in under the
+// headline, painted with a primary→accent→secondary gradient from the live
+// tokens. pathLength + round caps make the leading edge read like a pen.
+// text-align is inherited, so the wrapper centers wherever the headline does.
+function TraceUnderline() {
+  const gradId = useId();
+  return (
+    <span aria-hidden="true" className="block leading-none">
+      <svg viewBox="0 0 320 26" fill="none" className="mt-3 inline-block h-5 w-48 max-w-full">
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="320" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0" style={{ stopColor: 'var(--color-primary)' }} />
+            <stop offset="0.55" style={{ stopColor: 'var(--color-accent)' }} />
+            <stop offset="1" style={{ stopColor: 'var(--color-secondary)' }} />
+          </linearGradient>
+        </defs>
+        <motion.path
+          d="M5 17 C 56 5, 112 23, 168 13 S 268 7, 315 13"
+          stroke={`url(#${gradId})`}
+          strokeWidth="5.5"
+          strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{
+            pathLength: { duration: 1.2, ease: 'easeInOut', delay: 0.25 },
+            opacity: { duration: 0.2, delay: 0.25 },
+          }}
+        />
+      </svg>
+    </span>
   );
 }
 

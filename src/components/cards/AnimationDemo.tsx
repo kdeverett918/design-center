@@ -491,6 +491,77 @@ export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
         </Stage>
       );
 
+    case 'gradient-trace':
+      return (
+        <Stage>
+          <div className="flex flex-col items-center gap-1.5">
+            <span className="text-xs font-semibold text-shell-ink">Headline</span>
+            <svg viewBox="0 0 120 14" fill="none" className="h-3.5 w-24">
+              <defs>
+                <linearGradient id="demo-trace" x1="0" y1="0" x2="120" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#f97362" />
+                  <stop offset="0.55" stopColor="#a78bfa" />
+                  <stop offset="1" stopColor="#38bdf8" />
+                </linearGradient>
+              </defs>
+              <motion.path
+                d="M3 9 C 24 2, 48 12, 66 7 S 102 4, 117 7"
+                stroke="url(#demo-trace)"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                animate={{ pathLength: [0, 1, 1] }}
+                transition={loop(0.9)}
+              />
+            </svg>
+          </div>
+        </Stage>
+      );
+
+    // Camera demos run compressed (real presets take 14–18s on the page).
+    case 'camera-push':
+      return (
+        <Stage>
+          <CameraFrame>
+            <motion.span
+              className="absolute inset-0 bg-gradient-to-br from-shell-glow via-[#7c9eff] to-[#2dd4bf]"
+              animate={{ scale: [1.02, 1.16] }}
+              transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' }}
+            />
+          </CameraFrame>
+        </Stage>
+      );
+
+    case 'camera-pan':
+      return (
+        <Stage>
+          <CameraFrame>
+            <motion.span
+              className="absolute inset-y-0 -left-6 w-[150%] bg-gradient-to-r from-shell-glow via-[#7c9eff] to-[#2dd4bf]"
+              animate={{ x: [-10, 10] }}
+              transition={{ duration: 3, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' }}
+            />
+          </CameraFrame>
+        </Stage>
+      );
+
+    case 'camera-zoom':
+      return (
+        <Stage>
+          <CameraFrame>
+            <motion.span
+              className="absolute inset-0 bg-gradient-to-br from-shell-glow via-[#7c9eff] to-[#2dd4bf]"
+              animate={{ scale: [1.02, 1.2, 1.12, 1.14, 1.02] }}
+              transition={{
+                duration: 4,
+                times: [0, 0.45, 0.62, 0.78, 1],
+                ease: 'easeInOut',
+                repeat: Infinity,
+              }}
+            />
+          </CameraFrame>
+        </Stage>
+      );
+
     case 'cursor-dot':
       return <CursorDotDemo />;
     case 'cursor-follow':
@@ -509,6 +580,20 @@ export default function AnimationDemo({ preset }: { preset: AnimationPreset }) {
     default:
       return <Stage>{Tile}</Stage>;
   }
+}
+
+// A little "viewfinder" for the camera demos: clipped frame + corner marks so
+// the motion reads as a rig move on footage, not a sliding box.
+function CameraFrame({ children }: { children: ReactNode }) {
+  return (
+    <span className="relative block h-16 w-28 overflow-hidden rounded-lg border border-shell-line">
+      {children}
+      <span className="absolute left-1.5 top-1.5 h-2 w-2 border-l-2 border-t-2 border-white/70" />
+      <span className="absolute right-1.5 top-1.5 h-2 w-2 border-r-2 border-t-2 border-white/70" />
+      <span className="absolute bottom-1.5 left-1.5 h-2 w-2 border-b-2 border-l-2 border-white/70" />
+      <span className="absolute bottom-1.5 right-1.5 h-2 w-2 border-b-2 border-r-2 border-white/70" />
+    </span>
+  );
 }
 
 // ===========================================================================

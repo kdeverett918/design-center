@@ -52,6 +52,27 @@ describe('resolveEffects', () => {
     expect(resolveEffects(['marquee', 'marquee-ticker'], false).marqueeBand).toBe('ticker');
     expect(resolveEffects(['marquee'], false).marqueeBand).toBe('quiet');
   });
+
+  it('enforces one camera owner (zoom > push > pan) and yields hover-zoom/float to it', () => {
+    const fx = resolveEffects(['camera-zoom', 'camera-push', 'camera-pan'], false);
+    expect(fx.image.camZoom).toBe(true);
+    expect(fx.image.camPush).toBe(false);
+    expect(fx.image.camPan).toBe(false);
+
+    const push = resolveEffects(['camera-push', 'camera-pan', 'image-zoom', 'gentle-float'], false);
+    expect(push.image.camPush).toBe(true);
+    expect(push.image.camPan).toBe(false);
+    // the camera owns the media transform — hover zoom and float step aside
+    expect(push.image.zoom).toBe(false);
+    expect(push.image.float).toBe(false);
+    expect(push.card.float).toBe(true); // cards keep floating; only media yields
+
+    expect(resolveEffects(['image-zoom'], false).image.zoom).toBe(true);
+  });
+
+  it('gradient-trace manifests as the headline trace flag', () => {
+    expect(resolveEffects(['gradient-trace'], false).headline.trace).toBe(true);
+  });
 });
 
 describe('toContentCoords — scaled-frame pointer math', () => {

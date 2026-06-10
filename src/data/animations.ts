@@ -394,6 +394,47 @@ export const animationPresets: AnimationPreset[] = [
     easing: 'easeOut',
     intensity: 'expressive',
   },
+  {
+    id: 'gradient-trace',
+    name: 'Gradient Trace',
+    category: 'entrance',
+    effect: 'A gradient stroke draws itself in under the headline',
+    library: 'framer-motion',
+    durationMs: 1200,
+    easing: 'ease-in-out',
+    intensity: 'standard',
+  },
+  // Camera grammar — imagery moves the way an operator would move the rig.
+  {
+    id: 'camera-push',
+    name: 'Camera Push',
+    category: 'continuous',
+    effect: 'Hero imagery slowly pushes in, like a dolly move',
+    library: 'css',
+    durationMs: 14000,
+    easing: 'ease-in-out',
+    intensity: 'subtle',
+  },
+  {
+    id: 'camera-pan',
+    name: 'Camera Pan',
+    category: 'continuous',
+    effect: 'Imagery drifts across the frame in a slow cinematic pan',
+    library: 'css',
+    durationMs: 18000,
+    easing: 'ease-in-out',
+    intensity: 'subtle',
+  },
+  {
+    id: 'camera-zoom',
+    name: 'Camera Zoom',
+    category: 'continuous',
+    effect: 'Zooms in, settles like an operator finding the frame, eases back',
+    library: 'css',
+    durationMs: 16000,
+    easing: 'ease-in-out',
+    intensity: 'standard',
+  },
 ];
 
 export const animationById = (id: string): AnimationPreset | undefined =>

@@ -44,8 +44,16 @@ export interface FxRuntime {
   };
   cta: { magnetic: boolean; popScale: boolean; pulse: boolean; shine: boolean };
   link: { underline: boolean };
-  image: { zoom: boolean; float: boolean; drift: boolean };
-  headline: { glitch: boolean; shimmer: boolean };
+  image: {
+    zoom: boolean;
+    float: boolean;
+    drift: boolean;
+    /** camera moves — at most one is true (single transform owner on media) */
+    camPush: boolean;
+    camPan: boolean;
+    camZoom: boolean;
+  };
+  headline: { glitch: boolean; shimmer: boolean; trace: boolean };
   cursor: { dot: boolean; follow: boolean; spotlight: boolean; trail: boolean; ripple: boolean };
   pageFade: boolean;
   morphIn: boolean;
@@ -64,8 +72,8 @@ export const EMPTY_FX: FxRuntime = {
   card: { tilt: false, wobble: false, lift: false, ripple: false, stickerSpin: false, float: false },
   cta: { magnetic: false, popScale: false, pulse: false, shine: false },
   link: { underline: false },
-  image: { zoom: false, float: false, drift: false },
-  headline: { glitch: false, shimmer: false },
+  image: { zoom: false, float: false, drift: false, camPush: false, camPan: false, camZoom: false },
+  headline: { glitch: false, shimmer: false, trace: false },
   cursor: { dot: false, follow: false, spotlight: false, trail: false, ripple: false },
   pageFade: false,
   morphIn: false,
@@ -86,6 +94,7 @@ export function resolveEffects(ids: string[] | undefined, reduced: boolean): FxR
   const valid = new Set(ids.filter((id) => animationById(id)));
   if (valid.size === 0) return EMPTY_FX;
   const has = (id: string) => valid.has(id);
+  const camera = has('camera-push') || has('camera-pan') || has('camera-zoom');
 
   const fx: FxRuntime = {
     any: true,
@@ -113,8 +122,20 @@ export function resolveEffects(ids: string[] | undefined, reduced: boolean): FxR
       shine: has('chrome-shine'),
     },
     link: { underline: has('underline-grow') },
-    image: { zoom: has('image-zoom'), float: has('gentle-float'), drift: has('gradient-drift') },
-    headline: { glitch: has('glitch-shift'), shimmer: has('text-shimmer') },
+    image: {
+      // a camera move owns the media transform — hover-zoom/float yield to it
+      zoom: has('image-zoom') && !camera,
+      float: has('gentle-float') && !camera,
+      drift: has('gradient-drift'),
+      camZoom: has('camera-zoom'),
+      camPush: has('camera-push') && !has('camera-zoom'),
+      camPan: has('camera-pan') && !has('camera-zoom') && !has('camera-push'),
+    },
+    headline: {
+      glitch: has('glitch-shift'),
+      shimmer: has('text-shimmer'),
+      trace: has('gradient-trace'),
+    },
     cursor: {
       dot: has('cursor-dot'),
       follow: has('cursor-follow'),
