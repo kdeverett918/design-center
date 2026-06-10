@@ -166,15 +166,14 @@ test.describe('Effects animate the live preview', () => {
   });
 });
 
-test.describe('Gallery flywheel', () => {
-  test('swatches orbit a live hub; hovering pauses; clicking pins the theme', async ({ page }) => {
+test.describe('Gallery mood montage', () => {
+  test('a featured mood image leads; clicking a frame pins its direction', async ({ page }) => {
     await page.goto('/gallery');
-    const wheel = page.locator('.group.relative.aspect-square').first();
-    await expect(wheel).toBeVisible();
-    // Hovering the wheel pauses the orbit so the swatch becomes clickable.
-    await wheel.hover();
-    await page.getByRole('button', { name: /spin the wheel to velvet/i }).click();
-    // The hub caption updates and deep-links into the full theme preview.
+    // The featured frame paints a real theme image.
+    const featured = page.locator('img[src*="/theme-images/"]').first();
+    await expect(featured).toBeVisible();
+    await page.getByRole('button', { name: /feature the velvet mood/i }).click();
+    // The caption updates and deep-links into the full theme preview.
     await expect(page.getByRole('link', { name: /open this look/i })).toHaveAttribute(
       'href',
       '/gallery?theme=velvet',

@@ -1,7 +1,7 @@
 import { m as motion, useReducedMotion } from 'framer-motion';
 import { ArrowDown, Shuffle, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import DesignFlywheel from './DesignFlywheel';
+import MoodMontage from './MoodMontage';
 import { buttonClasses } from '../ui/Button';
 
 const HEADLINE = ['Customize your', 'unique design.'];
@@ -87,13 +87,13 @@ export default function GalleryHero({ onBrowse }: GalleryHeroProps) {
           </motion.div>
         </motion.div>
 
-        {/* the design flywheel — twelve directions orbiting a live themed hub */}
+        {/* the mood montage — twelve designer-image directions, one featured */}
         <motion.div
           initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <DesignFlywheel />
+          <MoodMontage />
         </motion.div>
       </div>
     </section>

@@ -104,10 +104,6 @@ export default {
         'cta-pulse': 'cta-pulse 2s ease-in-out infinite',
         orbit: 'orbit 26s linear infinite',
         'orbit-reverse': 'orbit 38s linear infinite reverse',
-        // Gallery flywheel: ring + items must share one duration so the
-        // counter-spin keeps every swatch upright.
-        wheel: 'orbit 80s linear infinite',
-        'wheel-reverse': 'orbit 80s linear infinite reverse',
         'logo-pulse': 'logo-pulse 4.5s ease-in-out infinite',
         'logo-glow': 'logo-glow 4.5s ease-in-out infinite',
         'logo-flow': 'logo-flow 3s linear infinite',
