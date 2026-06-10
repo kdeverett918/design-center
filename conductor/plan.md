@@ -77,3 +77,18 @@ Legend: [ ] todo · [~] in progress · [x] done · [-] dropped (see audit.md dev
 - [x] Active-pairing-only font loading; library faces fetch on menu open
 - [x] Fixed "m as motion" sed casualty in send-form copy
 - [x] Verified 1440px + 375px, dark + light; 117 unit / 68 e2e green
+
+## Creative refinement round (2026-06-09/10, plan-approved)
+- [x] CP1: quiz folded into mood board ("Find your direction" chips re-rank
+      seed tiles); /start → redirect; ticker slowed 70s→160s; featured
+      palettes numbered 01–10
+- [x] CP2: every design has light AND dark — runtime variant derivation
+      (AA-tested ×50), Sun/Moon/Auto toggle on the preview, brief records it
+- [x] CP3: effects runtime — all 39 presets animate the live page (entrances,
+      hover, cursor overlay w/ scale-corrected math, scroll, continuous,
+      transitions); thumbnails inert; reduced-motion safe
+- [x] CP4: six copy voices auto-matched to palette moods + Voice control;
+      theme cards speak in their palette's voice
+- [x] CP5: 12 AI mood backdrops + 4 token-tinted SVG patterns behind one
+      Backdrop control (auto by mood); BrandMark logo generator (5 styles)
+- [x] CP6: 139 unit + 73 e2e green; deployed
