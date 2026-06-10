@@ -14,8 +14,8 @@ test.describe('Find your direction (mood board organizer)', () => {
     // A playful education theme surfaces in the ranked tiles.
     await expect(page.getByRole('button', { name: /sunnyside/i })).toBeVisible();
 
-    // Clear returns to the curated set.
-    await page.getByRole('button', { name: /^clear$/i }).click();
+    // Clear returns to the curated set (scoped — the motion panel has its own Clear).
+    await page.locator('#find-direction').getByRole('button', { name: /^clear$/i }).click();
     await expect(page.getByText(/ranked for you/i)).toHaveCount(0);
     await expect(page.getByRole('button', { name: /quiet signal/i })).toBeVisible();
   });
@@ -117,11 +117,13 @@ test.describe('Effects animate the live preview', () => {
     page,
   }) => {
     await page.goto('/');
-    // Default board has the motion panel open; toggle the ticker band on.
+    // The motion picker is tabbed by category — Marquee Ticker lives in Loops.
+    await page.getByRole('tab', { name: /loops/i }).click();
     await page.getByRole('button', { name: 'Marquee Ticker' }).click();
     const band = page.locator('main').getByLabel(/speech therapy, telehealth/i);
     await expect(band).toBeVisible();
     // Entrance effects must never eat the headline text.
+    await page.getByRole('tab', { name: /entrance/i }).click();
     await page.getByRole('button', { name: 'Typewriter' }).click();
     await expect(
       page.locator('main').getByText(/care that listens, built around you/i).first(),
@@ -131,15 +133,36 @@ test.describe('Effects animate the live preview', () => {
   test('camera moves and the gradient trace reach the page', async ({ page }) => {
     await page.goto('/');
     // Camera push takes the media transform inside the live preview.
+    await page.getByRole('tab', { name: /loops/i }).click();
     await page.getByRole('button', { name: 'Camera Push' }).click();
     await expect(page.locator('main .fx-cam-push').first()).toBeVisible();
     // Gradient trace draws a token-gradient stroke under the headline.
+    await page.getByRole('tab', { name: /entrance/i }).click();
     await page.getByRole('button', { name: 'Gradient Trace' }).click();
     await expect(page.locator('main svg path[stroke^="url("]').first()).toBeVisible();
     // Camera-zoom outranks push: the class swaps when both are selected.
+    await page.getByRole('tab', { name: /loops/i }).click();
     await page.getByRole('button', { name: 'Camera Zoom' }).click();
     await expect(page.locator('main .fx-cam-zoom').first()).toBeVisible();
     await expect(page.locator('main .fx-cam-push')).toHaveCount(0);
+  });
+
+  test('motion picker coaches how to see each category and replays entrances', async ({ page }) => {
+    await page.goto('/');
+    // Category tabs carry color dots + counts; the hint explains the trigger.
+    await page.getByRole('tab', { name: /hover/i }).click();
+    await expect(page.getByText(/hover the buttons, cards and links/i)).toBeVisible();
+    await page.getByRole('button', { name: 'Hover Lift' }).click();
+    // The selected-summary row shows the pick with a remove affordance.
+    await expect(page.getByRole('button', { name: 'Remove Hover Lift' })).toBeVisible();
+    // Replay re-mounts the preview page (new entrance run).
+    await page.getByRole('button', { name: /replay/i }).first().click();
+    await expect(
+      page.locator('main').getByText(/care that listens, built around you/i).first(),
+    ).toBeVisible();
+    // Clear empties the selection.
+    await page.getByRole('button', { name: 'Clear', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Remove Hover Lift' })).toHaveCount(0);
   });
 });
 

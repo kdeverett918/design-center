@@ -4,6 +4,7 @@ import { Check, Eye, Link2, Sparkles, X } from 'lucide-react';
 import type { FavoriteKind, FontPairing, Palette } from '../../types';
 import type { DeviceMode, PreviewConfig } from '../../preview/previewConfig';
 import { animationById } from '../../data/animations';
+import { CATEGORY_META } from '../../preview/categoryMeta';
 import AnimationDemo from '../cards/AnimationDemo';
 import PreviewControls from './PreviewControls';
 import PreviewFrame from './PreviewFrame';
@@ -31,6 +32,9 @@ interface PreviewStageProps {
   heroImage?: string;
   /** Skip first-paint and live-preview fades for routes that must feel instant. */
   instantMount?: boolean;
+  /** External replay trigger (e.g. the mood board's motion panel) — additive
+      with the toolbar's own replay button. */
+  replaySignal?: number;
 }
 
 export default function PreviewStage({
@@ -48,6 +52,7 @@ export default function PreviewStage({
   effects,
   heroImage,
   instantMount = false,
+  replaySignal = 0,
 }: PreviewStageProps) {
   const effectPresets = (effects ?? [])
     .map((id) => animationById(id))
@@ -108,7 +113,7 @@ export default function PreviewStage({
       brand={brand}
       config={config}
       selectionKey={selectionKey}
-      replayNonce={replay}
+      replayNonce={replay + replaySignal}
       heroImage={heroImage}
       instantUpdates={instantMount}
       effects={effects}
@@ -181,14 +186,21 @@ export default function PreviewStage({
             </span>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-            {effectPresets.map((preset) => (
-              <div key={preset.id} className="space-y-1.5">
-                <AnimationDemo preset={preset} />
-                <div className="truncate text-center text-[11px] font-medium text-shell-ink" title={preset.effect}>
-                  {preset.name}
+            {effectPresets.map((preset) => {
+              const meta = CATEGORY_META[preset.category];
+              return (
+                <div key={preset.id} className="space-y-1">
+                  <AnimationDemo preset={preset} />
+                  <div className="truncate text-center text-[11px] font-medium text-shell-ink" title={preset.effect}>
+                    {preset.name}
+                  </div>
+                  <div className={`flex items-center justify-center gap-1 text-[10px] ${meta.text}`}>
+                    <span aria-hidden="true" className={`h-1 w-1 rounded-full ${meta.dot}`} />
+                    {meta.action}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

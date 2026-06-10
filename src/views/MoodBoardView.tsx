@@ -34,23 +34,14 @@ import { palettes, paletteById } from '../data/palettes';
 import { fontPairings, fontPairingById } from '../data/fonts';
 import { animationById, animationPresets } from '../data/animations';
 import { themeById, themes } from '../data/themes';
-import type { AnimationCategory, AnimationIntensity, Industry, Mood, Palette, Theme } from '../types';
+import type { AnimationIntensity, Industry, Mood, Palette, Theme } from '../types';
 import { loadFonts } from '../theme/loadFonts';
 import Button, { buttonClasses } from '../components/ui/Button';
 import ThemeTicker from '../components/layout/ThemeTicker';
 import PreviewStage from '../components/preview/PreviewStage';
+import MotionPicker from '../components/moodboard/MotionPicker';
 import BriefSummary from '../components/client/BriefSummary';
 import SendBrief from '../components/client/SendBrief';
-
-// Order the "Motion & effects" picker presents its categories in.
-const ANIMATION_CATEGORIES: AnimationCategory[] = [
-  'entrance',
-  'scroll',
-  'hover',
-  'cursor',
-  'continuous',
-  'transition',
-];
 
 // A curated handful of standout themes for the "Start from a theme" quick-pick.
 // Clicking one seeds the whole mix (palette + font + config) so people start from
@@ -178,11 +169,8 @@ export default function MoodBoardView() {
     () => initial?.animationIds ?? DEFAULT_ANIMATIONS,
   );
   const [copied, setCopied] = useState(false);
-  // The motion picker is the densest control, so it starts collapsed — but if a
-  // restored share/saved board already has picks, open it so they're visible.
-  const [motionOpen, setMotionOpen] = useState(
-    () => (initial?.animationIds?.length ?? DEFAULT_ANIMATIONS.length) > 0,
-  );
+  // Bumped by the motion panel's Replay so one-shot entrances can be re-watched.
+  const [replaySignal, setReplaySignal] = useState(0);
 
   const palette = useMemo(() => paletteById(paletteId)!, [paletteId]);
   const fonts = useMemo(() => fontPairingById(fontId)!, [fontId]);
@@ -237,7 +225,6 @@ export default function MoodBoardView() {
     setConfig(configForTheme(theme));
     const effects = THEME_EFFECTS[themeId] ?? INTENSITY_EFFECTS[theme.animationIntensity];
     setAnimationIds(effects);
-    setMotionOpen(effects.length > 0);
   };
 
   const reset = () => {
@@ -247,7 +234,6 @@ export default function MoodBoardView() {
     setBrand('Your Practice');
     setNotes('');
     setAnimationIds(DEFAULT_ANIMATIONS);
-    setMotionOpen(DEFAULT_ANIMATIONS.length > 0);
   };
 
   // Highlight a seed tile when the current palette + font match that theme.
@@ -306,6 +292,18 @@ export default function MoodBoardView() {
   return (
     <div className="mx-auto max-w-[1500px] px-4 pb-10 pt-5 sm:px-8">
       <section className="relative overflow-hidden border-b border-shell-line pb-5">
+        {/* Aurora hero art (dark shell only — light shell keeps the soft glows).
+            AI silk-light ribbons, 28KB webp; scrims keep the headline AA. */}
+        <div aria-hidden="true" className="hero-aurora pointer-events-none absolute inset-0">
+          <img
+            src="/shell/hero-aurora.webp"
+            alt=""
+            fetchPriority="high"
+            className="h-full w-full object-cover object-right"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-shell-base via-shell-base/70 to-shell-base/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-shell-base via-transparent to-transparent" />
+        </div>
         {/* gallery lighting: two glows that slowly wander (frozen for reduced motion) */}
         <div
           aria-hidden="true"
@@ -315,17 +313,17 @@ export default function MoodBoardView() {
           aria-hidden="true"
           className="pointer-events-none absolute -left-24 top-24 h-56 w-56 rounded-full bg-shell-glow/[0.06] blur-[80px] motion-safe:animate-glow-drift [animation-delay:-7s]"
         />
-        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div className="relative flex flex-col gap-4 sm:gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-shell-line bg-shell-panel/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
               <Sparkles size={13} className="text-shell-glow" />
               Tech SLP Studio Mood Board
             </div>
-            <h1 className="font-display text-[2.55rem] font-semibold leading-[0.98] tracking-tight text-shell-ink sm:text-6xl xl:text-7xl">
+            <h1 className="font-display text-[2.15rem] font-semibold leading-[0.98] tracking-tight text-shell-ink sm:text-6xl xl:text-7xl">
               Stop describing your dream website.{' '}
               <span className="text-shell-glow">Point at it.</span>
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-shell-mute sm:text-lg">
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-shell-mute sm:mt-4 sm:text-lg">
               Start from a styled direction, tune the palette and type live, then send a clean
               brief the moment the preview feels right.
             </p>
@@ -357,7 +355,7 @@ export default function MoodBoardView() {
           </div>
         </div>
 
-        <div className="relative mt-4 grid gap-2 sm:grid-cols-3">
+        <div className="relative mt-4 grid grid-cols-3 gap-1.5 sm:gap-2">
           <SignalPill icon={<PaletteIcon size={14} />} label="Palette" value={palette.name} />
           <SignalPill icon={<Type size={14} />} label="Type" value={fonts.name} />
           <SignalPill
@@ -386,6 +384,7 @@ export default function MoodBoardView() {
             height={620}
             effects={animationIds}
             instantMount
+            replaySignal={replaySignal}
           />
         </div>
 
@@ -439,6 +438,7 @@ export default function MoodBoardView() {
                     active={guideVibes.includes(mood)}
                     onClick={() => toggleGuideVibe(mood)}
                     capitalize
+                    hue="violet"
                   />
                 ))}
               </div>
@@ -484,69 +484,12 @@ export default function MoodBoardView() {
               <FontPicker value={fontId} onChange={setFontId} />
             </Field>
 
-            <div className="mb-4 last:mb-0">
-              <button
-                type="button"
-                onClick={() => setMotionOpen((o) => !o)}
-                aria-expanded={motionOpen}
-                aria-controls="mb-motion-panel"
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-shell-line px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-shell-mute transition-colors hover:text-shell-ink"
-              >
-                <span className="flex items-center gap-1.5">
-                  {motionOpen ? 'Motion & effects' : '+ Add motion (optional)'}
-                  {animationIds.length > 0 && (
-                    <span className="rounded-full bg-shell-glow/15 px-1.5 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-shell-glow">
-                      {animationIds.length}
-                    </span>
-                  )}
-                </span>
-                <ChevronDown
-                  size={14}
-                  className={`shrink-0 transition-transform motion-reduce:transition-none ${
-                    motionOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-              {motionOpen && (
-                <div
-                  id="mb-motion-panel"
-                  className="mt-2.5 max-h-52 space-y-2.5 overflow-y-auto scrollbar-thin pr-1"
-                >
-                  {ANIMATION_CATEGORIES.map((category) => {
-                    const items = animationPresets.filter((a) => a.category === category);
-                    if (!items.length) return null;
-                    return (
-                      <div key={category}>
-                        <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-shell-mute">
-                          {category}
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {items.map((a) => {
-                            const on = animationIds.includes(a.id);
-                            return (
-                              <button
-                                key={a.id}
-                                type="button"
-                                aria-pressed={on}
-                                title={a.effect}
-                                onClick={() => toggleAnimation(a.id)}
-                                className={`rounded-full border px-2.5 py-1 text-[11px] transition-colors ${
-                                  on
-                                    ? 'border-shell-glow/60 bg-shell-glow/10 text-shell-ink'
-                                    : 'border-shell-line text-shell-mute hover:text-shell-ink'
-                                }`}
-                              >
-                                {a.name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            <MotionPicker
+              selected={animationIds}
+              onToggle={toggleAnimation}
+              onClear={() => setAnimationIds([])}
+              onReplay={() => setReplaySignal((n) => n + 1)}
+            />
 
             <Field label="Notes for the brief" htmlFor="mb-notes">
               <textarea
@@ -658,28 +601,45 @@ function SignalPill({
   value: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-2xl border border-shell-line bg-shell-panel/70 px-3 py-2.5">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-shell-glow/10 text-shell-glow">
+    <div className="flex min-w-0 items-center gap-1.5 rounded-2xl border border-shell-line bg-shell-panel/70 px-2 py-2 sm:gap-2 sm:px-3 sm:py-2.5">
+      <span className="hidden h-7 w-7 shrink-0 place-items-center rounded-full bg-shell-glow/10 text-shell-glow sm:grid">
         {icon}
       </span>
       <div className="min-w-0">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-shell-mute">{label}</div>
-        <div className="truncate text-sm font-semibold text-shell-ink">{value}</div>
+        <div className="text-[10px] font-semibold uppercase tracking-wide text-shell-mute sm:text-[11px]">
+          {label}
+        </div>
+        <div className="truncate text-xs font-semibold text-shell-ink sm:text-sm">{value}</div>
       </div>
     </div>
   );
 }
+
+// Two chip families, two hues: sky = "your world" (industry), violet = "your
+// vibe" — the same color language the motion picker uses for its categories.
+const GUIDE_HUES = {
+  sky: {
+    on: 'border-transparent bg-sky-600 text-white shadow-sm shadow-sky-600/30',
+    off: 'border-shell-line bg-shell-base/45 text-shell-mute hover:border-sky-400/60 hover:text-shell-ink',
+  },
+  violet: {
+    on: 'border-transparent bg-violet-600 text-white shadow-sm shadow-violet-600/30',
+    off: 'border-shell-line bg-shell-base/45 text-shell-mute hover:border-violet-400/60 hover:text-shell-ink',
+  },
+} as const;
 
 function GuideChip({
   label,
   active,
   onClick,
   capitalize = false,
+  hue = 'sky',
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
   capitalize?: boolean;
+  hue?: keyof typeof GUIDE_HUES;
 }) {
   return (
     <button
@@ -688,11 +648,7 @@ function GuideChip({
       aria-pressed={active}
       className={`rounded-full border px-2 py-1 text-[11px] font-semibold transition-colors ${
         capitalize ? 'capitalize' : ''
-      } ${
-        active
-          ? 'border-transparent bg-shell-glow text-shell-base shadow-sm shadow-shell-glow/30'
-          : 'border-shell-line bg-shell-base/45 text-shell-mute hover:border-shell-glow/50 hover:text-shell-ink'
-      }`}
+      } ${active ? GUIDE_HUES[hue].on : GUIDE_HUES[hue].off}`}
     >
       {label}
     </button>
