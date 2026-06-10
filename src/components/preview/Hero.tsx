@@ -4,6 +4,8 @@ import { m as motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import type { HeroVariant } from '../../preview/previewConfig';
 import { useFx } from '../../preview/effectsRuntime';
+import { useCopy } from '../../preview/copyContext';
+import { fill } from '../../preview/copyPacks';
 import FxHeadline from './effects/FxHeadline';
 import FxCta from './effects/FxCta';
 import { useParallax } from './effects/useParallax';
@@ -23,20 +25,17 @@ interface HeroProps {
   heroImage?: string;
 }
 
-const HEADLINE = 'Care that listens, built around you.';
-const SUB =
-  'Evidence-based, compassionate support from a team that treats you like a person — not a chart. From the first visit to lasting progress.';
-
 function CtaRow() {
+  const copy = useCopy();
   return (
     <div className="flex flex-wrap items-center gap-3">
       <FxCta>
         <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
-          Get started <ArrowRight size={16} />
+          {copy.ctaPrimary} <ArrowRight size={16} />
         </span>
       </FxCta>
       <span className="inline-flex items-center gap-2 rounded-xl border tk-line-strong px-5 py-3 text-sm font-medium text-ink">
-        <Play size={13} /> Meet the team
+        <Play size={13} /> {copy.ctaSecondary}
       </span>
     </div>
   );
@@ -44,6 +43,7 @@ function CtaRow() {
 
 function Eyebrow() {
   const fx = useFx();
+  const copy = useCopy();
   return (
     <motion.span
       className={`inline-block rounded-full tk-tint-secondary px-3 py-1 text-xs font-medium text-ink ${
@@ -52,7 +52,7 @@ function Eyebrow() {
       whileHover={fx.card.stickerSpin ? { rotate: 360, scale: 1.1 } : undefined}
       transition={{ type: 'spring', stiffness: 200, damping: 14 }}
     >
-      Now accepting new clients
+      {copy.eyebrow}
     </motion.span>
   );
 }
@@ -61,6 +61,9 @@ function Eyebrow() {
 // unit; SamplePage owns the stagger across sections.
 export default function Hero({ brand, variant, item, expressive, heroImage }: HeroProps) {
   const fx = useFx();
+  const copy = useCopy();
+  const HEADLINE = copy.headline;
+  const SUB = fill(copy.sub, brand);
   // Parallax anchor: attached to image-led sections; inert elsewhere.
   const sectionRef = useRef<HTMLElement>(null);
   const parY = useParallax(sectionRef, fx.parallax);
@@ -153,18 +156,18 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         )}
         <div className="relative max-w-xl">
           <span className="inline-block rounded-full bg-bg/20 px-3 py-1 text-xs font-medium text-onPrimary backdrop-blur">
-            Now accepting new clients
+            {copy.eyebrow}
           </span>
           <FxHeadline className="mt-5 font-heading text-4xl font-semibold leading-[1.05] tracking-tight text-onPrimary sm:text-5xl">{HEADLINE}</FxHeadline>
           <p className="mt-5 max-w-md text-base leading-relaxed text-onPrimary/85">{SUB}</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <FxCta>
               <span className="inline-flex items-center gap-2 rounded-xl bg-bg px-5 py-3 text-sm font-semibold text-primary">
-                Get started <ArrowRight size={16} />
+                {copy.ctaPrimary} <ArrowRight size={16} />
               </span>
             </FxCta>
             <span className="rounded-xl border border-bg/40 px-5 py-3 text-sm font-medium text-onPrimary">
-              Meet the team
+              {copy.ctaSecondary}
             </span>
           </div>
         </div>
@@ -397,7 +400,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           <div className="flex items-start">
             <FxCta>
               <span className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary">
-                Read the issue <ArrowRight size={16} />
+                {copy.ctaPrimary} <ArrowRight size={16} />
               </span>
             </FxCta>
           </div>
@@ -433,11 +436,11 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <FxCta>
             <span className="inline-flex items-center gap-2 rounded-none bg-primary px-6 py-3 text-sm font-bold uppercase tracking-wide text-onPrimary shadow-[6px_6px_0_0_var(--color-ink)]">
-              Get started <ArrowRight size={16} />
+              {copy.ctaPrimary} <ArrowRight size={16} />
             </span>
           </FxCta>
           <span className="inline-flex items-center gap-2 rounded-none border-2 border-ink px-6 py-3 text-sm font-bold uppercase tracking-wide text-ink">
-            <Play size={13} /> Watch
+            <Play size={13} /> {copy.ctaSecondary}
           </span>
         </div>
       </motion.section>
@@ -472,7 +475,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
           <div className="mt-8 flex justify-center">
             <FxCta>
               <span className="inline-flex items-center gap-2 rounded-full bg-bg px-7 py-3.5 text-sm font-semibold text-primary tk-shadow">
-                Get started <ArrowRight size={16} />
+                {copy.ctaPrimary} <ArrowRight size={16} />
               </span>
             </FxCta>
           </div>
@@ -490,7 +493,7 @@ export default function Hero({ brand, variant, item, expressive, heroImage }: He
         <p className="max-w-md text-base leading-relaxed text-muted">{SUB}</p>
         <FxCta>
           <span className="hidden shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-onPrimary sm:inline-flex">
-            Get started <ArrowRight size={16} />
+            {copy.ctaPrimary} <ArrowRight size={16} />
           </span>
         </FxCta>
       </div>

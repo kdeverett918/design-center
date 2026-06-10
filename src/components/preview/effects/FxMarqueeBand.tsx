@@ -1,10 +1,11 @@
 // Edge-to-edge scrolling band between the hero and the feature cards. The
 // content is rendered twice so the -50% ticker keyframe loops seamlessly;
 // reduced-motion users get a static row (global CSS kills the animation).
-const WORDS = ['Speech therapy', 'Telehealth', 'Evaluations', 'Family coaching', 'Care plans'];
+import { useCopy } from '../../../preview/copyContext';
 
 export default function FxMarqueeBand({ mode }: { mode: 'quiet' | 'ticker' }) {
   const bold = mode === 'ticker';
+  const WORDS = useCopy().marqueeWords;
   const rail = (hidden: boolean) => (
     <span aria-hidden={hidden || undefined} className="flex w-max shrink-0 items-center">
       {WORDS.map((w) => (

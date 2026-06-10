@@ -1,5 +1,6 @@
 import type { AnimationIntensity, Theme } from '../types';
 import type { PreviewScheme } from '../theme/variant';
+import { COPY_PACKS } from './copyPacks';
 
 // The shape of a live preview: which hero, which card style, how much motion.
 // Drives both the theme presets and the à-la-carte mood board.
@@ -49,6 +50,8 @@ export interface PreviewConfig {
    * 'dark' resolve to a derived, contrast-checked variant when needed.
    */
   scheme: PreviewScheme;
+  /** Copy voice: 'auto' (matched to the palette's moods) or a pack id. */
+  voice: string;
 }
 
 export const SCHEMES: { id: PreviewScheme; label: string }[] = [
@@ -57,6 +60,13 @@ export const SCHEMES: { id: PreviewScheme; label: string }[] = [
   { id: 'dark', label: 'Dark' },
 ];
 const SCHEME_IDS = new Set<string>(SCHEMES.map((s) => s.id));
+
+// Preview voice: 'auto' picks a copy pack by the palette's moods.
+export const VOICES: { id: string; label: string }[] = [
+  { id: 'auto', label: 'auto' },
+  ...COPY_PACKS.map((p) => ({ id: p.id, label: p.label })),
+];
+const VOICE_IDS = new Set<string>(VOICES.map((v) => v.id));
 
 export const NAV_VARIANTS: { id: NavVariant; label: string }[] = [
   { id: 'nav-sticky-clear', label: 'Sticky' },
@@ -164,6 +174,7 @@ export const DEFAULT_PREVIEW_CONFIG: PreviewConfig = {
   sections: [...DEFAULT_SECTIONS],
   motion: 'standard',
   scheme: 'auto',
+  voice: 'auto',
 };
 
 // Merge an untrusted (saved or shared-link) config onto the defaults, validating
@@ -184,8 +195,9 @@ export function sanitizePreviewConfig(raw: unknown): PreviewConfig {
     motion: INTENSITIES.includes(r.motion as AnimationIntensity)
       ? (r.motion as AnimationIntensity)
       : DEFAULT_PREVIEW_CONFIG.motion,
-    // Legacy tokens / saved boards predate scheme — default keeps them valid.
+    // Legacy tokens / saved boards predate these — defaults keep them valid.
     scheme: pick(r.scheme, SCHEME_IDS, DEFAULT_PREVIEW_CONFIG.scheme),
+    voice: pick(r.voice, VOICE_IDS, DEFAULT_PREVIEW_CONFIG.voice),
   };
 }
 
@@ -221,5 +233,6 @@ export function configForTheme(theme: Theme): PreviewConfig {
     sections: [...DEFAULT_SECTIONS],
     motion: theme.animationIntensity,
     scheme: 'auto',
+    voice: 'auto',
   };
 }

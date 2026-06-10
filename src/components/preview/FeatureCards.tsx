@@ -3,13 +3,10 @@ import { m as motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import type { CardStyle } from '../../preview/previewConfig';
 import { useFx } from '../../preview/effectsRuntime';
+import { useCopy } from '../../preview/copyContext';
 import FxCard, { FxIconBadge } from './effects/FxCard';
 
-const FEATURES = [
-  { icon: HeartPulse, title: 'Personalized care plans', body: 'Every plan is built around the person — goals, pace, and real life.' },
-  { icon: MessageSquareText, title: 'Telehealth that works', body: 'Secure video visits with the same clinicians you know and trust.' },
-  { icon: ShieldCheck, title: 'Privacy you can feel', body: 'Your information is protected at every step, by design.' },
-];
+const ICONS = [HeartPulse, MessageSquareText, ShieldCheck];
 
 function cardClasses(style: CardStyle): string {
   switch (style) {
@@ -39,9 +36,11 @@ interface FeatureCardsProps {
 
 export default function FeatureCards({ cardStyle, item }: FeatureCardsProps) {
   const fx = useFx();
+  const copy = useCopy();
+  const features = copy.features.map((f, i) => ({ ...f, icon: ICONS[i % ICONS.length]! }));
   return (
     <motion.section variants={item} className="grid gap-4 px-8 pb-14 sm:grid-cols-3">
-      {FEATURES.map(({ icon: Icon, title, body }) => (
+      {features.map(({ icon: Icon, title, body }) => (
         <FxCard
           key={title}
           className={cardClasses(cardStyle)}

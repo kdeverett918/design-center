@@ -218,6 +218,7 @@ export default function MoodBoardView() {
       sections: [...DEFAULT_CONFIG.sections],
       motion: pick(INTENSITIES),
       scheme: 'auto',
+      voice: 'auto',
     });
     // Pick 2–3 distinct random animations.
     const count = 2 + Math.floor(Math.random() * 2);

@@ -4,6 +4,8 @@ import type { Theme } from '../../types';
 import { paletteById } from '../../data/palettes';
 import { fontPairingById } from '../../data/fonts';
 import ThemedScope from '../../theme/ThemedScope';
+import { CopyProvider } from '../../preview/copyContext';
+import { packForPalette } from '../../preview/copyPacks';
 import MiniSamplePage from '../preview/MiniSamplePage';
 import FavoriteStar from './FavoriteStar';
 
@@ -46,7 +48,10 @@ export default function ThemeCard({ theme, active, onSelect }: ThemeCardProps) {
             fonts={fonts}
             className="h-64 overflow-hidden border-b border-shell-line"
           >
-            <MiniSamplePage brand={theme.name} />
+            {/* each theme speaks in the voice its palette suggests */}
+            <CopyProvider pack={packForPalette(palette)}>
+              <MiniSamplePage brand={theme.name} />
+            </CopyProvider>
           </ThemedScope>
           {/* subtle AI hero-image accent: a small cover thumbnail so the grid
               previews the imagery. Absent → card is unchanged. */}

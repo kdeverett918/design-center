@@ -1,41 +1,36 @@
 import { useEffect, useState } from 'react';
 import { Quote, Star } from 'lucide-react';
 import { AnimatePresence, m as motion, useReducedMotion } from 'framer-motion';
+import { useCopy } from '../../../preview/copyContext';
+import { fill } from '../../../preview/copyPacks';
 
 interface SectionProps {
   brand?: string;
 }
 
-const QUOTES = [
-  {
-    text: 'I finally felt heard. The plan fit my life, and the progress was real — not just numbers on a chart.',
-    name: 'A. Rivera',
-    detail: 'Client since 2024',
-    initials: 'AR',
-  },
-  {
-    text: 'Telehealth visits made it possible to keep going through a busy season. Same clinician, zero hassle.',
-    name: 'J. Okafor',
-    detail: 'Care plan member',
-    initials: 'JO',
-  },
-  {
-    text: 'The whole team treated my family like people, not appointments. We actually look forward to visits.',
-    name: 'M. Delgado',
-    detail: 'Family plan',
-    initials: 'MD',
-  },
-];
 
 export default function TestimonialSlider({ brand = 'Your Practice' }: SectionProps) {
   const reduced = useReducedMotion() ?? false;
+  const copy = useCopy();
+  const QUOTES = copy.testimonials.map((t) => ({
+    text: t.quote,
+    name: t.name,
+    detail: t.detail,
+    initials: t.name
+      .split(/[.\s]+/)
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase(),
+  }));
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (reduced) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % QUOTES.length), 4500);
     return () => clearInterval(id);
-  }, [reduced]);
+  }, [reduced, QUOTES.length]);
 
   const active = QUOTES[index];
 
@@ -43,7 +38,7 @@ export default function TestimonialSlider({ brand = 'Your Practice' }: SectionPr
     <section className="bg-bg px-8 py-14 font-body">
       <div className="mx-auto max-w-2xl">
         <p className="text-center text-xs font-medium uppercase tracking-[0.18em] text-muted">
-          What clients say about {brand}
+          {fill(copy.testimonialsTitle, brand)}
         </p>
 
         <div className="relative mt-6 min-h-[12rem] rounded-3xl border tk-line bg-surface p-8 text-center tk-shadow">

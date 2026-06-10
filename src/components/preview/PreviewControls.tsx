@@ -27,6 +27,7 @@ import {
   HERO_VARIANTS,
   INTENSITIES,
   NAV_VARIANTS,
+  VOICES,
 } from '../../preview/previewConfig';
 import { layoutPresets } from '../../data/layouts';
 import { buttonClasses } from '../ui/Button';
@@ -260,6 +261,14 @@ export default function PreviewControls({
                 options={INTENSITIES.map((i) => ({ id: i, label: i }))}
                 value={config.motion}
                 onChange={(motion) => onConfig({ motion })}
+              />
+            </Row>
+            <Row label="Voice">
+              <Seg<string>
+                ariaLabel="Copy voice"
+                options={VOICES}
+                value={config.voice}
+                onChange={(voice) => onConfig({ voice })}
               />
             </Row>
           </Cluster>

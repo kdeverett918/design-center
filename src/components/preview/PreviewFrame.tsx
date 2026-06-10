@@ -7,6 +7,8 @@ import { themeVars } from '../../theme/applyTheme';
 import { loadFonts } from '../../theme/loadFonts';
 import { resolvePalette } from '../../theme/variant';
 import { EffectsProvider, anyCursor, useResolvedEffects } from '../../preview/effectsRuntime';
+import { CopyProvider } from '../../preview/copyContext';
+import { packForPalette, packById, DEFAULT_PACK } from '../../preview/copyPacks';
 import CursorLayer from './effects/CursorLayer';
 import SamplePage from './SamplePage';
 
@@ -65,15 +67,23 @@ export default function PreviewFrame({
     replayNonce,
   ].join(':');
 
+  // The voice (copy pack) follows the DESIGNED palette's moods unless pinned.
+  const pack =
+    config.voice === 'auto'
+      ? packForPalette(palette)
+      : (packById(config.voice) ?? DEFAULT_PACK);
+
   // Selecting page-fade makes even "instant" boards cross-fade their changes.
   const crossFade = !instantUpdates || fx.pageFade;
   const page = (
-    <EffectsProvider value={fx}>
-      <div className="relative">
-        {anyCursor(fx) && <CursorLayer />}
-        <SamplePage brand={brand} config={config} heroImage={heroImage} />
-      </div>
-    </EffectsProvider>
+    <CopyProvider pack={pack}>
+      <EffectsProvider value={fx}>
+        <div className="relative">
+          {anyCursor(fx) && <CursorLayer />}
+          <SamplePage brand={brand} config={config} heroImage={heroImage} />
+        </div>
+      </EffectsProvider>
+    </CopyProvider>
   );
 
   return (

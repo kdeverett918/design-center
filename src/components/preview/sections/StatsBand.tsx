@@ -1,19 +1,16 @@
 import { useFx } from '../../../preview/effectsRuntime';
+import { useCopy } from '../../../preview/copyContext';
+import { fill } from '../../../preview/copyPacks';
 import FxStat from '../effects/FxStat';
 
 interface SectionProps {
   brand?: string;
 }
 
-const STATS = [
-  { value: '12k+', label: 'Sessions delivered' },
-  { value: '98%', label: 'Would recommend' },
-  { value: '4.9', label: 'Average rating' },
-  { value: '24h', label: 'Avg. response time' },
-];
-
 export default function StatsBand({ brand = 'Your Practice' }: SectionProps) {
   const fx = useFx();
+  const copy = useCopy();
+  const STATS = copy.stats;
   // Seat the colored band on the page background (an inset rounded band) so it
   // reads as an intentional section — not a solid dark block — on light themes.
   return (
@@ -24,7 +21,7 @@ export default function StatsBand({ brand = 'Your Practice' }: SectionProps) {
         }`}
       >
         <p className="text-center text-xs font-medium uppercase tracking-[0.18em] text-onPrimary/70">
-          {brand}, by the numbers
+          {fill(copy.statsTitle, brand)}
         </p>
         <div className="mx-auto mt-8 grid max-w-2xl grid-cols-2 gap-8 sm:grid-cols-4">
           {STATS.map((stat) => (
