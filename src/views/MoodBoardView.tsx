@@ -219,6 +219,8 @@ export default function MoodBoardView() {
       motion: pick(INTENSITIES),
       scheme: 'auto',
       voice: 'auto',
+      backdrop: 'auto',
+      logoStyle: 'pulse',
     });
     // Pick 2–3 distinct random animations.
     const count = 2 + Math.floor(Math.random() * 2);

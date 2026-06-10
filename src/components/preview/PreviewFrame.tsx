@@ -9,6 +9,7 @@ import { resolvePalette } from '../../theme/variant';
 import { EffectsProvider, anyCursor, useResolvedEffects } from '../../preview/effectsRuntime';
 import { CopyProvider } from '../../preview/copyContext';
 import { packForPalette, packById, DEFAULT_PACK } from '../../preview/copyPacks';
+import { resolveBackdropImage } from '../../preview/backdrops';
 import CursorLayer from './effects/CursorLayer';
 import SamplePage from './SamplePage';
 
@@ -63,6 +64,9 @@ export default function PreviewFrame({
     config.sections.join('+'),
     config.motion,
     config.scheme,
+    config.voice,
+    config.backdrop,
+    config.logoStyle,
     (effects ?? []).join(','),
     replayNonce,
   ].join(':');
@@ -73,6 +77,11 @@ export default function PreviewFrame({
       ? packForPalette(palette)
       : (packById(config.voice) ?? DEFAULT_PACK);
 
+  // Explicit hero art (themed previews) always wins; otherwise the backdrop
+  // setting supplies a mood-matched image or a token-tinted pattern. Patterns
+  // are built from the EFFECTIVE palette so they follow the scheme toggle.
+  const heroArt = heroImage ?? resolveBackdropImage(config.backdrop, effective);
+
   // Selecting page-fade makes even "instant" boards cross-fade their changes.
   const crossFade = !instantUpdates || fx.pageFade;
   const page = (
@@ -80,7 +89,7 @@ export default function PreviewFrame({
       <EffectsProvider value={fx}>
         <div className="relative">
           {anyCursor(fx) && <CursorLayer />}
-          <SamplePage brand={brand} config={config} heroImage={heroImage} />
+          <SamplePage brand={brand} config={config} heroImage={heroArt} />
         </div>
       </EffectsProvider>
     </CopyProvider>

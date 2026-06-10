@@ -1,20 +1,27 @@
-import { Activity } from 'lucide-react';
 import { useFx } from '../../preview/effectsRuntime';
 import { useCopy } from '../../preview/copyContext';
+import type { LogoStyle } from '../../preview/previewConfig';
+import BrandMark from './BrandMark';
 import FxCta from './effects/FxCta';
 
 // Token-only navigation, three variants. Used both as a layout thumbnail and as
 // the live SamplePage nav. (nav-sidebar is a dashboard pattern — shown as a
 // thumbnail but the marketing SamplePage uses a top bar.)
-export default function Nav({ variant, brand }: { variant: string; brand: string }) {
+export default function Nav({
+  variant,
+  brand,
+  logoStyle,
+}: {
+  variant: string;
+  brand: string;
+  logoStyle?: LogoStyle;
+}) {
   const fx = useFx();
   const copy = useCopy();
   const linkCls = fx.link.underline ? 'fx-underline' : '';
   const Logo = (
     <div className="flex items-center gap-2">
-      <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary">
-        <Activity size={16} className="text-onPrimary" />
-      </span>
+      <BrandMark brand={brand} logoStyle={logoStyle} />
       <span className="font-heading text-lg font-semibold text-ink">{brand}</span>
     </div>
   );

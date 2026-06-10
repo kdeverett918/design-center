@@ -43,7 +43,7 @@ export default function SamplePage({ brand, config, heroImage }: SamplePageProps
       className="bg-bg text-ink font-body"
     >
       <motion.div variants={item}>
-        <Nav variant={config.nav} brand={brand} />
+        <Nav variant={config.nav} brand={brand} logoStyle={config.logoStyle} />
       </motion.div>
 
       <Hero

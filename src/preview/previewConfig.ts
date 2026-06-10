@@ -1,6 +1,7 @@
 import type { AnimationIntensity, Theme } from '../types';
 import type { PreviewScheme } from '../theme/variant';
 import { COPY_PACKS } from './copyPacks';
+import { BACKDROP_IDS } from './backdrops';
 
 // The shape of a live preview: which hero, which card style, how much motion.
 // Drives both the theme presets and the à-la-carte mood board.
@@ -52,7 +53,27 @@ export interface PreviewConfig {
   scheme: PreviewScheme;
   /** Copy voice: 'auto' (matched to the palette's moods) or a pack id. */
   voice: string;
+  /** Hero backdrop: 'auto' (mood-matched image), 'none', an image id, or a pattern id. */
+  backdrop: string;
+  /** Generated brand mark style shown in the preview nav. */
+  logoStyle: LogoStyle;
 }
+
+export type LogoStyle =
+  | 'pulse'
+  | 'monogram-circle'
+  | 'monogram-tile'
+  | 'badge-ring'
+  | 'wordmark-bar';
+
+export const LOGO_STYLES: { id: LogoStyle; label: string }[] = [
+  { id: 'pulse', label: 'Icon' },
+  { id: 'monogram-circle', label: 'Circle' },
+  { id: 'monogram-tile', label: 'Tile' },
+  { id: 'badge-ring', label: 'Ring' },
+  { id: 'wordmark-bar', label: 'Wordmark' },
+];
+const LOGO_IDS = new Set<string>(LOGO_STYLES.map((l) => l.id));
 
 export const SCHEMES: { id: PreviewScheme; label: string }[] = [
   { id: 'auto', label: 'As designed' },
@@ -175,6 +196,8 @@ export const DEFAULT_PREVIEW_CONFIG: PreviewConfig = {
   motion: 'standard',
   scheme: 'auto',
   voice: 'auto',
+  backdrop: 'auto',
+  logoStyle: 'pulse',
 };
 
 // Merge an untrusted (saved or shared-link) config onto the defaults, validating
@@ -198,6 +221,8 @@ export function sanitizePreviewConfig(raw: unknown): PreviewConfig {
     // Legacy tokens / saved boards predate these — defaults keep them valid.
     scheme: pick(r.scheme, SCHEME_IDS, DEFAULT_PREVIEW_CONFIG.scheme),
     voice: pick(r.voice, VOICE_IDS, DEFAULT_PREVIEW_CONFIG.voice),
+    backdrop: pick(r.backdrop, BACKDROP_IDS, DEFAULT_PREVIEW_CONFIG.backdrop),
+    logoStyle: pick(r.logoStyle, LOGO_IDS, DEFAULT_PREVIEW_CONFIG.logoStyle),
   };
 }
 
@@ -234,5 +259,7 @@ export function configForTheme(theme: Theme): PreviewConfig {
     motion: theme.animationIntensity,
     scheme: 'auto',
     voice: 'auto',
+    backdrop: 'auto',
+    logoStyle: 'pulse',
   };
 }

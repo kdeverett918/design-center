@@ -26,9 +26,12 @@ import {
   FOOTER_VARIANTS,
   HERO_VARIANTS,
   INTENSITIES,
+  LOGO_STYLES,
   NAV_VARIANTS,
   VOICES,
 } from '../../preview/previewConfig';
+import type { LogoStyle } from '../../preview/previewConfig';
+import { BACKDROP_OPTIONS } from '../../preview/backdrops';
 import { layoutPresets } from '../../data/layouts';
 import { buttonClasses } from '../ui/Button';
 
@@ -222,6 +225,22 @@ export default function PreviewControls({
                 options={FOOTER_VARIANTS}
                 value={config.footer}
                 onChange={(footer) => onConfig({ footer })}
+              />
+            </Row>
+            <Row label="Logo">
+              <Seg<LogoStyle>
+                ariaLabel="Brand mark style"
+                options={LOGO_STYLES}
+                value={config.logoStyle}
+                onChange={(logoStyle) => onConfig({ logoStyle })}
+              />
+            </Row>
+            <Row label="Backdrop">
+              <Seg<string>
+                ariaLabel="Hero backdrop"
+                options={BACKDROP_OPTIONS}
+                value={config.backdrop}
+                onChange={(backdrop) => onConfig({ backdrop })}
               />
             </Row>
           </Cluster>
