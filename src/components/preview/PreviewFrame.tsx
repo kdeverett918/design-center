@@ -5,6 +5,7 @@ import type { FontPairing, Palette } from '../../types';
 import type { PreviewConfig } from '../../preview/previewConfig';
 import { themeVars } from '../../theme/applyTheme';
 import { loadFonts } from '../../theme/loadFonts';
+import { resolvePalette } from '../../theme/variant';
 import SamplePage from './SamplePage';
 
 interface PreviewFrameProps {
@@ -40,7 +41,10 @@ export default function PreviewFrame({
     loadFonts(fonts);
   }, [fonts]);
 
-  const vars = useMemo(() => themeVars(palette, fonts), [palette, fonts]);
+  // The client's scheme choice resolves to the designed palette or its
+  // derived light/dark counterpart — everything downstream just reads tokens.
+  const effective = useMemo(() => resolvePalette(palette, config.scheme), [palette, config.scheme]);
+  const vars = useMemo(() => themeVars(effective, fonts), [effective, fonts]);
   const key = [
     selectionKey,
     config.hero,
@@ -49,11 +53,12 @@ export default function PreviewFrame({
     config.footer,
     config.sections.join('+'),
     config.motion,
+    config.scheme,
     replayNonce,
   ].join(':');
 
   return (
-    <div data-dark={palette.isDark ? 'true' : 'false'} style={vars as CSSProperties}>
+    <div data-dark={effective.isDark ? 'true' : 'false'} style={vars as CSSProperties}>
       {instantUpdates ? (
         <div key={key}>
           <SamplePage brand={brand} config={config} heroImage={heroImage} />

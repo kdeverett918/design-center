@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { Maximize2, Monitor, RotateCcw, Smartphone, SlidersHorizontal, Tablet } from 'lucide-react';
+import {
+  Maximize2,
+  Monitor,
+  Moon,
+  RotateCcw,
+  Smartphone,
+  SlidersHorizontal,
+  Sun,
+  SunMoon,
+  Tablet,
+} from 'lucide-react';
+import type { PreviewScheme } from '../../theme/variant';
 import type { AnimationIntensity } from '../../types';
 import type {
   CardStyle,
@@ -71,6 +82,14 @@ const DEVICES: { id: DeviceMode; icon: typeof Monitor; label: string }[] = [
   { id: 'mobile', icon: Smartphone, label: 'Mobile' },
 ];
 
+// Every design ships in light AND dark — this flips the previewed rendition
+// (auto = exactly as the designer built it).
+const SCHEME_OPTIONS: { id: PreviewScheme; icon: typeof Sun; label: string }[] = [
+  { id: 'auto', icon: SunMoon, label: 'As designed' },
+  { id: 'light', icon: Sun, label: 'Light mode preview' },
+  { id: 'dark', icon: Moon, label: 'Dark mode preview' },
+];
+
 export default function PreviewControls({
   config,
   onConfig,
@@ -96,6 +115,30 @@ export default function PreviewControls({
               onClick={() => onDevice(id)}
               className={`grid h-8 w-8 place-items-center rounded-md transition-colors ${
                 device === id
+                  ? 'bg-shell-glow text-shell-base shadow-sm'
+                  : 'text-shell-mute hover:text-shell-ink'
+              }`}
+            >
+              <Icon size={14} />
+            </button>
+          ))}
+        </div>
+
+        <div
+          role="group"
+          aria-label="Design color mode"
+          className="flex items-center gap-0.5 rounded-lg bg-shell-base p-0.5"
+        >
+          {SCHEME_OPTIONS.map(({ id, icon: Icon, label }) => (
+            <button
+              key={id}
+              type="button"
+              aria-label={label}
+              aria-pressed={config.scheme === id}
+              title={label}
+              onClick={() => onConfig({ scheme: id })}
+              className={`grid h-8 w-8 place-items-center rounded-md transition-colors ${
+                config.scheme === id
                   ? 'bg-shell-glow text-shell-base shadow-sm'
                   : 'text-shell-mute hover:text-shell-ink'
               }`}

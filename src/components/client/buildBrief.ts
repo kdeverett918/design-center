@@ -49,6 +49,7 @@ export function buildBriefText(p: BriefInput): string {
     `  Footer   ${layoutName(p.config.footer)}`,
     `  Sections ${p.config.sections.length ? p.config.sections.map(layoutName).join(', ') : 'none'}`,
     `  Motion   ${p.config.motion}`,
+    `  Mode     ${p.config.scheme === 'auto' ? 'as designed' : `${p.config.scheme} variant (derived)`}`,
     '',
     `Motion & effects:`,
     ...(p.animationIds?.length

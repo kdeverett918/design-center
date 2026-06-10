@@ -1,4 +1,5 @@
 import type { AnimationIntensity, Theme } from '../types';
+import type { PreviewScheme } from '../theme/variant';
 
 // The shape of a live preview: which hero, which card style, how much motion.
 // Drives both the theme presets and the à-la-carte mood board.
@@ -43,7 +44,19 @@ export interface PreviewConfig {
   /** Extra sections (by layout previewKey) inserted after the feature cards. */
   sections: string[];
   motion: AnimationIntensity;
+  /**
+   * Per-design color mode: 'auto' renders the palette as designed; 'light' /
+   * 'dark' resolve to a derived, contrast-checked variant when needed.
+   */
+  scheme: PreviewScheme;
 }
+
+export const SCHEMES: { id: PreviewScheme; label: string }[] = [
+  { id: 'auto', label: 'As designed' },
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+];
+const SCHEME_IDS = new Set<string>(SCHEMES.map((s) => s.id));
 
 export const NAV_VARIANTS: { id: NavVariant; label: string }[] = [
   { id: 'nav-sticky-clear', label: 'Sticky' },
@@ -150,6 +163,7 @@ export const DEFAULT_PREVIEW_CONFIG: PreviewConfig = {
   footer: 'footer-minimal',
   sections: [...DEFAULT_SECTIONS],
   motion: 'standard',
+  scheme: 'auto',
 };
 
 // Merge an untrusted (saved or shared-link) config onto the defaults, validating
@@ -170,6 +184,8 @@ export function sanitizePreviewConfig(raw: unknown): PreviewConfig {
     motion: INTENSITIES.includes(r.motion as AnimationIntensity)
       ? (r.motion as AnimationIntensity)
       : DEFAULT_PREVIEW_CONFIG.motion,
+    // Legacy tokens / saved boards predate scheme — default keeps them valid.
+    scheme: pick(r.scheme, SCHEME_IDS, DEFAULT_PREVIEW_CONFIG.scheme),
   };
 }
 
@@ -204,5 +220,6 @@ export function configForTheme(theme: Theme): PreviewConfig {
     footer: 'footer-minimal',
     sections: [...DEFAULT_SECTIONS],
     motion: theme.animationIntensity,
+    scheme: 'auto',
   };
 }

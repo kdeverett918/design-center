@@ -112,6 +112,27 @@ test.describe('Creative shell elements', () => {
 
 });
 
+test.describe('Per-design color mode', () => {
+  test('preview scheme toggle flips the design without touching the shell', async ({ page }) => {
+    await page.goto('/');
+    // Default board (Quiet Signal) is a light design.
+    const frame = page.locator('main [data-dark]').first();
+    await expect(frame).toHaveAttribute('data-dark', 'false');
+    const shellMode = await page.evaluate(() => document.documentElement.dataset.mode);
+
+    await page.getByRole('button', { name: 'Dark mode preview' }).click();
+    await expect(frame).toHaveAttribute('data-dark', 'true');
+    // The studio shell did not change — only the previewed design did.
+    expect(await page.evaluate(() => document.documentElement.dataset.mode)).toBe(shellMode);
+
+    // The brief records the choice (also present in the hidden print copy).
+    await expect(page.getByText(/dark variant \(derived\)/i).first()).toBeVisible();
+
+    await page.getByRole('button', { name: 'As designed' }).click();
+    await expect(frame).toHaveAttribute('data-dark', 'false');
+  });
+});
+
 test.describe('Mood board dropdown pickers', () => {
   test('palette dropdown re-themes the board', async ({ page }) => {
     await page.goto('/');

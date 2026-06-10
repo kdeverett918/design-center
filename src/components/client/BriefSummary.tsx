@@ -115,6 +115,14 @@ export default function BriefSummary(props: BriefSummaryProps) {
         <Row label="Footer" value={config.footer.replace('footer-', '').replace('-', ' ')} />
         <Row label="Sections" value={config.sections.length ? `${config.sections.length} chosen` : 'none'} />
         <Row label="Motion" value={config.motion} />
+        <Row
+          label="Color mode"
+          value={
+            config.scheme === 'auto'
+              ? 'as designed'
+              : `${config.scheme} variant (derived)`
+          }
+        />
       </dl>
 
       {/* motion & effects */}
@@ -287,6 +295,10 @@ function PrintBrief({ brand, themeName, palette, fonts, config, notes, animation
           v={config.sections.length ? config.sections.map(niceLabel).join(', ') : 'none'}
         />
         <PrintRow k="Motion" v={config.motion} />
+        <PrintRow
+          k="Color mode"
+          v={config.scheme === 'auto' ? 'As designed' : `${config.scheme} variant (derived)`}
+        />
       </PrintSection>
 
       <PrintSection title="Motion & effects">

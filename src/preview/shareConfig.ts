@@ -5,6 +5,7 @@ import {
   HERO_VARIANTS,
   INTENSITIES,
   NAV_VARIANTS,
+  sanitizePreviewConfig,
 } from './previewConfig';
 import { decodeToken, encodeToken } from '../lib/urlToken';
 
@@ -38,7 +39,9 @@ export function decodeConfig(param: string | null): PreviewConfig | null {
     typeof p.motion === 'string' &&
     MOTION.has(p.motion)
   ) {
-    return p as PreviewConfig;
+    // Newer optional fields (e.g. scheme) default through the sanitizer so
+    // tokens minted before they existed keep decoding.
+    return sanitizePreviewConfig(p);
   }
   return null;
 }
