@@ -297,13 +297,15 @@ export default function MoodBoardView() {
             Backgrounds, not <img> — the hidden mode's file never downloads.
             The shell-base scrims re-tint themselves when the mode flips. */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          {/* NB: /shell files are CDN-cached — rename (don't overwrite) when
+              swapping art, or edges keep serving the old image. */}
           <div
             className="hero-art-dark absolute inset-0 bg-cover bg-right"
-            style={{ backgroundImage: 'url(/shell/hero-dark.webp)' }}
+            style={{ backgroundImage: 'url(/shell/hero-dark-silk.webp)' }}
           />
           <div
             className="hero-art-light absolute inset-0 bg-cover bg-right"
-            style={{ backgroundImage: 'url(/shell/hero-light.webp)' }}
+            style={{ backgroundImage: 'url(/shell/hero-light-silk.webp)' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-shell-base via-shell-base/70 to-shell-base/10" />
           <div className="absolute inset-0 bg-gradient-to-t from-shell-base via-transparent to-transparent" />

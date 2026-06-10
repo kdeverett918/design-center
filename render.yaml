@@ -24,6 +24,10 @@ services:
       - path: /theme-images/*
         name: Cache-Control
         value: public, max-age=86400, stale-while-revalidate=604800
+      # Shell chrome imagery (hero art) — same policy; rename files on change.
+      - path: /shell/*
+        name: Cache-Control
+        value: public, max-age=86400, stale-while-revalidate=604800
       # The SPA shell must revalidate quickly so deploys reach clients fast.
       - path: /index.html
         name: Cache-Control
